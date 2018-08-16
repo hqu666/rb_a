@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<menu xmlns:android="http://schemas.android.com/apk/res/android"-->
+	  <!--xmlns:tools="http://schemas.android.com/tools"-->
+	  <!--tools:showIn="navigation_view">-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<group android:checkableBehavior="single">
+		<!--<item-->
+			<!--android:id="@+id/md_qr_read"-->
+			<!--android:icon="@drawable/ic_menu_camera"-->
+			<!--android:title="@string/menu_qr_read"/>-->
+
+		<item
+			android:id="@+id/md_call_main"
+			android:icon="@drawable/ic_menu_slideshow"
+			android:title="@string/menu_call_main"/>
+
+
+		<item
+			android:id="@+id/md_stand_alone"
+			android:icon="@drawable/ic_menu_gallery"
+			android:title="@string/menu_stand_alone"/>
+	</group>
+
+	<!--<item android:title="Communicate">-->
+		<!--<menu>-->
+			<!--<item-->
+				<!--android:id="@+id/mm_web_reconect"-->
+				<!--android:icon="@drawable/ic_menu_slideshow"-->
+				<!--android:title="@string/menu_web_reconect"/>-->
+			<!--<item-->
+				<!--android:id="@+id/nav_share"-->
+				<!--android:icon="@drawable/ic_menu_share"-->
+				<!--android:title="Share"/>-->
+			<!--<item-->
+				<!--android:id="@+id/nav_send"-->
+				<!--android:icon="@drawable/ic_menu_send"-->
+				<!--android:title="Send"/>-->
+		<!--</menu>-->
+	<!--</item>-->
+
+	<item
+		android:id="@+id/md_prefarence"
+		android:icon="@drawable/ic_menu_manage"
+		android:title="@string/menu_setting"/>
+	<item
+		android:id="@+id/md_quit"
+		android:icon="@android:drawable/ic_lock_power_off"
+		android:title="@string/menu_quit"/>
+
+</menu>

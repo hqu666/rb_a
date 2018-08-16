@@ -1,0 +1,121 @@
+<resources>
+	<string name="app_name">Recovery Brain</string>
+	<string	name="navigation_drawer_open">
+		Open
+		navigation
+		drawer
+	</string>
+	<string	name="navigation_drawer_close">
+		Close
+		navigation
+		drawer
+	</string>
+	<string	name="nav_header_subtitle">android.studio@android.com</string>
+	<string	name="nav_header_desc">Navigation
+		header</string>
+	<string name="rootUrlStr">http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080</string>
+	<string name="companyUrlStr">http://192.168.100.6:3080</string>
+	<string name="homeUrlStr">http://192.168.3.14:3080</string>
+	<string name="btf_re_scan">再読取</string>
+	<string name="menu_qr_read">QRコードから接続</string>
+	<string name="menu_call_main">メイン画面として接続</string>
+	<string name="menu_stand_alone">スタンドアロン</string>
+
+	<string name="menu_setting">設定</string>
+	<string name="menu_quit">終了</string>
+	<string name="menu_web_reconect">再接続</string>
+
+	<string name="conection_setting">接続設定</string>
+	<string name="rootUrl">URL</string>
+	<string name="testUrl">テストURL</string>
+
+	<string name="title_activity_video_chat">ホワイトボード</string>
+	<string name="can_not_conect_titol">現在接続できません</string>
+	<string name="can_not_conect_msg1">サーバからあなたの接続IDを得られません\n少し待って再接続して下さい。</string>
+	<string name="can_not_conect_msg2">接続できるお相手がログインしていません。\n接続先にログインして頂ける様、ご連絡ください。</string>
+	<string name="can_not_conect_msg3">少し時間を置いて再起動してください。</string>
+	<string name="conectlist_titol">接続先を選択して下さい。</string>
+	<string name="my_id_titol">この端末のID</string>
+	<string name="non_conect_now">現在、接続していません</string>
+	<string name="conect_now">接続しました</string>
+
+	<string name="camera_switch_caption">サブ/メイン切替</string>
+	<string name="camera_switch_caption2main">メインカメラへ</string>
+	<string name="camera_switch_caption2sub">サブカメラへ</string>
+	<string name="call_bt_caption2conect">接続</string>
+	<string name="call_bt_caption2disconect">切断</string>
+	<string name="partner_titol">接続先</string>
+	<string name="conect_situation_titol">接続状況</string>
+	<string name="select_dlog_msg">Backキーでキャンセル</string>
+	<string
+		name="title_activity_bottom_bar">
+		bottom_bar
+	</string>
+
+	<string name="service_id_titol">サービスID</string>
+
+	<string name="skyway_setting_titol">SkyWay接続状況</string>
+	<string name="peer_id_titol">PeerID</string>
+	<string name="partner_id_titol">接続先ID</string>
+	<string name="skyway_secret_key_titol">シークレットキー</string>
+	<string name="skyway_api_key_titol">APIキー</string>
+	<string name="available_domain_titol">利用可能ドメイン</string>
+	<string name="now_conection_meg">サーバに接続中です</string>
+
+	<string name="action_leave">Leave</string>
+	<string name="action_send">Send</string>
+	<string name="prompt_message">Message</string>
+
+	<string name="connect">接続しました</string>
+	<!--<string name="connect">Connected</string>-->
+	<string name="disconnect">接続が解除されました。</string>
+	<!--<string name="disconnect">Disconnected, Please check your internet connection</string>-->
+	<string name="error_connect">接続できませんでした</string>
+	<!--<string name="error_connect">Failed to connect</string>-->
+	<!-- messages -->
+	<string name="message_welcome">Welcome to Socket.IO Chat –</string>
+	<plurals name="message_participants">
+		<item quantity="one">there\'s %d participant</item>
+		<item quantity="other">there are %d participants</item>
+	</plurals>
+	<string name="message_user_joined">%s joined</string>
+	<string name="message_user_left">%s left</string>
+	<string name="user_action_typing">is typing</string>
+	<string name="socketio_setting">socket.IO設定状況</string>
+	<string name="socketio_url">接続先</string>
+
+	<string-array name="typeSelectList">
+		<item>フリーハンド</item>
+		<item>テキスト</item>
+		<item>直線</item>
+		<item>図形スタンプ</item>
+		<item>消しゴム</item>
+	</string-array>
+	<string-array name="typeSelectValList">
+		<item>free</item>
+		<item>text</item>
+		<item>line</item>
+		<item>stamp</item>
+		<item>erasre</item>
+	</string-array>
+	<!--線の太さ-->
+	<string-array name="lineWidthSelectList">
+		<item>1</item>
+		<item>5</item>
+		<item>20</item>
+		<item>50</item>
+	</string-array>
+	<!--先端-->
+	<string-array name="lineCapSelecttList">
+		<item>丸</item>
+		<item>四角</item>
+		<item>無し</item>
+	</string-array>
+	<string-array name="lineCapSelecttValList">
+		<item>round</item>
+		<item>square</item>
+		<item>butt</item>
+	</string-array>
+
+
+</resources>

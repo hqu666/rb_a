@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools">
+
+	<group android:checkableBehavior="single">
+
+		<item
+			android:id="@+id/web_menu_rewrite"
+			android:checkable="false"
+			android:checked="false"
+			android:title="再読込み"/>
+		<!--<string name="">カメラ起動</string>-->
+	</group>
+	<item android:title="移動">
+		<menu
+			>
+			<item
+				android:id="@+id/web_menu_url_change"
+				android:checkable="false"
+				android:title="URL指定"/>
+			<item
+				android:id="@+id/web_menu_hysteresis"
+				android:checkable="false"
+				android:title="履歴"/>
+			<item
+				android:id="@+id/web_menu_backpage"
+				android:title="前のページ"/>
+			<item
+				android:id="@+id/web_menu_prepage"
+				android:title="次のページ"/>
+		</menu>
+	</item>
+	<!--<item-->
+	<!--android:title="ブックマーク"-->
+	<!--&gt;-->
+	<!--<menu-->
+	<!--&gt;-->
+	<!--<item-->
+	<!--android:id="@+id/web_menu_bookmark_set"-->
+	<!--android:title="登録"/>-->
+	<!--<item-->
+	<!--android:id="@+id/web_menu_bookmark_get"-->
+	<!--android:title="選択"/>-->
+	<!--</menu>-->
+	<!--</item>-->
+	<item
+		android:title="その他"
+		>
+		<menu>
+			<item
+				android:id="@+id/web_menu_rescaling"
+				android:checkable="false"
+				android:title="サイズ合わせ"/>
+			<item
+				android:id="@+id/web_menu_zoom_enable"
+				android:checkable="false"
+				android:icon="@android:drawable/ic_menu_directions"
+				android:title="ズーム有効"/>
+			<item
+				android:id="@+id/web_menu_quit"
+				android:checkable="false"
+				android:icon="@android:drawable/ic_lock_power_off"
+				android:title="終了"/>
+
+		</menu>
+	</item>
+
+</menu>

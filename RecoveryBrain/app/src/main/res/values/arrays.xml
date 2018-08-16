@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<array name="url_array">
+		<item>@string/rootUrlStr</item>
+		<item>@string/companyUrlStr</item>
+		<item>@string/homeUrlStr</item>
+	</array>
+
+</resources>
