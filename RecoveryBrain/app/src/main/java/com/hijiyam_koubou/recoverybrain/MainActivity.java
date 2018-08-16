@@ -122,21 +122,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					return;
 				}
 			}
-//			dbMsg += ",isReadPref=" + isReadPref;
-//			MyPreferenceFragment prefs = new MyPreferenceFragment();
-//			prefs.readPref(this);
-//			service_id = prefs.service_id;                    //サービスサーバのID
-////			dbMsg = ",service_id=" + service_id;
-//			peer_id = prefs.peer_id;                        //SkyWayで取得しているこの端末のID
-//			dbMsg += ",peer_id=" + peer_id;
-//			partner_id = prefs.partner_id;                    //SkyWayに接続要求する相手端末のID
-//			dbMsg += ",partner_id=" + partner_id;
-//			API_KEY = prefs.API_KEY;                        //SkyWayに接続する為のAPIキー
-////			dbMsg = ",API_KEY=" + API_KEY;
-//			sw_secret_key = prefs.sw_secret_key;                //SkyWayでAPIキーと合わせて発行されるシークレットキー
-////			dbMsg += ",sw_secret_key=" + sw_secret_key;
-//			DOMAIN = prefs.DOMAIN;    //SkyWayに登録した利用可能ドメイン
-////			dbMsg += ",DOMAIN=" + DOMAIN;
+			dbMsg += ",isReadPref=" + isReadPref;
+			MyPreferenceFragment prefs = new MyPreferenceFragment();
+			prefs.readPref(this);
+			rootUrlStr = prefs.rootUrlStr;
+			dbMsg += ",rootUrlStr=" + rootUrlStr;
 
 			sharedPref = PreferenceManager.getDefaultSharedPreferences(this);            //	getActivity().getBaseContext()
 			myEditor = sharedPref.edit();
