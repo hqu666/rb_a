@@ -13,7 +13,9 @@
 			android:selectAllOnFocus="true"
 			android:singleLine="true"
 			android:summary="@string/rootUrlStr"
-			android:title="@string/rootUrl"/>
+			android:title="@string/rootUrl"
+			android:dialogTitle="@string/partner_titol"
+			/>
 
 		<ListPreference
 			android:defaultValue="@string/rootUrlStr"
@@ -21,7 +23,9 @@
 			android:entryValues="@array/url_array"
 			android:key="testUrlt_key"
 			android:summary="%s"
-			android:title="@string/testUrl"/>
+			android:title="@string/testUrl"
+			android:dialogTitle="@string/partner_titol"
+			/>
 		<!--android:summary="@string/video_output_format_mpeg_4"-->
 
 	</PreferenceScreen>

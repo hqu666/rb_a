@@ -1,72 +1,40 @@
 package com.hijiyam_koubou.recoverybrain;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.KeyEvent;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
-import android.app.Activity;
-import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusCallback;
-import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.Size;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.PlanarYUVLuminanceSource;
-import com.google.zxing.Reader;
-import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 	private Toolbar toolbar;
@@ -80,13 +48,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private LinearLayout scam_ll ;
 	private DecoratedBarcodeView qrReaderView;
 	private ImageButton release_bt ;
+	private LinearLayout coment_ll;
+
 	private LinearLayout prevew_ll;
 //	private ImageView preveiw_iv;
 	private Button acsess_bt;
 	private Button rescan_bt;
 
-	private Camera mCamera;
-	
+
 	//プリファレンス設定
 	SharedPreferences myNFV_S_Pref;
 	SharedPreferences.Editor pNFVeditor;
@@ -105,8 +74,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		try {
 			if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {                //(初回起動で)全パーミッションの許諾を取る
 				dbMsg = "許諾確認";
-				String[] PERMISSIONS = { Manifest.permission.INTERNET , Manifest.permission.CAMERA};
-//				Manifest.permission.ACCESS_NETWORK_STATE , Manifest.permission.ACCESS_WIFI_STATE ,   , Manifest.permission.MODIFY_AUDIO_SETTINGS , Manifest.permission.RECORD_AUDIO , Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.MODIFY_AUDIO_SETTINGS
+				String[] PERMISSIONS = { Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.WRITE_EXTERNAL_STORAGE,
+						Manifest.permission.INTERNET , Manifest.permission.CAMERA };
+//				Manifest.permission.ACCESS_NETWORK_STATE , Manifest.permission.ACCESS_WIFI_STATE ,
+// , Manifest.permission.MODIFY_AUDIO_SETTINGS , Manifest.permission.RECORD_AUDIO ,  Manifest.permission.MODIFY_AUDIO_SETTINGS,
 				boolean isNeedParmissionReqest = false;
 				for ( String permissionName : PERMISSIONS ) {
 					dbMsg += "," + permissionName;
@@ -170,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			scam_ll = (LinearLayout ) findViewById(R.id.scam_ll);
 			qrReaderView = (DecoratedBarcodeView) findViewById(R.id.decoratedBarcodeView);
 			release_bt = (ImageButton) findViewById(R.id.release_bt);
+			coment_ll = (LinearLayout ) findViewById(R.id.coment_ll);
 
 			prevew_ll = (LinearLayout ) findViewById(R.id.prevew_ll);
 //			preveiw_iv = (ImageView ) findViewById(R.id.preveiw_iv);
@@ -291,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		try {
 			switch ( requestCode ) {
 				case REQUEST_PREF:                                //Prefarensからの戻り
-//					readPref();
+					readPref();
 					break;
 			}
 //			IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -513,6 +485,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					Intent webIntent = new Intent(this , CS_Web_Activity.class);
 					String dataURI = rootUrlStr;
 					dbMsg += "dataURI=" + dataURI;
+//					final Date date = new Date(System.currentTimeMillis());
+//					final DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+//					dataURI += "/?room=" +df.format(date);
+////					CS_Util UTIL = new CS_Util();
+////					dataURI += "/?room=" + UTIL.retDateStr(date , "yyyyMMddhhmmss");
+//					dbMsg += ">>" + dataURI;
 					webIntent.putExtra("dataURI" , dataURI);                        //最初に表示するページのパス
 //					baseUrl = "file://"+extras.getString("baseUrl");				//最初に表示するページを受け取る
 //					fType = extras.getString("fType");							//データタイプ
@@ -602,8 +580,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					final String TAG = "rescan_bt[MA]";
 					String dbMsg = "";
 					try {
-						prevew_ll.setVisibility(View.GONE);
-//						release_bt.setVisibility(View.VISIBLE);
+						reStart();    //☆再スキャンできないのでリスタート
+//						startCapture();
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -639,36 +617,70 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 	}
 
+	public void reStart() {
+		final String TAG = "reStart[MA}";
+		String dbMsg = "";
+		try {
+			Intent intent = new Intent();
+			intent.setClass(this , this.getClass());
+			this.startActivity(intent);
+			this.finish();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 //camera ///////////////////////////////////////////////////////////////////////////////
 	private void startCapture() {
 		final String TAG = "startCapture[MA]";
 		String dbMsg = "";
 		try {
-//		startButton?.isEnabled = false
+			prevew_ll.setVisibility(View.GONE);
+			coment_ll.setVisibility(View.VISIBLE);
+//						release_bt.setVisibility(View.VISIBLE);
 			qrReaderView.decodeSingle(new BarcodeCallback() {
 				@Override
 				public void barcodeResult(BarcodeResult barcodeResult) {
-					final String TAG = "startCapture[MA]";
+					final String TAG = "barcodeResult[MA]";
 					String dbMsg = "";
 					try {
 						String dataURI  = barcodeResult.getText();
 						dbMsg = ",dataURI="+dataURI;
-						release_bt.setVisibility(View.GONE);
+						if(dataURI.startsWith("http")) {
+							coment_ll.setVisibility(View.GONE);
+							release_bt.setVisibility(View.GONE);
 //						acsess_bt.setVisibility(View.VISIBLE);
 //						scam_ll.setVisibility(View.GONE);
-						prevew_ll.setVisibility(View.VISIBLE);
+							prevew_ll.setVisibility(View.VISIBLE);
 //					preveiw_iv = (ImageView ) findViewById(R.id.preveiw_iv);
-						acsess_bt.setText(dataURI);
-						navi_head_sub_tv.setText(dataURI);
+							acsess_bt.setText(dataURI);
+
+//						Bitmap bitmap = barcodeEncoder.encodeBitmap(data,BarcodeFormat.QR_CODE, size, size);
+
+//						navi_head_sub_tv.setText(dataURI);
+						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+						
 					}
 
 				}
 
 				@Override
-				public void possibleResultPoints(List<ResultPoint > list) {}
+				public void possibleResultPoints(List<ResultPoint > list) {
+					final String TAG = "possibleResultPoints[MA]";
+					String dbMsg = "";
+					try {
+//						dbMsg += "list = " + list.size() + "件";
+//						for (Object  rStr: list){
+//							dbMsg += "\n = " + rStr;
+//						}
+//						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
 			});
 //		qrReaderView?.decodeSingle(object : BarcodeCallback {
 //			override fun barcodeResult(result: BarcodeResult?) {

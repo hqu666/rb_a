@@ -213,23 +213,24 @@ public class CS_Web_Activity extends Activity {
 			if ( webView.canGoBack() ) {        //戻るページがあれば
 				webView.goBack();                    //ページ履歴で1つ前のページに移動する
 			} else {                            //無ければ終了
-				String titolStr ="バックキーが押されました";
-				String mggStr="webビューを終了しますか？";
-				new AlertDialog.Builder(this)
-						.setTitle(titolStr)
-						.setMessage(mggStr)
-						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								quitMe();            //このActivtyの終了
-							}
-						})
-						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-							}
-						})
-						.create().show();
+				quitMe();            //このActivtyの終了
+//				String titolStr ="バックキーが押されました";
+//				String mggStr="webビューを終了しますか？";
+//				new AlertDialog.Builder(this)
+//						.setTitle(titolStr)
+//						.setMessage(mggStr)
+//						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//							@Override
+//							public void onClick(DialogInterface dialog, int which) {
+//								quitMe();            //このActivtyの終了
+//							}
+//						})
+//						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//							@Override
+//							public void onClick(DialogInterface dialog, int which) {
+//							}
+//						})
+//						.create().show();
 			}
 		} catch (Exception e) {
 			Log.e("wGoBack" , e.toString());
@@ -288,20 +289,21 @@ public class CS_Web_Activity extends Activity {
 		final String TAG = "setURL[WabA]";
 		String dbMsg = "";
 		try {
-			String titolStr = "URL設定";
-			String mggStr = "手入力で移動先のURLを入力して下さい。";
+			String titolStr = getString(R.string.wv_set_url_titol);			//"URL設定";
+			String mggStr = getString(R.string.wv_set_url_msg);			//"手入力で移動先のURLを入力して下さい。";
 			final EditText editView = new EditText(this);
+			editView.setText(webView.getUrl());
 			new AlertDialog.Builder(this)
 //					.setIcon(android.R.drawable.ic_dialog_info)
 					.setTitle(titolStr).setMessage(mggStr).setView(editView).setPositiveButton("OK" , new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog , int whichButton) {
 					MLStr = editView.getText().toString();
 					if ( MLStr != null && !MLStr.equals("") ) {
-						Toast.makeText(getApplicationContext() , MLStr + "へ移動中…" , Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext() , MLStr +  getString(R.string.wv_move_now) , Toast.LENGTH_LONG).show();
 						setNewPage(MLStr);         //192.168.100.6:3080
 					}
 				}
-			}).setNegativeButton("キャンセル" , new DialogInterface.OnClickListener() {
+			}).setNegativeButton(getString(R.string.common_cancel) , new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog , int whichButton) {
 				}
 			}).show();
@@ -367,6 +369,10 @@ public class CS_Web_Activity extends Activity {
 		String dbMsg = "";
 		try {
 			webView.clearCache(true);    //
+
+			String msg = webView.getOriginalUrl() + " ...." +  getString(R.string.wv_reload_now);
+			Toast.makeText(getApplicationContext() , msg , Toast.LENGTH_LONG).show();
+
 			webView.reload();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -374,6 +380,9 @@ public class CS_Web_Activity extends Activity {
 		}
 	}
 
+	/**
+	 * 指定したスクリプトを実行
+	 * **/
 	public void executionJavascript(String scripyName) {
 		final String TAG = "executionJavascript[WabA]";
 		String dbMsg = "scripyName=" + scripyName;                        //     "foo()"  など
@@ -457,6 +466,7 @@ public class CS_Web_Activity extends Activity {
 					wZoomUp();                        //ズームアップして上限に達すればfalse
 				case KeyEvent.KEYCODE_VOLUME_DOWN:    //25
 					wZoomDown();                    //ズームダウンして下限に達すればfalse
+				case KeyEvent.KEYCODE_HOME:
 				case KeyEvent.KEYCODE_BACK:            //4KEYCODE_BACK :keyCode；09SH: keyCode；4,event=KeyEvent{action=0 code=4 repeat=0 meta=0 scancode=158 mFlags=72}
 					wGoBack();					//ページ履歴で1つ前のページに移動する;
 				default:
@@ -574,7 +584,6 @@ public class CS_Web_Activity extends Activity {
 			dbBlock = "MenuItem" + item.getItemId() + "を操作";////////////////////////////////////////////////////////////////////////////
 			switch ( item.getItemId() ) {
 				case R.id.web_menu_rewrite:                        //再読込み
-					Toast.makeText(getApplicationContext() , "再読み込み中…" , Toast.LENGTH_LONG).show();
 					clearCacheNow();
 					return true;
 				case R.id.web_menu_url_change:                        //URL変更

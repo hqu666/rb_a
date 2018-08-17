@@ -101,9 +101,12 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 			testUrlt_key = ( ListPreference ) sps.findPreference("testUrlt_key");
 			dbMsg += ",testUrlStr=" + testUrlStr;
 			if ( findPreference("testUrlt_key") != null ) {
-				testUrlArray = getResources().obtainTypedArray(R.array.url_array);
-//				String audioSourceName = testUrlArray.getString(vi_audioSource);
 				testUrlt_key.setSummary(testUrlStr);
+
+//				testUrlArray = getResources().obtainTypedArray(R.array.url_array);
+////				testUrlArray.
+//				String[] urls = getResources().getStringArray(R.array.url_array);
+
 //				video_audio_source_key.setValue(audioSourceName);
 //				summaryStr += "," + getResources().getString(R.string.audio_source) + ":" + audioSourceName;
 			}
@@ -173,7 +176,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 		final String TAG = "onDestroy[MPF]";
 		String dbMsg = "開始";
 		try {
-
 			myLog(TAG , dbMsg);
 		} catch (Exception e) {
 			Log.e(TAG , dbMsg + "で" + e.toString());
@@ -182,7 +184,8 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	}                                                            //切替時⑥
 
 	/**
-	 * 変更された項目の実変更の取得
+	 * 変更された項目の更新
+	 * 2階層目以降の連携更新もここで行う
 	 * @param key 変更された項目のkey
 	 *            照合の為に文字列定数を使う
 	 */
@@ -192,25 +195,29 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 		String dbMsg = "設定変更;";/////////////////////////////////////////////////
 		try {
 			dbMsg +=key;
-//			String pVal = ( String ) testUrlt_key.getSummary();
-//			dbMsg += ",testUrlt_key=" + pVal;
 			if ( key.equals("testUrlt_key") ) {
-				String pVal = ( String ) testUrlt_key.getSummary();
-				dbMsg += ",testUrlt_key=" + pVal;
-				if ( ! pVal.contains("") ) {
-					rootUrl_key.setSummary(rootUrlStr);
+				dbMsg += ",testUrlStr=" + sharedPref.getString(key , testUrlStr);
+				String pEntry = ( String )testUrlt_key.getEntry();
+				String pVal = ( String ) testUrlt_key.getValue();
+				dbMsg += ",Entry=" + pEntry + " ,Value=" + pVal;
+				if ( ! pVal.contains(testUrlStr) ) {
+					testUrlStr =  pVal;
 					myEditor.putString("rootUrl_key" , pVal);
 					myEditor.putString("testUrlt_key" , pVal);
 					dbMsg += ",更新";
 					myEditor.commit();
 					dbMsg += "完了";
+					rootUrlStr = sharedPref.getString("rootUrl_key", rootUrlStr);
+					rootUrl_key.setSummary(rootUrlStr);
+					testUrlStr = sharedPref.getString("testUrlt_key" , testUrlStr);
+					testUrlt_key.setSummary(testUrlStr);
+					String wrString = getResources().getString(R.string.rootUrl) + "=" + rootUrlStr + "\n" + getResources().getString(R.string.testUrl) + "=" + testUrlStr;
+					dbMsg += ";書き換え=" + wrString;
+					conection_setting_key.setSummary(wrString);
 				}
-				String val = getResources().getString(R.string.rootUrl) + "=" + rootUrlStr + "\n" +
-									 getResources().getString(R.string.testUrl) + "=" + pVal;
-//						testUrlt_key.setSummary(rootUrlStr);
 			}
 
-			reloadSummary();
+//			reloadSummary();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + "でエラー発生；" + er);
@@ -220,6 +227,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	//各項目のプリファレンス上の設定///////////////////////////////////////////////////////////////////////////
 
 	/**
+	 * サマリーの更新
 	 * https://qiita.com/noppefoxwolf/items/18e785f4d760f7cc4314
 	 * 一階層目しか反映されていない
 	 */
@@ -264,10 +272,10 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					dbMsg += ";" + key + ";" + val;
 					if ( key.equals(rootUrl_key) ) {
 						rootUrlStr = val;
-						dbMsg += ",up_scale=" + val;
+						dbMsg += ",rootUrlStr=" + val;
 						dbMsg += "," + getResources().getString(R.string.rootUrl) + "=" + rootUrlStr;
 					}
-					pref.setSummary(rootUrlStr);
+					pref.setSummary(val);
 				} else if ( item instanceof CheckBoxPreference ) {
 					dbMsg += "CheckBoxPreference;";
 					CheckBoxPreference pref = ( CheckBoxPreference ) item;
@@ -289,48 +297,39 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					int pIndex = pref.findIndexOfValue(pVal);
 					dbMsg += ";" + key + ";" + pIndex + ")" + pVal;
 					pref.setSummary(pVal);
-					if ( key.equals("testUrlt_key") ) {
-						dbMsg += ",rootUrlStr=" + rootUrlStr;
-//						String rStr = setTestURL(pIndex);
-//						dbMsg += ">>=" + rStr;
-						if ( rootUrlStr != key ) {
-							myEditor.putString("testUrlt_key" , pVal) ;
-							testUrlt_key.setSummary(pVal);
-							myEditor.putString("rootUrl_key" , pVal) ;
-							rootUrl_key.setSummary(pVal);
-							;
-							dbMsg += ",更新";
-							myEditor.commit();
-							dbMsg += "完了";
-							//							Object tItem = adapter.getItem(waiting_scond_index);
-//							EditTextPreference tPref = ( EditTextPreference ) tItem;
-//							tPref.setDefaultValue(pVal);
-//							tPref.setText(pVal);
-						}
-					}
+//					if ( key.equals("testUrlt_key") ) {
+//						dbMsg += ",rootUrlStr=" + rootUrlStr;
+////						String rStr = setTestURL(pIndex);
+////						dbMsg += ">>=" + rStr;
+//						if ( rootUrlStr != key ) {
+//							myEditor.putString("testUrlt_key" , pVal) ;
+//							testUrlt_key.setSummary(pVal);
+//							myEditor.putString("rootUrl_key" , pVal) ;
+//							rootUrl_key.setSummary(pVal);
+//							;
+//							dbMsg += ",更新";
+//							myEditor.commit();
+//							dbMsg += "完了";
+//							//							Object tItem = adapter.getItem(waiting_scond_index);
+////							EditTextPreference tPref = ( EditTextPreference ) tItem;
+////							tPref.setDefaultValue(pVal);
+////							tPref.setText(pVal);
+//						}
+//					}
 				} else if ( item instanceof PreferenceScreen ) {
 					dbMsg += "PreferenceScreen;";
 					PreferenceScreen pref = ( PreferenceScreen ) item;
 					String key = pref.getKey();
-					dbMsg += ";" + key;
+					dbMsg += ";key=" + key;
 					//     List<String> vals = new ArrayList<String>();
 //					List< String > keyList = new ArrayList< String >();
 					String wrString = "";
-					dbMsg += ",wrString=" + wrString;
 					if ( key.equals("conection_setting_key") ) {
-						String pVal = ( String ) testUrlt_key.getSummary();
-						dbMsg += ",testUrlt_key=" + pVal;
-						if ( ! pVal.contains("") ) {
-							rootUrl_key.setSummary(rootUrlStr);
-							myEditor.putString("rootUrl_key" , pVal);
-							myEditor.putString("testUrlt_key" , pVal);
-							dbMsg += ",更新";
-							myEditor.commit();
-							dbMsg += "完了";
-						}
-						String val = getResources().getString(R.string.rootUrl) + "=" + rootUrlStr + "\n" +
-											 getResources().getString(R.string.testUrl) + "=" + pVal;
-//						testUrlt_key.setSummary(rootUrlStr);
+						rootUrlStr = sharedPref.getString(key , rootUrlStr);
+						testUrlStr = sharedPref.getString(key , testUrlStr);
+						wrString = getResources().getString(R.string.rootUrl) + "=" + rootUrlStr + "\n" +
+											 getResources().getString(R.string.testUrl) + "=" + testUrlStr;
+						dbMsg += ",wrString=" + wrString;
 					}
 					pref.setSummary(wrString);
 				} else if ( item instanceof Preference ) {
@@ -343,9 +342,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					pref.setSummary(pVal);
 				}
 			}
-//			if( ! conectionSummaryStr.contains("") ){
-//				conection_setting_key.setSummary(conectionSummaryStr);        //接続設定
-//			}
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -377,8 +373,8 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					rootUrlStr = sharedPref.getString(key , rootUrlStr);
 					dbMsg += ",rootUrlStr=" + rootUrlStr;
 				}else if ( key.equals("testUrlt_key") ) {
-					rootUrlStr = sharedPref.getString(key , rootUrlStr);
-					dbMsg += ",rootUrlStr=" + rootUrlStr;
+					testUrlStr = sharedPref.getString(key , rootUrlStr);
+					dbMsg += ",testUrlStr=" + testUrlStr;
 				}
 
 			}

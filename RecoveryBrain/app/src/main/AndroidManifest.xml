@@ -2,7 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		  package="com.hijiyam_koubou.recoverybrain">
 	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.FLASHLIGHT"/>
 	<uses-permission android:name="android.permission.INTERNET"/> 	<!--忘れるとnet;;ERR_CACHE_MISS-->
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+	<uses-feature android:name="android.hardware.camera" />
+	<uses-feature android:name="android.hardware.camera.autofocus" />
 
 	<application
 		android:allowBackup="true"
