@@ -1,9 +1,18 @@
 package com.hijiyam_koubou.recoverybrain;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 //
@@ -28,6 +37,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 //import android.graphics.Picture;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -47,14 +57,23 @@ import android.webkit.WebView;
 //import android.webkit.WebView.PictureListener;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 //インターネットに出るにはAndroidManifest.xmlを開きandroid.permission.INTERNET
 //import android.widget.ImageView;
 //import android.widget.TextView;
 //import android.widget.Toast;
 
-public class CS_Web_Activity extends Activity {
-
+public class CS_Web_Activity extends Activity  implements NavigationView.OnNavigationItemSelectedListener  {
+	private Toolbar toolbar;
+	public ActionBarDrawerToggle abdToggle;        //アニメーションインジケータ
+	public NavigationView navigationView;
+	private DrawerLayout drawer;
+	public ImageView navi_head_iv;
+	public TextView nave_head_main_tv;
+	public TextView navi_head_sub_tv;
+	
 	public WebView webView;
 	public WebSettings settings;
 	public String dbBlock = "";
@@ -85,6 +104,33 @@ public class CS_Web_Activity extends Activity {
 	public final CharSequence CTM_WQKIT_BAC = "1ページ戻る";
 	public final CharSequence CTM_WQKIT_END = "表示終了";
 
+	public static SharedPreferences sharedPref;
+	public SharedPreferences.Editor myEditor;
+	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";					//	String dataURI = "http://192.168.3.14:3080";	//自宅
+	public boolean isReadPref = false;
+
+	/**
+	 * このアプリケーションの設定ファイル読出し
+	 **/
+	public void readPref() {
+		final String TAG = "readPref[MA]";
+		String dbMsg = "許諾済み";//////////////////
+		try {
+			dbMsg += ",isReadPref=" + isReadPref;
+			MyPreferenceFragment prefs = new MyPreferenceFragment();
+			prefs.readPref(this);
+			rootUrlStr = prefs.rootUrlStr;
+			dbMsg += ",rootUrlStr=" + rootUrlStr;
+
+			sharedPref = PreferenceManager.getDefaultSharedPreferences(this);            //	getActivity().getBaseContext()
+			myEditor = sharedPref.edit();
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {        //org;publicvoid
@@ -105,6 +151,9 @@ public class CS_Web_Activity extends Activity {
 
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
 			setContentView(R.layout.activity_cs_web);
+			
+			initDrawer();
+
 			webView = ( WebView ) findViewById(R.id.webview);        // Webビューの作成
 //			webView.setVerticalScrollbarOverlay(false);					//縦スクロール有効
 			settings = webView.getSettings();
@@ -146,13 +195,176 @@ public class CS_Web_Activity extends Activity {
 
 			});
 			setNewPage(MLStr);
-			registerForContextMenu(webView);
+			registerForContextMenu(webView);     //コンテキストメニューをwebViewに割付け
 //			webView.loadUrl(requestToken);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+
+	///ハンバーガーメニュー//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	@Override
+//	public void onBackPressed() {
+////		DrawerLayout drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
+//		if ( drawer.isDrawerOpen(GravityCompat.START) ) {
+//			drawer.closeDrawer(GravityCompat.START);
+//		} else {
+//			super.onBackPressed();
+//		}
+//	}
+//
+//	@Override
+//	protected void onPostCreate(Bundle savedInstanceState) {
+//		super.onPostCreate(savedInstanceState);
+//		final String TAG = "onPostCreate[MA}";
+//		String dbMsg = "";
+//		try {
+//			abdToggle.syncState();    //NaviIconの回転アニメーションなど   Attempt to invoke virtual method 'void android.support.v7.app.ActionBarDrawerToggle.syncState()' on a null object reference
+//			myLog(TAG, dbMsg);
+//		} catch (Exception e) {
+//			myErrorLog(TAG, dbMsg + "で" + e.toString());
+//		}
+//	}
+//
+//	@Override
+//	public void onConfigurationChanged(Configuration newConfig) {
+//		super.onConfigurationChanged(newConfig);
+//		final String TAG = "onConfigurationChanged[MA}";
+//		String dbMsg = "";
+//		try {
+//			abdToggle.onConfigurationChanged(newConfig);
+//			myLog(TAG, dbMsg);
+//		} catch (Exception e) {
+//			myErrorLog(TAG, dbMsg + "で" + e.toString());
+//		}
+//	}
+
+	/**
+	 * NaviViewの初期設定
+	 * 開閉のイベント設定
+	 **/
+	public void initDrawer() {            //http://qiita.com/androhi/items/f12b566730d9f951b8ec
+		final String TAG = "initDrawer[MA}";
+		String dbMsg = "";
+		try {
+			//		nvh_img = ( ImageView ) findViewById(R.id.nvh_img);                //NaviViewヘッダーのアイコン
+			drawer = ( DrawerLayout ) findViewById(R.id.web_dl);
+			myLog(TAG, dbMsg);
+//			abdToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//			abdToggle.setDrawerIndicatorEnabled(true);
+//			drawer.setDrawerListener(abdToggle);    //Attempt to invoke virtual method 'void android.support.v4.widget.DrawerLayout.setDrawerListener(android.support.v4.widget.DrawerLayout$DrawerListener)' on a null object reference
+//			getSupportActionBar().setDisplayHomeAsUpEnabled(true);            //左矢印←アイコンになる
+//			getSupportActionBar().setDisplayShowHomeEnabled(true);
+//			myLog(TAG, dbMsg);
+			navigationView = ( NavigationView ) findViewById(R.id.web_nv);
+			navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+				@Override
+				public boolean onNavigationItemSelected(MenuItem menuItem) {
+					final String TAG = "onNavigationItemSelected[MyActivity.initDrawer]";
+					String dbMsg = "MenuItem" + menuItem.toString();/////////////////////////////////////////////////
+					boolean retBool = false;
+					try {
+						retBool = funcSelected(menuItem);
+						CS_Web_Activity.this.drawer.closeDrawers();
+					} catch (Exception e) {
+						myLog(TAG, dbMsg + "で" + e.toString());
+						return false;
+					}
+					return retBool;
+				}
+			});
+		} catch (Exception e) {
+			myErrorLog(TAG, dbMsg + "で" + e.toString());
+		}
+	}                                                                    //NaviViewの初期設定
+
+	@SuppressWarnings ( "StatementWithEmptyBody" )
+	@Override
+	public boolean onNavigationItemSelected(MenuItem item) {
+		// Handle navigation view item clicks here.
+//		int id = item.getItemId();
+		funcSelected(item);
+//		DrawerLayout drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
+		drawer.closeDrawer(GravityCompat.START);
+		return true;
+	}
+
+
+	/**
+	 * MainActivityのメニュー
+	 * ドロワーと共通になるので関数化
+	 */
+	public boolean funcSelected(MenuItem item) {
+		final String TAG = "funcSelected[MA}";
+		String dbMsg = "MenuItem" + item.toString();/////////////////////////////////////////////////
+		try {
+			Bundle bundle = new Bundle();
+			int id = item.getItemId();
+			dbMsg = "id=" + id;
+			switch ( id ) {
+				case R.id.md_qr_read:     //QRコードから接続
+					callQuit();
+//					Intent qra = new Intent(this , QRActivity.class);
+//					startActivity(qra);
+					break;
+				case R.id.md_stand_alone:          //スタンドアロン
+				case R.id.mm_stand_alone:          //スタンドアロン
+					Intent saIntent = new Intent(this , StandAloneActivity.class);
+					startActivity(saIntent);
+					break;
+				case R.id.wd_web_menu:     //webメニュー
+//					registerForContextMenu(webView);     //コンテキストメニューをwebViewに割付け
+					break;
+					case R.id.md_prefarence:      //設定
+				case R.id.mm_prefarence:      //設定
+					Intent settingsIntent = new Intent(CS_Web_Activity.this , MyPreferencesActivty.class);
+					startActivityForResult(settingsIntent , REQUEST_PREF);//		StartActivity(intent);
+					break;
+				case R.id.md_quit:
+				case R.id.mm_quit:
+					callQuit();
+					break;
+
+				default:
+					break;
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
+		return false;
+	}                                        //メニューとDrowerからの画面/機能選択
+
+	static final int REQUEST_PREF = 100;                          //Prefarensからの戻り
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		final String TAG = "onActivityResult[MA]";
+		String dbMsg = "requestCode=" + requestCode + ",resultCode=" + resultCode;
+		try {
+			switch ( requestCode ) {
+				case REQUEST_PREF:                                //Prefarensからの戻り
+					readPref();
+					break;
+			}
+//			IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+//			if(result != null) {
+//				String dataURI  = result.getContents();
+//				dbMsg = ",dataURI="+dataURI;
+//				Intent webIntent = new Intent(this , CS_Web_Activity.class);
+//				webIntent.putExtra("dataURI" , dataURI);
+//				startActivity(webIntent);
+//			} else {
+//				super.onActivityResult(requestCode, resultCode, data);
+//			}
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 	public String retML(String dataStr) {        //受け取ったデータによってHTMLを変える
 		String retStr = null;
@@ -166,11 +378,11 @@ public class CS_Web_Activity extends Activity {
 	}
 
 
-	public void quitMe() {            //このActivtyの終了
+	public void callQuit() {            //このActivtyの終了
 		try {
 			this.finish();
 		} catch (Exception e) {
-			Log.e("quitMe" , "wKitで" + e.toString());
+			Log.e("callQuit" , "wKitで" + e.toString());
 		}
 	}
 
@@ -213,7 +425,7 @@ public class CS_Web_Activity extends Activity {
 			if ( webView.canGoBack() ) {        //戻るページがあれば
 				webView.goBack();                    //ページ履歴で1つ前のページに移動する
 			} else {                            //無ければ終了
-				quitMe();            //このActivtyの終了
+				callQuit();            //このActivtyの終了
 //				String titolStr ="バックキーが押されました";
 //				String mggStr="webビューを終了しますか？";
 //				new AlertDialog.Builder(this)
@@ -222,7 +434,7 @@ public class CS_Web_Activity extends Activity {
 //						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 //							@Override
 //							public void onClick(DialogInterface dialog, int which) {
-//								quitMe();            //このActivtyの終了
+//								callQuit();            //このActivtyの終了
 //							}
 //						})
 //						.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -545,7 +757,7 @@ public class CS_Web_Activity extends Activity {
 					return true;
 
 				case MENU_WQKIT_END:                        //終了";
-					quitMe();            //このActivtyの終了
+					callQuit();            //このActivtyの終了
 					return true;
 			}
 			myLog(TAG , dbMsg);
@@ -611,7 +823,7 @@ public class CS_Web_Activity extends Activity {
 					zoomSetting();
 					return true;
 				case R.id.web_menu_quit:                        //終了";
-					quitMe();            //このActivtyの終了
+					callQuit();            //このActivtyの終了
 					return true;
 			}
 			return true; // 処理に成功したらtrueを返す

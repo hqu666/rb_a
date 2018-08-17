@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<menu xmlns:android="http://schemas.android.com/apk/res/android"-->
+	  <!--xmlns:tools="http://schemas.android.com/tools"-->
+	  <!--tools:showIn="navigation_view">-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<group android:checkableBehavior="single">
+		<item
+			android:id="@+id/md_qr_read"
+			android:icon="@drawable/ic_menu_camera"
+			android:title="@string/menu_qr_read"/>
+
+		<!--<item-->
+			<!--android:id="@+id/md_call_main"-->
+			<!--android:icon="@drawable/ic_menu_slideshow"-->
+			<!--android:title="@string/menu_call_main"/>-->
+
+
+		<item
+			android:id="@+id/md_stand_alone"
+			android:icon="@drawable/ic_menu_gallery"
+			android:title="@string/menu_stand_alone"/>
+	</group>
+
+	<!--<item android:title="Communicate">-->
+		<!--<menu>-->
+			<item
+			android:id="@+id/wd_web_menu"
+			android:icon="@drawable/ic_menu_share"
+			android:title="@string/wd_web_menu_cap"/>
+			<!--<group android:checkableBehavior="single">-->
+
+				<!--<item-->
+					<!--android:id="@+id/web_menu_rewrite"-->
+					<!--android:checkable="false"-->
+					<!--android:checked="false"-->
+					<!--android:title="再読込み"/>-->
+				<!--&lt;!&ndash;<string name="">カメラ起動</string>&ndash;&gt;-->
+			<!--</group>-->
+			<!--<item android:title="移動">-->
+				<!--<menu-->
+					<!--&gt;-->
+					<!--<item-->
+						<!--android:id="@+id/web_menu_url_change"-->
+						<!--android:checkable="false"-->
+						<!--android:title="URL指定"/>-->
+					<!--<item-->
+						<!--android:id="@+id/web_menu_hysteresis"-->
+						<!--android:checkable="false"-->
+						<!--android:title="履歴"/>-->
+					<!--<item-->
+						<!--android:id="@+id/web_menu_backpage"-->
+						<!--android:title="前のページ"/>-->
+					<!--<item-->
+						<!--android:id="@+id/web_menu_prepage"-->
+						<!--android:title="次のページ"/>-->
+				<!--</menu>-->
+			<!--</item>-->
+			<!--<item-->
+			<!--android:title="ブックマーク"-->
+			<!--&gt;-->
+			<!--<menu-->
+			<!--&gt;-->
+			<!--<item-->
+			<!--android:id="@+id/web_menu_bookmark_set"-->
+			<!--android:title="登録"/>-->
+			<!--<item-->
+			<!--android:id="@+id/web_menu_bookmark_get"-->
+			<!--android:title="選択"/>-->
+			<!--</menu>-->
+			<!--</item>-->
+
+
+			<!--<item-->
+				<!--android:id="@+id/web_menu_rescaling"-->
+				<!--android:checkable="false"-->
+				<!--android:title="サイズ合わせ"/>-->
+			<!--<item-->
+				<!--android:id="@+id/web_menu_zoom_enable"-->
+				<!--android:checkable="false"-->
+				<!--android:icon="@android:drawable/ic_menu_directions"-->
+				<!--android:title="ズーム有効"/>-->
+		<!--</menu>-->
+	<!--</item>-->
+
+	<item
+		android:id="@+id/md_prefarence"
+		android:icon="@drawable/ic_menu_manage"
+		android:title="@string/menu_setting"/>
+	<item
+		android:id="@+id/md_quit"
+		android:icon="@android:drawable/ic_lock_power_off"
+		android:title="@string/menu_quit"/>
+
+</menu>

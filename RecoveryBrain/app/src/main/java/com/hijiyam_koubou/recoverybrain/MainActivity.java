@@ -234,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	}
 
 	static final int REQUEST_PREF = 100;                          //Prefarensからの戻り
-	static final int REQUEST_SWOPEN = REQUEST_PREF + 1;        //skyway接続開始
 
 	/**
 	 * Cameraパーミッションが通った時点でstartLocalStream
