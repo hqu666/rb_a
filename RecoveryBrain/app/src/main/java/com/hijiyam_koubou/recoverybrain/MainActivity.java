@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	public ImageView navi_head_iv;
 	public TextView nave_head_main_tv;
 	public TextView navi_head_sub_tv;
+	private ImageButton show_popup_ib;
 
 	private LinearLayout scam_ll ;
 	private DecoratedBarcodeView qrReaderView;

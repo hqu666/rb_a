@@ -16,7 +16,7 @@
 		android:minHeight="?attr/actionBarSize"
 		android:theme="@style/NoActionBarTheme"
 		app:popupTheme="@style/ToolbarMenu"
-	>
+		>
 	</android.support.v7.widget.Toolbar>
 	<!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
 

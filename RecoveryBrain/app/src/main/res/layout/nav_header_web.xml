@@ -25,6 +25,17 @@
 		android:orientation="vertical"
 		android:paddingLeft="8dp">
 
+		<ImageButton
+			android:id="@+id/show_popup_ib"
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:layout_gravity="right"
+			android:padding="0dp"
+			android:scaleType="fitXY"
+			app:srcCompat="@drawable/menu"
+			android:onClick="showPopup"
+			/>
+
 		<TextView
 			android:id="@+id/web_nave_head_main_tv"
 			android:layout_width="match_parent"

@@ -35,7 +35,6 @@
 					<!--android:checkable="false"-->
 					<!--android:checked="false"-->
 					<!--android:title="再読込み"/>-->
-				<!--&lt;!&ndash;<string name="">カメラ起動</string>&ndash;&gt;-->
 			<!--</group>-->
 			<!--<item android:title="移動">-->
 				<!--<menu-->
