@@ -387,13 +387,11 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
 					upX = xPoint;
 					upY = yPoint;
-//						invalidate();                        //onDrawを発生させて描画実行
 					REQUEST_CORD = 0;
 					break;
 				default:
 					upX = xPoint;
 					upY = yPoint;
-//						invalidate();                        //onDrawを発生させて描画実行
 					break;
 			}
 			retBool = true;
@@ -447,8 +445,40 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 }
 
 //		Canvas と Path による手書き View の簡単な実装		http://android.keicode.com/basics/ui-canvas-path.php
-
-
 //FrameLayout implements RendererCommon.RendererEvents では   onTouchEventは発生しても  onDrawが発生しない
-
 //webRTC for android	https://qiita.com/nakadoribooks/items/7950e29ad3b751ddab12
+/**
+課題
+	・canvas間通信
+ 		・padのトレースでveiw側に描画
+ 		・tachiendで自動評価
+ 	・評価実装
+ 		・消し込み評価
+ 		・toolbarへの書き込み
+ 		・もう一度
+ 	・定例パターン読込み
+ 		・pixcel配列読込み
+ 	・変形
+ 		・右へ90度回転
+ 		・左へ90度回転
+ 		・180度回転
+ 		・上下反転
+ 		・左右反転
+ 		・オリジナル（に戻す）
+	・動作設定
+ 		・鏡面動作
+ 			・上下
+ 			・左右
+ 		・トレース後に自動判定
+ 	・手書き
+ 		・フリーハンド
+ 		・start～end範囲取得
+ 			・消去
+ 			・直線
+ 			・三角
+ 			・矩形
+ 		・text入力
+ 		・pixcel配列記録  （オリジナルにする）
+ ・もう一度
+
+ * **/

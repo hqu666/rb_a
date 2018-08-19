@@ -1,11 +1,8 @@
 package com.hijiyam_koubou.recoverybrain;
 
-import android.Manifest;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -30,22 +27,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.Context;
 //import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 //import android.graphics.Picture;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SoundEffectConstants;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
@@ -53,9 +45,7 @@ import android.view.Window;
 //import android.view.Window;				//タイトルバーに文字列を設定
 //import android.view.WindowManager;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityEvent;
 import android.webkit.WebBackForwardList;
-import android.webkit.WebHistoryItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 //import android.webkit.WebView.PictureListener;
@@ -71,14 +61,7 @@ import android.widget.Toast;
 //import android.widget.Toast;
 
 public class CS_Web_Activity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener  {
-	private Toolbar toolbar;
-	public ActionBarDrawerToggle abdToggle;        //アニメーションインジケータ
-	public NavigationView navigationView;
-	private DrawerLayout drawer;
-	public ImageView navi_head_iv;
-	public TextView nave_head_main_tv;
-	public TextView navi_head_sub_tv;
-	
+
 	public WebView webView;
 	public WebSettings settings;
 	public String dbMsg = "";
@@ -240,6 +223,13 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 
 
 	///ハンバーガーメニュー//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private Toolbar toolbar;
+	public ActionBarDrawerToggle abdToggle;        //アニメーションインジケータ
+	public NavigationView navigationView;
+	private DrawerLayout drawer;
+	public ImageView navi_head_iv;
+	public TextView nave_head_main_tv;
+	public TextView navi_head_sub_tv;
 	@Override
 	public void onBackPressed() {
 		 drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
@@ -452,13 +442,9 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 				case R.id.web_menu_zoom_enable:                //ズーム有効化;
 					zoomSetting();
 					return true;
-				case R.id.web_menu_quit:                        //終了";
-					navigationView.getMenu().clear();
-					navigationView.inflateMenu(R.menu.activity_web_drawer);
-//					drawer.openDrawer(GravityCompat.START);
-
+//				case R.id.web_menu_quit:                        //終了";
 //					callQuit();            //このActivtyの終了
-					return true;
+//					return true;
 			}
 			return true; // 処理に成功したらtrueを返す
 		} catch (Exception er) {
@@ -490,7 +476,6 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 		}
 	}
 
-
 	@SuppressWarnings ( "StatementWithEmptyBody" )
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
@@ -510,7 +495,7 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 	//		DrawerLayout drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
 					break;
 			}
-			drawer.closeDrawer(GravityCompat.START);
+//			drawer.closeDrawer(GravityCompat.START);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + "で" + er.toString());
 		}
@@ -530,20 +515,22 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 			dbMsg = "id=" + id;
 			switch ( id ) {
 				case R.id.md_qr_read:     //QRコードから接続
-					callQuit();
-//					Intent qra = new Intent(this , QRActivity.class);
-//					startActivity(qra);
+					Intent qra = new Intent(this , QRActivity.class);
+					startActivity(qra);
 					break;
+
 				case R.id.md_stand_alone:          //スタンドアロン
 				case R.id.mm_stand_alone:          //スタンドアロン
-					Intent saIntent = new Intent(this , StandAloneActivity.class);
-					startActivity(saIntent);
+					callQuit();
+//					Intent saIntent = new Intent(this , RecoveryBrainActivity.class);
+//					startActivity(saIntent);
 					break;
 				case R.id.wd_web_menu:
-					dbMsg = "wd_web_menu=";
+					dbMsg = "wd_web_menu";
 					navigationView.getMenu().clear();
 					navigationView.inflateMenu(R.menu.wev_cont);
-					drawer.openDrawer(GravityCompat.START);
+//					this.drawer.openDrawer(this.drawer);               				//課題；変更後の再表示；いづれも利かない
+//					drawer.openDrawer(android.view.Gravity.START);      		//GravityCompat.START
 					break;
 
 				case R.id.md_prefarence:      //設定
@@ -555,11 +542,24 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 				case R.id.mm_quit:
 					callQuit();
 					break;
+				case R.id.close_web_menu:
+					navigationView.getMenu().clear();
+					navigationView.inflateMenu(R.menu.activity_web_drawer);
+//					drawer.openDrawer(GravityCompat.START);
+					break;
 				default:
 					onContextItemSelected(item);
 					break;
 			}
-			myLog(TAG , dbMsg);
+//			if (drawer.isDrawerOpen(GravityCompat.START)) {
+//				// ドロワーメニューが開いた際に閉じる画像を非表示にする
+//				drawer.closeDrawer(GravityCompat.START);
+//			} else {
+//				drawer.openDrawer(GravityCompat.START);
+//				// ドロワーメニューが開いた際に閉じる画像を表示する
+//			}
+
+		myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + "で" + er.toString());
 		}
@@ -938,3 +938,10 @@ public class CS_Web_Activity extends AppCompatActivity  implements NavigationVie
 	}
 
 }
+
+
+/**
+ * 課題；URLの書き込みとQRコード作成
+ * 　　　ドロワでスレッドエラー
+ * 　　：webメニューに切替後、再表示（メソッドからドロワーを開く）
+ * */

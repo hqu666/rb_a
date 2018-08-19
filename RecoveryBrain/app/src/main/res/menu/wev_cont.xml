@@ -3,67 +3,69 @@
 	  xmlns:app="http://schemas.android.com/apk/res-auto"
 	  xmlns:tools="http://schemas.android.com/tools">
 
-	<group android:checkableBehavior="single">
+	<!--<group android:checkableBehavior="single">-->
 
-		<item
-			android:id="@+id/web_menu_rewrite"
-			android:checkable="false"
-			android:checked="false"
-			android:title="再読込み"/>
-		<!--<string name="">カメラ起動</string>-->
-	</group>
-	<item android:title="移動">
+	<item
+		android:id="@+id/close_web_menu"
+		android:icon="@android:drawable/ic_lock_power_off"
+		android:title="@string/wd_web_menu_closs"/>
+
+	<item
+		android:id="@+id/web_menu_rewrite"
+		android:checkable="false"
+		android:checked="false"
+		android:title="@string/wv_menu_rewrite"/>
+	<!--</group>-->
+	<item android:title="@string/wv_menu_movement">
 		<menu
 			>
 			<item
 				android:id="@+id/web_menu_url_change"
 				android:checkable="false"
-				android:title="URL指定"/>
+				android:title="@string/wv_menu_url_change"/>
 			<item
 				android:id="@+id/web_menu_hysteresis"
 				android:checkable="false"
-				android:title="履歴"/>
+				android:title="@string/wv_menu_hysteresis"/>
 			<item
 				android:id="@+id/web_menu_backpage"
-				android:title="前のページ"/>
+				android:title="@string/wv_menu_backpage"/>
 			<item
 				android:id="@+id/web_menu_prepage"
-				android:title="次のページ"/>
+				android:title="@string/wv_menu_prepage"/>
 		</menu>
 	</item>
-	<!--<item-->
-	<!--android:title="ブックマーク"-->
-	<!--&gt;-->
-	<!--<menu-->
-	<!--&gt;-->
-	<!--<item-->
-	<!--android:id="@+id/web_menu_bookmark_set"-->
-	<!--android:title="登録"/>-->
-	<!--<item-->
-	<!--android:id="@+id/web_menu_bookmark_get"-->
-	<!--android:title="選択"/>-->
-	<!--</menu>-->
-	<!--</item>-->
+
 	<item
-		android:title="その他"
-		>
+		android:title="@string/wv_menu_bookmark">
+		<menu
+			>
+			<item
+				android:id="@+id/web_menu_bookmark_set"
+				android:title="@string/wv_menu_bookmark_set"/>
+			<item
+				android:id="@+id/web_menu_bookmark_get"
+				android:title="@string/wv_menu_bookmark_select"/>
+		</menu>
+	</item>
+
+	<item
+		android:title="@string/mm_other">
 		<menu>
 			<item
 				android:id="@+id/web_menu_rescaling"
 				android:checkable="false"
-				android:title="サイズ合わせ"/>
+				android:title="@string/wv_menu_rescaling"/>
 			<item
 				android:id="@+id/web_menu_zoom_enable"
 				android:checkable="false"
 				android:icon="@android:drawable/ic_menu_directions"
-				android:title="ズーム有効"/>
-			<item
-				android:id="@+id/web_menu_quit"
-				android:checkable="false"
-				android:icon="@android:drawable/ic_lock_power_off"
-				android:title="終了"/>
-
+				android:title="@string/wv_menu_zoom_enable"/>
+			<!--<item-->
+			<!--android:id="@+id/web_menu_quit"-->
+			<!--android:checkable="false"-->
+			<!--android:icon="@android:drawable/ic_lock_power_off"-->
+			<!--android:title="終了"/>-->
 		</menu>
 	</item>
-
 </menu>

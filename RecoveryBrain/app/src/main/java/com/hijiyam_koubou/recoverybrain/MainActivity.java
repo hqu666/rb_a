@@ -31,9 +31,6 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -380,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 	}                                                                    //NaviViewの初期設定
 
-	///メイン画面へメニュー追加///////////////////////////////////////////////////////////////////////////
+	///toolbarへメニュー追加///////////////////////////////////////////////////////////////////////////
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -498,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					break;
 				case R.id.md_stand_alone:          //スタンドアロン
 				case R.id.mm_stand_alone:          //スタンドアロン
-					Intent saIntent = new Intent(this , StandAloneActivity.class);
+					Intent saIntent = new Intent(this , RecoveryBrainActivity.class);
 					startActivity(saIntent);
 					break;
 				case R.id.md_prefarence:      //設定

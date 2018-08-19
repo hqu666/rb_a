@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools">
+
+
+	<!--<group android:checkableBehavior="single">-->
+	<group android:checkableBehavior="single">
+		<item
+			android:id="@+id/md_qr_read"
+			android:icon="@drawable/ic_menu_camera"
+			android:title="@string/menu_qr_read"/>
+
+		<item
+			android:id="@+id/md_call_main"
+			android:icon="@drawable/ic_menu_slideshow"
+			android:title="@string/menu_call_main"/>
+
+
+		<!--<item-->
+			<!--android:id="@+id/md_stand_alone"-->
+			<!--android:icon="@drawable/ic_menu_gallery"-->
+			<!--android:title="@string/menu_stand_alone"/>-->
+	</group>
+
+	<item android:title="@string/rb_job_select">
+		<menu
+			>
+			<item
+				android:id="@+id/rbm_patran_list_select"
+				android:checkable="false"
+				android:title="@string/rb_patran_list_select"/>
+			<item
+				android:id="@+id/rbm_file_read"
+				android:checkable="false"
+				android:title="@string/rb_file_read"/>
+			<item
+				android:id="@+id/rbm_hand_made"
+				android:title="@string/rb_hand_made"/>
+			<item
+				android:id="@+id/rbm_hand_again"
+				android:title="@string/rb_hand_again"/>
+			<item
+				android:id="@+id/rbm_decision_original"
+				android:title="@string/rb_decision_original"/>
+		</menu>
+	</item>
+
+	<item android:title="@string/rb_direction_select">
+		<menu>
+			<item
+				android:id="@+id/rbm_direction_org"
+				android:checkable="false"
+				android:title="@string/rb_direction_org"/>
+			<item
+				android:id="@+id/rbm_roat_right"
+				android:title="@string/rb_roat_right"/>
+			<item
+				android:id="@+id/rbm_roat_left"
+				android:title="@string/rb_roat_left"/>
+			<item
+				android:id="@+id/rbm_roat_half"
+				android:title="@string/rb_roat_half"/>
+			<item
+				android:id="@+id/rbm_flip_vertical"
+				android:title="@string/rb_flip_vertical"/>
+			<item
+				android:id="@+id/rbm_flip_horizontal"
+				android:title="@string/rb_flip_horizontal"/>
+			<item
+				android:id="@+id/rbm_make_original"
+				android:title="@string/rb_make_original"/>
+		</menu>
+	</item>
+
+	<item android:title="@string/rb_movement">
+		<menu
+			>
+			<item
+				android:id="@+id/rbm_mirror_movement"
+				android:checkable="false"
+				android:title="@string/rb_mirror_movement"/>
+			<item
+				android:id="@+id/rbm_mirror_movement_to"
+				android:checkable="false"
+				android:title="@string/rb_mirror_movement_to"/>
+			<item
+				android:id="@+id/rbm_mirror_movement_lr"
+				android:title="@string/rb_mirror_movement_lr"/>
+			<item
+				android:id="@+id/rbm_auto_judge"
+				android:title="@string/rb_auto_judge"/>
+		</menu>
+	</item>
+
+	<item
+		android:id="@+id/md_prefarence"
+		android:icon="@drawable/ic_menu_manage"
+		android:title="@string/menu_setting"/>
+	<item
+		android:id="@+id/md_quit"
+		android:icon="@android:drawable/ic_lock_power_off"
+		android:title="@string/menu_quit"/>
+
+</menu>

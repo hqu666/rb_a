@@ -40,7 +40,41 @@
 	<string name="wv_reload_now"> …再読み込み中…</string>
 	<string name="wv_move_now">へ移動中…</string>
 
+	<string name="wd_web_menu_closs">webメニューを閉じる</string>
+	<string name="wv_menu_rewrite">再読込み</string>
+	<string name="wv_menu_movement">移動</string>
+	<string name="wv_menu_url_change">URL指定</string>
+	<string name="wv_menu_hysteresis">履歴</string>
+	<string name="wv_menu_backpage">前のページ</string>
+	<string name="wv_menu_prepage">次のページ</string>
+	<string name="wv_menu_bookmark">ブックマーク</string>
+	<string name="wv_menu_bookmark_set">登録</string>
+	<string name="wv_menu_bookmark_select">選択</string>
+	<string name="mm_other">その他</string>
+	<string name="wv_menu_rescaling">サイズ合わせ</string>
+	<string name="wv_menu_zoom_enable">ズーム有効</string>
 
+	<string name="rb_job_select">トレース元図形</string>
+	<string name="rb_patran_list_select">パターンリスト表示</string>
+	<string name="rb_file_read">ファイルから読み込み</string>
+	<string name="rb_hand_made">手書きで作成</string>
+	<string name="rb_hand_again">もう一度</string>
+	<string name="rb_decision_original">確定</string>
+
+	<string name="rb_direction_select">変形</string>
+	<string name="rb_direction_org">オリジナル</string>
+	<string name="rb_roat_right">右へ90度回転</string>
+	<string name="rb_roat_left">左へ90度回転</string>
+	<string name="rb_roat_half">180度回転</string>
+	<string name="rb_flip_vertical">上下反転</string>
+	<string name="rb_flip_horizontal">左右反転</string>
+	<string name="rb_make_original">オリジナルにする</string>
+
+	<string name="rb_movement">動作設定</string>
+	<string name="rb_mirror_movement">鏡面動作</string>
+	<string name="rb_mirror_movement_to">上下</string>
+	<string name="rb_mirror_movement_lr">左右</string>
+	<string name="rb_auto_judge">トレース後に自動判定</string>
 
 	<!--<string name="title_activity_video_chat">ホワイトボード</string>-->
 	<string name="can_not_conect_titol">現在接続できません</string>
