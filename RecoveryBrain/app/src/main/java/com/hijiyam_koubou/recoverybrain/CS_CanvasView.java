@@ -307,7 +307,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					canvas.drawBitmap(aBmp , upX , upY , ( Paint ) null); // image, x座標, y座標, Paintイタンス
 					break;
 			}
-//			myLog(TAG , dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -384,7 +384,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , action);
 //						invalidate();                        //onDrawを発生させて描画実行
 					break;
-				case REQUEST_ADD_BITMAP:                        //ビットマップ挿入
+				case REQUEST_ADD_BITMAP:                        //502;ビットマップ挿入
 					upX = xPoint;
 					upY = yPoint;
 					REQUEST_CORD = 0;
@@ -405,12 +405,43 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 	public Bitmap aBmp;
 
-	public void addBitMap(Bitmap bmp) {
+	public void addBitMap(Bitmap rBmp , int canvasWidth, int canvasHeight) {
 		final String TAG = "addBitMap[CView]";
 		String dbMsg = "";
 		try {
 			REQUEST_CORD = REQUEST_ADD_BITMAP;
-			aBmp = bmp;
+			int bmpWidth = rBmp.getWidth();
+			int bmpHeight = rBmp.getHeight();
+			dbMsg += "読込み[" + bmpWidth + "×" + bmpHeight + "]" + rBmp.getByteCount() + "バイト";
+			dbMsg += "、 canvas[" + canvasWidth + "×" + canvasHeight + "]";
+			double scaleWidth =1.0;
+			if( canvasWidth < bmpWidth){
+				scaleWidth =(double) ((canvasWidth * 1000) / bmpWidth )/1000;
+			}
+			double scaleHeight =1.0;
+			if( canvasHeight < bmpHeight){
+				scaleHeight = (double)(( canvasHeight *1000) / bmpHeight)/1000;
+			}
+			dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
+			double scaleWH =scaleWidth;
+			if( scaleHeight < scaleWidth){
+				scaleWH =scaleHeight;
+			}
+			int rWidth = ( int ) Math.ceil( (double)bmpWidth * scaleWH);
+			int rHight = ( int ) Math.ceil( (double)bmpHeight * scaleWH);
+			dbMsg += "[" + rWidth + "×" + rHight + "]";
+			aBmp= Bitmap.createScaledBitmap(rBmp, rWidth, rHight, false);   			// 100x100にリサイズ
+			 bmpWidth = aBmp.getWidth();
+			 bmpHeight = aBmp.getHeight();
+			dbMsg += "[" + bmpWidth + "×" + bmpHeight + "]" + aBmp.getByteCount() + "バイト";
+			if(1<(canvasWidth- bmpWidth)){
+				upX =  (canvasWidth- bmpWidth)/2;
+			}
+			if(1<(canvasHeight- bmpHeight)){
+				upY =  (canvasHeight- bmpHeight)/2;
+			}
+			dbMsg += "(" + upX + "," + upY + ")";
+			invalidate();                        //onDrawを発生させて描画実行
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);

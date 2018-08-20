@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -26,6 +29,9 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class RecoveryBrainActivity extends AppCompatActivity   implements NavigationView.OnNavigationItemSelectedListener {
 	com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v ;        //表示側
@@ -92,14 +98,50 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			setContentView(R.layout.activity_rb);
 			 sa_disp_v = ( com.hijiyam_koubou.recoverybrain.CS_CanvasView ) findViewById(R.id.sa_disp_v);        //表示側
 			 sa_pad_v = ( com.hijiyam_koubou.recoverybrain.CS_CanvasView ) findViewById(R.id.sa_pad_v);        //操作側
+			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					final String TAG = "pad;onTouch[RBS]";
+					String dbMsg = "";
+					boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
+					try {
+						float xPoint = event.getX();       //view上の座標
+						float yPoint = event.getY();
+						int action = event.getAction();
+						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
+						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+					return retBool;
+				}
+			});
 
-			initDrawer();
+			initDrawer();   //ここで取らないとonPostCreateでNullPointerException
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+
+	/**
+	 * 全リソースの読み込みが終わってフォーカスが当てられた時
+	 */
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		final String TAG = "onStart[MA]";
+		String dbMsg = "hasFocus=" + hasFocus;
+		try {
 			laterCreate();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
 
 	@Override
 	protected void onResume() {
@@ -411,7 +453,6 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		}
 	}
 	///////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * onCreateに有ったイベントなどの処理パート
 	 * onCreateは終了処理後のonDestroyの後でも再度、呼び出されるので実データの割り付けなどを分離する
@@ -428,33 +469,37 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 				dbMsg += "=縦向き";
 			}
 
-			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					final String TAG = "pad;onTouch[RBS]";
-					String dbMsg = "";
-					boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
-					try {
-						float xPoint = event.getX();       //view上の座標
-						float yPoint = event.getY();
-						int action = event.getAction();
-						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
-						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-					return retBool;
-				}
-			});
-
-
+			int canvasWidth =sa_disp_v.getWidth() ;
+			int canvasHeight =sa_disp_v.getHeight() ;
+			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
+			sa_disp_v.addBitMap(readFIle( "st001.png") ,canvasWidth ,canvasHeight );
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	public Bitmap readFIle(String fileName) {
+		final String TAG = "readFIle[RBS]";
+		String dbMsg = "";
+		Bitmap bm = null;
+		try {
+			AssetManager as = getResources().getAssets();
+			dbMsg += "fileName="+fileName;
+			InputStream is = as.open(fileName);
+			bm = BitmapFactory.decodeStream(is);
+			//decodeStream(InputStream,padding.options);
+			dbMsg += "bm="+bm.getByteCount() + "バイト";
+			myLog(TAG , dbMsg);
+		} catch (IOException er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return  bm;
+	}
+
 
 	public void callQuit() {
 		final String TAG = "callQuit[MA]";
