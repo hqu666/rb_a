@@ -1,6 +1,7 @@
 package com.hijiyam_koubou.recoverybrain;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -28,6 +30,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -96,14 +99,20 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			readPref();
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_rb);
-			 sa_disp_v = ( com.hijiyam_koubou.recoverybrain.CS_CanvasView ) findViewById(R.id.sa_disp_v);        //表示側
-			 sa_pad_v = ( com.hijiyam_koubou.recoverybrain.CS_CanvasView ) findViewById(R.id.sa_pad_v);        //操作側
+
+			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
+			sa_disp_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,true);        //表示(受信)側
+			sa_disp_ll.addView(sa_disp_v);
+			LinearLayout sa_pad_ll = ( LinearLayout ) findViewById(R.id.sa_pad_ll);
+			sa_pad_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,false);        //表示側
+			sa_pad_ll.addView(sa_pad_v);
+
 			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
-					final String TAG = "pad;onTouch[RBS]";
+					final String TAG = "sa_pad_v[RBS]";
 					String dbMsg = "";
-					boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
+					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を欠かせない)
 					try {
 						float xPoint = event.getX();       //view上の座標
 						float yPoint = event.getY();
@@ -132,7 +141,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		final String TAG = "onStart[MA]";
+		final String TAG = "onStart[RBS]";
 		String dbMsg = "hasFocus=" + hasFocus;
 		try {
 			laterCreate();
@@ -144,6 +153,21 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		final String TAG = "onStart[RBS]";
+		String dbMsg = "";
+		try {
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * この時点では_peer.on.OPENに至っていない
+	 */
+	@Override
 	protected void onResume() {
 		super.onResume();
 		final String TAG = "onResume[RBS]";
@@ -153,6 +177,35 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		final String TAG = "onPause[RBS]";
+		String dbMsg = "";
+		try {
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+		final String TAG = "onStop[RBS]";
+		String dbMsg = "";
+		try {
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	///ハンバーガーメニュー//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,6 +352,11 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			int id = item.getItemId();
 			dbMsg = "id=" + id;
 			switch ( id ) {
+				case R.id.rbm_common_back:     //戻す
+					sa_disp_v.canvasBack();
+					break;
+
+
 				case R.id.md_qr_read:     //QRコードから接続
 					Intent qra = new Intent(this , QRActivity.class);
 					startActivity(qra);
@@ -489,8 +547,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			dbMsg += "fileName="+fileName;
 			InputStream is = as.open(fileName);
 			bm = BitmapFactory.decodeStream(is);
+			is.close();
 			//decodeStream(InputStream,padding.options);
-			dbMsg += "bm="+bm.getByteCount() + "バイト";
+			dbMsg += "　=　"+bm.getByteCount() + "バイト";
 			myLog(TAG , dbMsg);
 		} catch (IOException er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -563,7 +622,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 
 8/20 ・定例パターン読込み
  		・パターン再作成（droｗで端部をきれいに、反転で作った定型の差替え；web更新）
-		・pixcel配列読込み
+8/21 ・pixcel配列読込み
 	 ・評価実装
 		 ・消し込みPaintプロパティ送信
 		 ・消し込み評価

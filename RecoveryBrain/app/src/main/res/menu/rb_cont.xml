@@ -5,6 +5,14 @@
 
 
 	<!--<group android:checkableBehavior="single">-->
+	<item
+		android:id="@+id/rbm_common_back"
+		android:checkable="false"
+		android:title="@string/common_back"/>
+
+
+
+
 	<group android:checkableBehavior="single">
 		<item
 			android:id="@+id/md_qr_read"

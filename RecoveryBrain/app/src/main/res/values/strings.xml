@@ -13,6 +13,9 @@
 	<string	name="nav_header_subtitle">android.studio@android.com</string>
 	<string	name="nav_header_desc">Navigation
 		header</string>
+	<string name="common_back">戻す</string>
+
+
 	<string name="rootUrlStr">http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080</string>
 	<string name="companyUrlStr">http://192.168.100.6:3080</string>
 	<string name="homeUrlStr">http://192.168.3.14:3080</string>

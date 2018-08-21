@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
@@ -21,6 +22,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
 	private boolean isCall = false;                    //newで呼ばれた
+	private boolean isRecever = true;                    //受信側
+	private Canvas myCanvas;
 	private Paint paint;                        //ペン
 	//	public int penColor = 0xFF008800;        //蛍光グリーン
 	public int selectColor = 0xFF008800;        //蛍光グリーン
@@ -49,6 +52,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	static final int REQUEST_DROW_PATH = REQUEST_CLEAR + 1;            //フリーハンド
 	static final int REQUEST_ADD_BITMAP = REQUEST_DROW_PATH + 1;            //ビットマップ挿入
 	public int REQUEST_CORD = REQUEST_DROW_PATH;
+
+//RecvrryBrain
+		private Paint orignLine = null;                        //トレース元画像
 
 
 	/**
@@ -79,6 +85,26 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	public CS_CanvasView(Context context ,boolean isRecever) {
+		super(context);
+		final String TAG = "CS_CanvasView[CView]";
+		String dbMsg = "メソッド内から";
+		try {
+			isCall = true;                    //newで呼ばれた
+			if(isRecever){
+				this.isRecever = isRecever;
+				dbMsg += "受信側として生成";
+			} else{
+				dbMsg += "送信側として生成";
+			}
+			commonCon(context);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 
 	public void commonCon(final Context context) {
@@ -249,7 +275,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 
 	/**
-	 * View の canvas操作
+	 * 一回の書き込み
+	 * 全消去される
 	 */
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -284,28 +311,46 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "canvasDraw[CView]";
 		String dbMsg = "";
 		try {
-			dbMsg += "REQUEST_CORD=" + REQUEST_CORD;
-			int caWidth = canvas.getWidth();
-			int caHeight = canvas.getHeight();
-			dbMsg += ".canvas[" + caWidth + "" + caHeight + "]";
+			dbMsg += "isRecever=" + isRecever;
+			if(isRecever) {
+				dbMsg += ",REQUEST_CORD=" + REQUEST_CORD;
+				int caWidth = canvas.getWidth();
+				int caHeight = canvas.getHeight();
+				dbMsg += ".canvas[" + caWidth + "×" + caHeight + "]";
+				int saveFlag = canvas.save();         //現在の状態を覚える
+				dbMsg += ".saveFlag=" + saveFlag;
+				/**
+				 MATRIX_SAVE_FLAG	Matrix情報（translate, rotate, scale, skew）の情報を保存
+				 CLIP_SAVE_FLAG	クリップ領域を保存
+				 HAS_ALPHA_LAYER_SAVE_FLAG	アルファ（不透明度）レイヤーを保存
+				 FULL_COLOR_LAYER_SAVE_FLAG	カラーレイヤーを保存
+				 CLIP_TO_LAYER_SAVE_FLAG	クリップレイヤーとして保存
+				 ALL_SAVE_FLAG	全ての状態を保存する*/
 
-			switch ( REQUEST_CORD ) {
-				case REQUEST_CLEAR:                //全消去
-					canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
-					for ( PathObject pathObject : pathIist ) {
-						pathObject.path.reset();
-					}
-					canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
-					REQUEST_CORD = REQUEST_DROW_PATH;
-					break;
-				case REQUEST_DROW_PATH:                //フリーハンド
-					for ( PathObject pathObject : pathIist ) {
-						canvas.drawPath(pathObject.path , pathObject.paint);
-					}
-					break;
-				case REQUEST_ADD_BITMAP:                //ビットマップ挿入
-					canvas.drawBitmap(aBmp , upX , upY , ( Paint ) null); // image, x座標, y座標, Paintイタンス
-					break;
+				switch ( REQUEST_CORD ) {
+					case REQUEST_CLEAR:                //500;全消去
+						canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
+						for ( PathObject pathObject : pathIist ) {
+							pathObject.path.reset();
+						}
+						canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
+						REQUEST_CORD = REQUEST_DROW_PATH;
+						break;
+					case REQUEST_DROW_PATH:                //501;フリーハンド
+						for ( PathObject pathObject : pathIist ) {
+							canvas.drawPath(pathObject.path , pathObject.paint);
+						}
+						break;
+					case REQUEST_ADD_BITMAP:                //502;ビットマップ挿入
+						dbMsg += "(" +upX + "×" + upY+ ")に[" +aBmp.getWidth() + "×" + aBmp.getHeight()+ "]" + aBmp.getByteCount() + "バイトのビットマップ挿入";
+						canvas.drawBitmap(aBmp , upX , upY , ( Paint ) orignLine); // image, x座標, y座標, Paintイタンス
+//						getCanvasPixcel(aBmp ,  canvas);
+//						dbMsg += ",orignLine=" +orignLine.toString();
+						break;
+				}
+				canvas.restore(); // save直前に戻る
+
+				myCanvas = canvas;            //現在のCanvasの状態を保存
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -365,12 +410,157 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+	public Bitmap aBmp;             //書込むビットマップ（16：9）
+//	public double scaleWH;			//書込んだ時のスケール
+//	int pixels[] = null;			//canvas全体のargb配列
+
+	public void addBitMap(Bitmap rBmp , int canvasWidth, int canvasHeight) {
+		final String TAG = "addBitMap[CView]";
+		String dbMsg = "";
+		try {
+			REQUEST_CORD = REQUEST_ADD_BITMAP;
+			int bmpWidth = rBmp.getWidth();
+			int bmpHeight = rBmp.getHeight();
+			dbMsg += "読込み[" + bmpWidth + "×" + bmpHeight + "]" + rBmp.getByteCount() + "バイト";
+			dbMsg += "、 canvas[" + canvasWidth + "×" + canvasHeight + "]";
+			double scaleWidth =1.0;
+			if( canvasWidth < bmpWidth){
+				scaleWidth =(double) ((canvasWidth * 1000) / bmpWidth )/1000;
+			}
+			double scaleHeight =1.0;
+			if( canvasHeight < bmpHeight){
+				scaleHeight = (double)(( canvasHeight *1000) / bmpHeight)/1000;
+			}
+			dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
+			double scaleWH =scaleWidth;
+			if( scaleHeight < scaleWidth){
+				scaleWH =scaleHeight;
+			}
+			int rWidth = ( int ) Math.ceil( (double)bmpWidth * scaleWH);
+			int rHight = ( int ) Math.ceil( (double)bmpHeight * scaleWH);
+			dbMsg += "、縮小[" + rWidth + "×" + rHight + "]" + scaleWH +"倍";
+			Bitmap rsBitmap= Bitmap.createScaledBitmap(rBmp, rWidth, rHight, false);   			// 100x100にリサイズ
+			 bmpWidth = rsBitmap.getWidth();
+			 bmpHeight = rsBitmap.getHeight();
+			dbMsg += ",リサイズ[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
+			int canvasShiftX=0;
+			int canvasShiftY=0;
+			if(1<(canvasWidth- bmpWidth)){
+				 canvasShiftX = (canvasWidth - bmpWidth) / 2;
+			}
+			if(1<(canvasHeight- bmpHeight)){
+				 canvasShiftY = (canvasHeight - bmpHeight) / 2 ;
+			}
+			dbMsg += ",シフト(" + canvasShiftX + " , " + canvasShiftY + ")";
+			aBmp = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888); 	//キャンバスサイズのビットマップを作成して
+			Canvas cv = new Canvas(aBmp);														//ビットマップをcanvasにして
+			cv.drawBitmap(rsBitmap , canvasShiftX , canvasShiftY , ( Paint ) null); // リサイズしたビットマップを, x座標, y座標, Paintイタンスで書き込む
+			orignLine  = new Paint();
+			invalidate();                        //onDrawを発生させて描画実行
+//			getCanvasPixcel( aBmp , canvasWidth,  canvasHeight);
+			readPaint( orignLine);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+//	var colorArray = new Array();
+	public void getCanvasPixcel(Bitmap rBmp , Canvas canvas) {
+		final String TAG = "getCanvasPixcel[CView]";
+		String dbMsg = "";
+		try {
+			if(canvas != null){
+				int bWidth =  canvas.getWidth();
+				int bHight =  canvas.getHeight();
+				dbMsg += "読込み[" +bWidth + "×" + bHight+ "]" + rBmp.getByteCount() + "バイト";
+				int pixels[] = new int[bWidth* bHight];
+				rBmp.getPixels(pixels, 0, bWidth, 0, 0, bWidth, bHight );  				//pixelsの配列にmyBitmapのデータを格納する
+				for (int yPoint = 0; yPoint < bHight; yPoint++) {
+					for (int xPoint = 0; xPoint < bWidth; xPoint++) {
+						int bIndex = xPoint + yPoint * bWidth;
+						int pixel = pixels[bIndex];
+						pixels[bIndex] = Color.argb(
+								Color.alpha(pixel),
+								0xFF - Color.red(pixel),
+								0xFF - Color.green(pixel),
+								0xFF - Color.blue(pixel));
+//						if(0 != pixel){
+//							String rHex = Integer.toHexString(pixel);
+//							dbMsg += "(" +xPoint + "," + yPoint+ ")"  + rHex;
+//							dbMsg += ",R= " + Color.red(pixel)+ ",G= " + Color.green(pixel)+ ",B= " + Color.blue(pixel);
+//						}
+					}
+				}
+				dbMsg += ",pixels=" +pixels.length;
+					Bitmap output=Bitmap.createBitmap(bWidth, bHight, Bitmap.Config.ARGB_8888); 		//出力用画像領域確保
+					output.setPixels(pixels, 0, bWidth, 0, 0, bWidth,bHight );   					//出力用の領域にセットする
+					dbMsg += ",書込み[" +bWidth + "×" + bHight+ "]" + rBmp.getByteCount() + "バイト";
+				canvas.drawBitmap(output, 0,0, orignLine); 	//	Bitmapイメージの描画
+			} else {
+				String titolStr  = "取得できません";
+				String mggStr ="まだ書き込みが行われていません。";
+				messageShow( titolStr ,  mggStr);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	public void readPaint(Paint rPaint) {
+		final String TAG = "readPaint[CView]";
+		String dbMsg = "";
+		try {
+			if(rPaint != null){
+				int cInt =  rPaint.getColor();
+				dbMsg = "Color= "  + cInt + "=" + Integer.toHexString(cInt);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+	/**
+	 *
+	 * */
+	public void canvasBack() {
+		final String TAG = "canvasBack[CView]";
+		String dbMsg = "";
+		try {
+			if(myCanvas != null){
+				myCanvas.restore(); // save直前に戻る   ;java.lang.IllegalStateException: Underflow in restore - more restores than saves
+			} else {
+				String titolStr  = "戻せません";
+				String mggStr ="まだ書き込みが行われていません。";
+				messageShow( titolStr ,  mggStr);
+			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+
+	public void clearAll() {
+		final String TAG = "clearAll[CView]";
+		String dbMsg = "";
+		try {
+			REQUEST_CORD = REQUEST_CLEAR;
+			invalidate();                        //onDrawを発生させて描画実行
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+	/////////////////////////////////////////////////////////////////////////
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		final String TAG = "onTouchEvent[CView]";
-		String dbMsg = "isCall="+isCall;
+		String dbMsg = "";
 		boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
 		try {
+			dbMsg += "isRecever=" + isRecever;
 //			if ( isCall ) {            ////newで呼ばれた場合はこのクラス内でイベント取得
 			float xPoint = event.getX();
 			float yPoint = event.getY();
@@ -402,64 +592,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 		return retBool;
 	}
-
-	public Bitmap aBmp;
-
-	public void addBitMap(Bitmap rBmp , int canvasWidth, int canvasHeight) {
-		final String TAG = "addBitMap[CView]";
-		String dbMsg = "";
-		try {
-			REQUEST_CORD = REQUEST_ADD_BITMAP;
-			int bmpWidth = rBmp.getWidth();
-			int bmpHeight = rBmp.getHeight();
-			dbMsg += "読込み[" + bmpWidth + "×" + bmpHeight + "]" + rBmp.getByteCount() + "バイト";
-			dbMsg += "、 canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			double scaleWidth =1.0;
-			if( canvasWidth < bmpWidth){
-				scaleWidth =(double) ((canvasWidth * 1000) / bmpWidth )/1000;
-			}
-			double scaleHeight =1.0;
-			if( canvasHeight < bmpHeight){
-				scaleHeight = (double)(( canvasHeight *1000) / bmpHeight)/1000;
-			}
-			dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
-			double scaleWH =scaleWidth;
-			if( scaleHeight < scaleWidth){
-				scaleWH =scaleHeight;
-			}
-			int rWidth = ( int ) Math.ceil( (double)bmpWidth * scaleWH);
-			int rHight = ( int ) Math.ceil( (double)bmpHeight * scaleWH);
-			dbMsg += "[" + rWidth + "×" + rHight + "]";
-			aBmp= Bitmap.createScaledBitmap(rBmp, rWidth, rHight, false);   			// 100x100にリサイズ
-			 bmpWidth = aBmp.getWidth();
-			 bmpHeight = aBmp.getHeight();
-			dbMsg += "[" + bmpWidth + "×" + bmpHeight + "]" + aBmp.getByteCount() + "バイト";
-			if(1<(canvasWidth- bmpWidth)){
-				upX =  (canvasWidth- bmpWidth)/2;
-			}
-			if(1<(canvasHeight- bmpHeight)){
-				upY =  (canvasHeight- bmpHeight)/2;
-			}
-			dbMsg += "(" + upX + "," + upY + ")";
-			invalidate();                        //onDrawを発生させて描画実行
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-	}
-
-
-	public void clearAll() {
-		final String TAG = "clearAll[CView]";
-		String dbMsg = "";
-		try {
-			REQUEST_CORD = REQUEST_CLEAR;
-			invalidate();                        //onDrawを発生させて描画実行
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-	}
+/////////////////////////////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public static void myLog(String TAG , String dbMsg) {
@@ -472,6 +605,10 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		UTIL.myErrorLog(TAG , dbMsg);
 	}
 
+	public void messageShow(String titolStr , String mggStr) {
+		CS_Util UTIL = new CS_Util();
+		UTIL.messageShow(titolStr , mggStr , CS_CanvasView.this.context);
+	}
 
 }
 

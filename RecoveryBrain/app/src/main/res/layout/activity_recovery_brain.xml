@@ -8,28 +8,40 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<!--<include-->
-		<!--layout="@layout/sa_control"-->
+	<LinearLayout
+		android:id="@+id/sa_disp_ll"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:orientation="horizontal"
+		android:padding="5dp">
+		<!--<view-->
+		<!--android:id="@+id/sa_disp_v"-->
+		<!--class="com.hijiyam_koubou.recoverybrain.CS_CanvasView"-->
 		<!--android:layout_width="match_parent"-->
-		<!--android:layout_height="wrap_content"/>-->
+		<!--android:layout_height="wrap_content"-->
+		<!--android:layout_margin="5dp"-->
+		<!--android:layout_weight="1"-->
+		<!--android:background="@android:color/background_light"/>-->
+	</LinearLayout>
 
-	<view
-		android:id="@+id/sa_disp_v"
-		class="com.hijiyam_koubou.recoverybrain.CS_CanvasView"
+	<LinearLayout
+		android:id="@+id/sa_pad_ll"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="5dp"
+		android:layout_height="match_parent"
 		android:layout_weight="1"
-		android:background="@android:color/background_light"/>
-
-	<view
-		android:id="@+id/sa_pad_v"
-		class="com.hijiyam_koubou.recoverybrain.CS_CanvasView"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="5dp"
-		android:layout_weight="1"
-		android:background="@android:color/darker_gray"/>
+		android:background="@android:color/darker_gray"
+		android:orientation="horizontal"
+		android:padding="5dp">
+		<!--<view-->
+		<!--android:id="@+id/sa_pad_v"-->
+		<!--class="com.hijiyam_koubou.recoverybrain.CS_CanvasView"-->
+		<!--android:layout_width="match_parent"-->
+		<!--android:layout_height="match_parent"-->
+		<!--android:layout_margin="5dp"-->
+		<!--android:layout_weight="1"-->
+		<!--android:background="@android:color/darker_gray"/>-->
+	</LinearLayout>
 
 
 </LinearLayout>
