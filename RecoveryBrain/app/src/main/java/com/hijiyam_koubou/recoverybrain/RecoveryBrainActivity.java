@@ -45,6 +45,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";					//	String dataURI = "http://192.168.3.14:3080";	//自宅
 	public boolean isReadPref = false;
 	public boolean isRecoveryBrain = false;
+	public boolean isNotSet = true;
 
 	/**
 	 * このアプリケーションの設定ファイル読出し
@@ -112,7 +113,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 				public boolean onTouch(View v, MotionEvent event) {
 					final String TAG = "sa_pad_v[RBS]";
 					String dbMsg = "";
-					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を欠かせない)
+					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を書かせない)
 					try {
 						float xPoint = event.getX();       //view上の座標
 						float yPoint = event.getY();
@@ -144,7 +145,10 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "hasFocus=" + hasFocus;
 		try {
-			laterCreate();
+			if(isNotSet){
+				laterCreate();
+				isNotSet = false;
+			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
