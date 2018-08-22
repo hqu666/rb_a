@@ -132,6 +132,11 @@
 	<string name="user_action_typing">is typing</string>
 	<string name="socketio_setting">socket.IO設定状況</string>
 	<string name="socketio_url">接続先</string>
+	<string name="common_score">スコア</string>
+	<string name="common_ten">点</string>
+	<string name="common_pixcel">px</string>
+	<string name="common_hyouka">評価</string>
+	<string name="againbt_caption">もう一度</string>
 
 	<string-array name="typeSelectList">
 		<item>フリーハンド</item>

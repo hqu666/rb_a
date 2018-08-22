@@ -46,6 +46,8 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	public boolean isReadPref = false;
 	public boolean isRecoveryBrain = false;
 	public boolean isNotSet = true;
+	public String readFileName = "st001.png" ;
+
 
 	/**
 	 * このアプリケーションの設定ファイル読出し
@@ -100,10 +102,15 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			readPref();
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_rb);
+			LinearLayout wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
+			wh_paret.setVisibility(View.GONE);
+
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
 			sa_disp_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,true);        //表示(受信)側
 			sa_disp_ll.addView(sa_disp_v);
+			sa_disp_v.readFileName="";
+
 			LinearLayout sa_pad_ll = ( LinearLayout ) findViewById(R.id.sa_pad_ll);
 			sa_pad_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,false);        //表示側
 			sa_pad_ll.addView(sa_pad_v);
@@ -134,7 +141,6 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
 
 	/**
 	 * 全リソースの読み込みが終わってフォーカスが当てられた時
@@ -534,7 +540,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			int canvasWidth =sa_disp_v.getWidth() ;
 			int canvasHeight =sa_disp_v.getHeight() ;
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap(readFIle( "st001.png") ,canvasWidth ,canvasHeight );
+			sa_disp_v.addBitMap( readFileName ,canvasWidth ,canvasHeight );
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -542,25 +548,34 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		}
 	}
 
-	public Bitmap readFIle(String fileName) {
-		final String TAG = "readFIle[RBS]";
+
+	public void writehScore( int aCount,int bCount) {
+		final String TAG = "writehScore[RBS]";
 		String dbMsg = "";
-		Bitmap bm = null;
 		try {
-			AssetManager as = getResources().getAssets();
-			dbMsg += "fileName="+fileName;
-			InputStream is = as.open(fileName);
-			bm = BitmapFactory.decodeStream(is);
-			is.close();
-			//decodeStream(InputStream,padding.options);
-			dbMsg += "　=　"+bm.getByteCount() + "バイト";
+			dbMsg = aCount + "/" + bCount;
+			int scoreVar = 0;
+			if(bCount<aCount){
+				scoreVar = (((bCount - aCount)*100) / bCount) ;
+			}
+			CharSequence wStr = "スコア " + scoreVar +"点 "+ bCount + "/ " + aCount +"ピクセル ";
+			dbMsg =  ">>" + wStr;
+			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
+			TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
+			TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
+			cp_score_tv.setText(scoreVar);
+			cp_after_tv.setText(aCount);
+			cp_score_tv.setText(bCount);
+  //java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window
+//			getSupportActionBar().setTitle(wStr);    //Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
+//			RecoveryBrainActivity.this.toolbar.setTitle(wStr);
+//			setSupportActionBar(toolbar); //  Attempt to invoke virtual method 'void android.support.v7.widget.
+			// Toolbar.setTitle(java.lang.CharSequence)' on a null object reference
+//			setTitle(wStr);  // Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
 			myLog(TAG , dbMsg);
-		} catch (IOException er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-		return  bm;
 	}
 
 
@@ -626,9 +641,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 
 8/20 ・定例パターン読込み
  		・パターン再作成（droｗで端部をきれいに、反転で作った定型の差替え；web更新）
-8/21 ・pixcel配列読込み
+8/21 	・pixcel配列読込み
 	 ・評価実装
-		 ・消し込みPaintプロパティ送信
+8/22	 ・消し込みPaintプロパティ送信
 		 ・消し込み評価
 		 ・padのtachiendで自動評価
 		 ・toolbarへの書き込み

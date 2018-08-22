@@ -8,6 +8,8 @@
 	android:orientation="vertical"
 	tools:context=".MainActivity">
 
+	<!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+
 	<android.support.v7.widget.Toolbar
 		android:id="@+id/toolbar"
 		android:layout_width="match_parent"
@@ -17,8 +19,12 @@
 		android:theme="@style/NoActionBarTheme"
 		app:popupTheme="@style/ToolbarMenu"
 		>
+		<include
+			layout="@layout/whit_bord_cp"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
 	</android.support.v7.widget.Toolbar>
-	<!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
 
 	<android.support.v4.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
@@ -26,6 +32,7 @@
 		android:layout_height="match_parent"
 		android:fitsSystemWindows="true"
 		tools:openDrawer="start">
+
 
 		<include
 			layout="@layout/activity_recovery_brain"
