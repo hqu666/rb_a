@@ -16,6 +16,7 @@ import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 
 import java.io.ByteArrayOutputStream;
@@ -450,6 +451,58 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	public int orgCount;							//トレース元のピクセル数
 	public int orgWidth;						//トレース元の線の太さ
 
+//	public int scoreVar = 0;
+//	public int afterCount = 0;
+//	public int biforeCount = 0;
+//
+//	public void writehScore( int aCount,int bCount) {
+//		final String TAG = "writehScore[RBS]";
+//		String dbMsg = "";
+//		try {
+//			dbMsg = aCount + "/" + bCount;
+//			if(bCount<aCount){
+//				scoreVar = (((bCount - aCount)*100) / bCount) ;
+//			}
+//			CharSequence wStr = "スコア " + scoreVar +"点 "+ bCount + "/ " + aCount +"ピクセル ";
+//			dbMsg =  ">>" + wStr;
+//			afterCount = aCount;
+//			biforeCount = bCount;
+//			MyThread thread = new MyThread();
+//			thread.start();
+//			//java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window
+////			getSupportActionBar().setTitle(wStr);    //Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
+////			RecoveryBrainActivity.this.toolbar.setTitle(wStr);
+////			setSupportActionBar(toolbar); //  Attempt to invoke virtual method 'void android.support.v7.widget.
+//			// Toolbar.setTitle(java.lang.CharSequence)' on a null object reference
+////			setTitle(wStr);  // Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
+//			myLog(TAG , dbMsg);
+//		} catch (Exception er) {
+//			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+//		}
+//	}
+//
+//	class MyThread extends Thread {
+//		public void run() {
+//			//時間のかかる処理実行します。今回は仮で10秒停止させています。
+//			try {
+//				//10秒停止します。
+//				Thread.sleep(10000);
+//			} catch (InterruptedException e) {
+//			}
+//			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
+//			TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
+//			TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
+//			cp_score_tv.setText(scoreVar);
+//			cp_after_tv.setText(afterCount);
+//			cp_befor_tv.setText(biforeCount);
+//
+//
+//			//ProgressDialogを消去します。
+////			progressDialog.dismiss();
+//		}
+//	}
+
+
 	/**
 	 *指定されたファイルをviewの中心にpixcel配列で書き込む
 	 */
@@ -653,8 +706,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				pathIist.add(pathObject);
 				selectColor = Color.argb(255 , 255 ,0 , 0);        //0xFF008800;蛍光グリーン
 				selectWidth = orgWidth* 2 ;
+
 				RecoveryBrainActivity BRA = new RecoveryBrainActivity();
-				BRA.writehScore(orgCount,orgCount);
+				BRA.writehScore(orgCount,orgCount-1000);
 			} else {
 				String titolStr = "取得できません";
 				String mggStr = "まだ書き込みが行われていません。";
@@ -665,6 +719,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+
 
 	/**
 	 * ファイルからBitMap配列の読込み

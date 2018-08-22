@@ -19,11 +19,6 @@
 		android:theme="@style/NoActionBarTheme"
 		app:popupTheme="@style/ToolbarMenu"
 		>
-		<include
-			layout="@layout/whit_bord_cp"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
-
 	</android.support.v7.widget.Toolbar>
 
 	<android.support.v4.widget.DrawerLayout

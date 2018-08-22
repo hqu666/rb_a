@@ -7,6 +7,10 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
+	<include
+		layout="@layout/whit_bord_cp"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
 
 	<LinearLayout
 		android:id="@+id/sa_disp_ll"
