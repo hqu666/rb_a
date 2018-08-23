@@ -110,4 +110,16 @@
 		android:icon="@android:drawable/ic_lock_power_off"
 		android:title="@string/menu_quit"/>
 
+
+	<item
+		android:id="@+id/score_bt"
+		android:icon="@android:drawable/ic_menu_myplaces"
+		android:title="score"
+		app:showAsAction="always"/>
+
+	<item
+		android:id="@+id/again_bt"
+		android:icon="@android:drawable/ic_menu_revert"
+		android:title="again"
+		app:showAsAction="always"/>
 </menu>

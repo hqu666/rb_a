@@ -41,9 +41,15 @@ import java.io.InputStream;
 public class RecoveryBrainActivity extends AppCompatActivity   implements NavigationView.OnNavigationItemSelectedListener {
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v ;        //表示側
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v ;        //操作側
-	public TextView cp_score_tv ;
-	public TextView cp_after_tv;
-	public TextView cp_befor_tv ;
+	public Toolbar toolbar;
+//	public TextView cp_score_tv ;
+//	public TextView cp_after_tv;
+//	public TextView cp_befor_tv ;
+
+//	public final int toolbar_id = 1000;
+//	public final int cp_score_tv_id = toolbar_id + 1;
+//	public final int cp_after_tv_id = cp_score_tv_id + 1;
+//	public final int cp_befor_tv_id  = cp_after_tv_id + 1;
 
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
@@ -107,20 +113,20 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			readPref();
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_rb);
+			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
+			setSupportActionBar(toolbar);
+
 			LinearLayout wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
 			wh_paret.setVisibility(View.GONE);
-			cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-			cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
-			cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
 
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
-			sa_disp_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,true);        //表示(受信)側
+			sa_disp_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,true,toolbar);        //表示(受信)側
 			sa_disp_ll.addView(sa_disp_v);
 			sa_disp_v.readFileName="";
 
 			LinearLayout sa_pad_ll = ( LinearLayout ) findViewById(R.id.sa_pad_ll);
-			sa_pad_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,false);        //表示側
+			sa_pad_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,false,toolbar);        //表示側
 			sa_pad_ll.addView(sa_pad_v);
 
 			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
@@ -135,7 +141,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 						int action = event.getAction();
 						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
 						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
-						myLog(TAG , dbMsg);
+//						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 					}
@@ -226,8 +232,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		super.onDestroy();
 	}
 
-	///ハンバーガーメニュー//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private Toolbar toolbar;
+	//ドロワメニュー//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public ActionBarDrawerToggle abdToggle;        //アニメーションインジケータ
 	public NavigationView navigationView;
 	private DrawerLayout drawer;
@@ -279,8 +284,6 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		final String TAG = "initDrawer[RBS]";
 		String dbMsg = "";
 		try {
-			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
-			setSupportActionBar(toolbar);
 //					nvh_img = ( ImageView ) findViewById(R.id.nvh_img);                //NaviViewヘッダーのアイコン
 			drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
 			abdToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -373,8 +376,13 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 				case R.id.rbm_common_back:     //戻す
 					sa_disp_v.canvasBack();
 					break;
-
-
+				case R.id.score_bt:     //評価
+					sa_disp_v.scorePixcel();
+					break;
+				case R.id.again_bt:     //戻す
+				case R.id.rbm_hand_again:     //戻す
+					sa_disp_v.backAgain();
+					break;
 				case R.id.md_qr_read:     //QRコードから接続
 					Intent qra = new Intent(this , QRActivity.class);
 					startActivity(qra);
@@ -413,7 +421,10 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 //					drawer.openDrawer(GravityCompat.START);
 					break;
 				default:
-					onContextItemSelected(item);
+					String titolStr ="制作中です";
+					String mggStr   ="最終リリースをお待ちください";
+					messageShow(titolStr , mggStr) ;
+//					onContextItemSelected(item);
 					break;
 			}
 //			if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -549,138 +560,12 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			int canvasHeight =sa_disp_v.getHeight() ;
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
 			sa_disp_v.addBitMap( readFileName ,canvasWidth ,canvasHeight );
-
+//						writehScore( this,1000,100);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
-
-	public int scoreVar = 0;
-	public int after_Count = 0;
-	public int before_Count = 0;
-	private ProgressDialog progressDialog;
-
-	public void writehScore(int beforeCount, int afterCount) {
-		final String TAG = "writehScore[RBS]";
-		String dbMsg = "";
-		try {
-			dbMsg += afterCount + "/" + beforeCount;
-				float sVar = (((beforeCount - afterCount)*100) / beforeCount);
-				dbMsg +=  "=" + sVar;
-				scoreVar = (int)Math.round(sVar);
-			CharSequence wStr = "スコア " + scoreVar +"点 "+ afterCount + "/ " + beforeCount +"ピクセル ";
-			dbMsg +=  ">>" + wStr;
-			this.after_Count = afterCount;
-			this.before_Count = beforeCount;
-
-//			new Thread(new Runnable() {
-//				public void run() {
-//					final String TAG = "run[RBS]";
-//					String dbMsg = "";
-//					try {
-//						CharSequence wStr = "スコア " + scoreVar +"点 "+ after_Count + "/ " + before_Count +"ピクセル ";
-//						dbMsg += wStr;
-//						Toast.makeText(this, wStr, Toast.LENGTH_LONG).show();
-//////						TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-//////						TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
-//////						TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
-//						cp_score_tv.setText(scoreVar + "");
-//						cp_after_tv.setText(after_Count+"");
-//						cp_befor_tv.setText(before_Count+"");
-//	//ttempt to invoke virtual method 'void android.widget.TextView.setText(java.lang.CharSequence)' on a null object reference
-////						Toolbar toolbar = ( Toolbar ) findViewById(R.id.toolbar);
-////						toolbar.setTitle(wStr);
-//						myLog(TAG , dbMsg);
-//					} catch (Exception er) {
-//						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-//					}
-//				}
-//			}).start();
-
-
-			RecoveryBrainActivity.this.runOnUiThread(new Runnable() {
-							  @Override
-							  public void run() {
-								  final String TAG = "run[RBS]";
-								  String dbMsg = "";
-								  try {
-									  CharSequence wStr = "スコア " + scoreVar +"点 "+ after_Count + "/ " + before_Count +"ピクセル ";
-									  dbMsg += wStr;
-									  Toast.makeText(RecoveryBrainActivity.this, wStr, Toast.LENGTH_LONG).show();
-//						TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-//						TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
-//						TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
-//									  cp_score_tv.setText( "" + scoreVar + "");
-//									  cp_after_tv.setText( "" +after_Count+"");
-//									  cp_befor_tv.setText( "" +before_Count+"");
-									  //ttempt to invoke virtual method 'void android.widget.TextView.setText(java.lang.CharSequence)' on a null object reference
-//						Toolbar toolbar = ( Toolbar ) findViewById(R.id.toolbar);
-//						toolbar.setTitle(wStr);
-									  myLog(TAG , dbMsg);
-								  } catch (Exception er) {
-									  myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-								  }
-
-							  }
-						  });
-//			progressDialog = new ProgressDialog(this);
-//			progressDialog.setMessage("実行中です。");
-//			progressDialog.show();
-//
-//			//スレッドを生成して起動します。
-//			MyThread thread = new MyThread();
-//			thread.start();
-//			final TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-//			final TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
-//			final TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
-//			cp_score_tv.setText(scoreVar);
-//			cp_after_tv.setText(afterCount);
-//			cp_befor_tv.setText(beforeCount);
-
-//			MyThread thread = new MyThread();
-//			thread.start();
-			//java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window
-//			getSupportActionBar().setTitle(wStr);    //Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
-//			RecoveryBrainActivity.this.toolbar.setTitle(wStr);
-//			setSupportActionBar(toolbar); //  Attempt to invoke virtual method 'void android.support.v7.widget.
-			// Toolbar.setTitle(java.lang.CharSequence)' on a null object reference
-//			setTitle(wStr);  // Attempt to invoke virtual method 'android.view.Window$Callback android.view.Window.getCallback()' on a null object reference
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-	}
-
-	class MyThread extends Thread {
-		public void run() {
-			final String TAG = "run[RBS]";
-			String dbMsg = "";
-			try {
-				//時間のかかる処理実行します。今回は仮で10秒停止させています。
-//			try {
-//				//10秒停止します。
-//				Thread.sleep(10000);
-//			} catch (InterruptedException e) {
-//			}
-				CharSequence wStr = "スコア " + scoreVar +"点 "+ after_Count + "/ " + before_Count +"ピクセル ";
-				dbMsg += wStr;
-			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-			TextView cp_after_tv = ( TextView ) findViewById(R.id.cp_after_tv);
-			TextView cp_befor_tv = ( TextView ) findViewById(R.id.cp_befor_tv);
-			cp_score_tv.setText(scoreVar);
-			cp_after_tv.setText(after_Count);
-			cp_befor_tv.setText(before_Count);
-
-			progressDialog.dismiss();
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		}
-	}
-
 
 	public void callQuit() {
 		final String TAG = "callQuit[MA]";
