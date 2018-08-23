@@ -81,7 +81,9 @@
 		</menu>
 	</item>
 
-	<item android:title="@string/rb_movement">
+	<item
+		android:id="@+id/rbm_trace_setting"
+		android:title="@string/rb_movement">
 		<menu
 			>
 			<item

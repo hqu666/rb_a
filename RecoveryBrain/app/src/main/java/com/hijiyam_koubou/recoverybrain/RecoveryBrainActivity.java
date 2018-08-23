@@ -373,8 +373,23 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			int id = item.getItemId();
 			dbMsg = "id=" + id;
 			switch ( id ) {
+				case R.id.rbm_trace_setting:     //動作設定
+					//メニューグループはまずスキップ //
+					break;
 				case R.id.rbm_common_back:     //戻す
 					sa_disp_v.canvasBack();
+					break;
+				case R.id.rbm_auto_judge:     //自動判定
+					CharSequence wStr = "トレース後は判定ボタンをタップして下さい。";
+					if(sa_disp_v.isAutoJudge){
+						sa_disp_v.isAutoJudge = false;
+					} else{
+						sa_disp_v.isAutoJudge = true;
+						wStr = "トレース後に自動判定を行います。";
+					}
+					dbMsg +=  ">>" + wStr;
+					Toast.makeText(this, wStr, Toast.LENGTH_SHORT).show();
+
 					break;
 				case R.id.score_bt:     //評価
 					sa_disp_v.scorePixcel();
