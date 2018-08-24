@@ -29,10 +29,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,7 +49,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public
+class
+RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemClickListener{
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v;        //表示側
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v;        //操作側
 	public Toolbar toolbar;
@@ -449,84 +455,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	}
 
 	/**
-	 * 上下鏡面動作
-	 **/
-	public void mirror_h_click() {
-		final String TAG = "mirror_h_click[RBS]";
-		String dbMsg = "";
-		try {
-			CharSequence toastStr = "";
-			if ( is_h_Mirror ) {
-				is_h_Mirror = false;
-				toastStr = "上下反転を解除します";
-				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
-			} else {
-				is_h_Mirror = true;
-				toastStr = "トレース結果が上下反転して反映されます";
-				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
-			}
-			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
-			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		super.onStop();
-	}
-
-	/**
-	 * 左右鏡面動作
-	 **/
-	public void mirror_v_click() {
-		final String TAG = "mirror_v_click[RBS]";
-		String dbMsg = "";
-		try {
-			CharSequence toastStr = "";
-			if ( is_v_Mirror ) {
-				is_v_Mirror = false;
-				toastStr = "左右反転を解除します";
-				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
-			} else {
-				is_v_Mirror = true;
-				toastStr = "トレース結果が左右反転して反映されます";
-				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
-			}
-			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
-			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		super.onStop();
-	}
-
-	/**
-	 * 自動判定
-	 **/
-	public void scoreAuto() {
-		final String TAG = "scoreAuto[RBS]";
-		String dbMsg = "";
-		try {
-			CharSequence toastStr = "";
-			toastStr = "トレース後は判定ボタンをタップして下さい。";
-			if ( sa_disp_v.isAutoJudge ) {
-				sa_disp_v.isAutoJudge = false;
-				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_off);
-			} else {
-				sa_disp_v.isAutoJudge = true;
-				toastStr = "トレース後に自動判定を行います。";
-				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
-			}
-			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
-			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		super.onStop();
-	}
-
-	/**
 	 * MainActivityのメニュー
 	 * ドロワーと共通になるので関数化
 	 */
@@ -792,43 +720,25 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	}
 
 	/**
-	 * 定例パターン選択
-	 *  http://hakoniwadesign.com/?p=10661
-	 * */
-	public void stereoTypeSelect() {
-		final String TAG = "stereoTypeSelect[RBS]";
+	 * 上下鏡面動作
+	 **/
+	public void mirror_h_click() {
+		final String TAG = "mirror_h_click[RBS]";
 		String dbMsg = "";
 		try {
-			AssetManager assetMgr = getResources().getAssets();
-			String files[] = assetMgr.list("");
-			List<ImageView> ivs = new ArrayList<ImageView>();
-			for ( int i = 0 ; i < files.length ; i++ ) {
-				dbMsg += "(" + i + ")" + files[i];
-				if ( files[i].endsWith(".png") ) {
-					Bitmap rsBitmap = loadBitmapAsset(files[i] , assetMgr);
-					int bmpWidth = rsBitmap.getWidth();
-					int bmpHeight = rsBitmap.getHeight();
-					dbMsg += "[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
-					ImageView iv = new ImageView(this);
-					iv.setImageBitmap(rsBitmap);
-					ivs.add(iv) ;
-				}
+			CharSequence toastStr = "";
+			if ( is_h_Mirror ) {
+				is_h_Mirror = false;
+				toastStr = "上下反転を解除します";
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
+			} else {
+				is_h_Mirror = true;
+				toastStr = "トレース結果が上下反転して反映されます";
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
 			}
-//			AlertDialog.Builder listDlg = new AlertDialog.Builder(this);
-//			listDlg.setTitle("定型パターン");
-//			listDlg.setItems(
-//					items,
-//					new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int which) {
-//							// リスト選択時の処理
-//							// which は、選択されたアイテムのインデックス
-//						}
-//					});
-//			listDlg.create().show(); 			// 表示
-
+			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
 			myLog(TAG , dbMsg);
-		} catch (IOException er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -836,24 +746,191 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	}
 
 	/**
-	 * assets フォルダから、画像ファイルを読み込む
-	 * http://fantom1x.blog130.fc2.com/blog-entry-130.html
-	 */
-	public static final Bitmap loadBitmapAsset(String fileName , AssetManager assetManager) throws IOException {
-		final String TAG = "loadBitmapAsset[RBS]";
+	 * 左右鏡面動作
+	 **/
+	public void mirror_v_click() {
+		final String TAG = "mirror_v_click[RBS]";
 		String dbMsg = "";
-//		final AssetManager assetManager = context.getAssets();
-		dbMsg = "fileName=" + fileName;
-		BufferedInputStream bis = null;
 		try {
-			bis = new BufferedInputStream(assetManager.open(fileName));
-			return BitmapFactory.decodeStream(bis);
-		} finally {
+			CharSequence toastStr = "";
+			if ( is_v_Mirror ) {
+				is_v_Mirror = false;
+				toastStr = "左右反転を解除します";
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
+			} else {
+				is_v_Mirror = true;
+				toastStr = "トレース結果が左右反転して反映されます";
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
+			}
+			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	/**
+	 * 自動判定
+	 **/
+	public void scoreAuto() {
+		final String TAG = "scoreAuto[RBS]";
+		String dbMsg = "";
+		try {
+			CharSequence toastStr = "";
+			toastStr = "トレース後は判定ボタンをタップして下さい。";
+			if ( sa_disp_v.isAutoJudge ) {
+				sa_disp_v.isAutoJudge = false;
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_off);
+			} else {
+				sa_disp_v.isAutoJudge = true;
+				toastStr = "トレース後に自動判定を行います。";
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
+			}
+			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	public List<String> iconList ;
+	/**
+	 * 定例パターン選択
+	 *  http://hakoniwadesign.com/?p=10661
+	 * */
+	public void stereoTypeSelect() {
+		final String TAG = "stereoTypeSelect[RBS]";
+		String dbMsg = "";
+		try {
+			iconList = new ArrayList<>();            	// 要素をArrayListで設定
+			AssetManager assetMgr = getResources().getAssets();
+			String files[] = assetMgr.list("");
+			for ( int i = 0 ; i < files.length ; i++ ) {
+				dbMsg += "(" + i + ")" + files[i];
+				if ( files[i].endsWith(".png") ) {
+					iconList.add( files[i]) ;
+				}
+			}
+			dbMsg += "," + iconList.size() + "件" ;
+			// カスタムビューを設定    http://androidguide.nomaki.jp/html/dlg/custom/customMain.html
+			LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View layout = inflater.inflate(R.layout.dlog_thumb,(ViewGroup )findViewById(R.id.thum_root));
+			GridView gridview = layout.findViewById(R.id.gridview);      			// GridViewのインスタンスを生成
+			GridAdapter adapter = new GridAdapter( RecoveryBrainActivity.this ,R.layout.grid_items,iconList);  			// BaseAdapter を継承したGridAdapterのインスタンスを生成
+			gridview.setAdapter(adapter);       			// gridViewにadapterをセット
+			gridview.setOnItemClickListener(this); 			// item clickのListnerをセット
+			// アラーとダイアログ を生成
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle( R.string.thumbnail_list_titol);
+			builder.setView(layout);
+			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					// Cancel ボタンクリック処理
+				}
+			});
+			builder.create().show();     			// 表示
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		final String TAG = "onItemClick[TA]";
+		String dbMsg = "";
+		try {
+			dbMsg = ""+iconList.get(position);   //			textView.setText(il.getName(position));
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+
+	}
+
+	class ViewHolder {
+		ImageView imageView;
+	}
+
+	// BaseAdapter を継承した GridAdapter クラスのインスタンス生成
+	class GridAdapter extends BaseAdapter {
+		private LayoutInflater inflater;
+		private int layoutId;
+		private List<String> icList = new ArrayList<String>();
+
+		GridAdapter(Context context, int layoutId, List<String> iconList) {
+			super();
+			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.layoutId = layoutId;
+			icList = iconList;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			final String TAG = "getView[TA]";
+			String dbMsg = "";
 			try {
-				bis.close();
+				ViewHolder holder;
+				if (convertView == null) {
+					convertView = inflater.inflate(layoutId, parent, false);   					// main.xml の <GridView .../> に grid_items.xml を inflate して convertView とする
+					holder = new RecoveryBrainActivity.ViewHolder();    					// ViewHolder を生成
+					holder.imageView = (ImageView) convertView.findViewById(R.id.image_view);
+					convertView.setTag(holder);
+				}
+				else {
+					holder = (RecoveryBrainActivity.ViewHolder ) convertView.getTag();
+				}
+				Bitmap rsBitmap = loadBitmapAsset(icList.get(position));
+				int bmpWidth = rsBitmap.getWidth();
+				int bmpHeight = rsBitmap.getHeight();
+				dbMsg += "[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
+				holder.imageView.setImageBitmap(rsBitmap);   //				holder.imageView.setImageResource(icList.get(position));
+				myLog(TAG , dbMsg);
 			} catch (Exception er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
+			return convertView;
+		}
+
+		/**
+		 * assets フォルダから、画像ファイルを読み込む
+		 * http://fantom1x.blog130.fc2.com/blog-entry-130.html
+		 */
+		public  final Bitmap loadBitmapAsset(String fileName ) throws IOException {
+			final String TAG = "loadBitmapAsset[TA]";
+			String dbMsg = "";
+			final AssetManager assetManager = RecoveryBrainActivity.this.getAssets();
+			dbMsg = "fileName=" + fileName;
+			BufferedInputStream bis = null;
+			try {
+				bis = new BufferedInputStream(assetManager.open(fileName));
+				return BitmapFactory.decodeStream(bis);
+			} finally {
+				try {
+					bis.close();
+				} catch (Exception er) {
+					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+				}
+			}
+		}
+
+		@Override
+		public int getCount() {
+			return iconList.size();   			// 全要素数を返す
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
 		}
 	}
 

@@ -1,20 +1,20 @@
 <resources>
 	<string name="app_name">Recovery Brain</string>
-	<string	name="navigation_drawer_open">
+	<string name="navigation_drawer_open">
 		Open
 		navigation
 		drawer
 	</string>
-	<string	name="navigation_drawer_close">
+	<string name="navigation_drawer_close">
 		Close
 		navigation
 		drawer
 	</string>
-	<string	name="nav_header_subtitle">android.studio@android.com</string>
-	<string	name="nav_header_desc">Navigation
+	<string name="nav_header_subtitle">android.studio@android.com</string>
+	<string name="nav_header_desc">Navigation
 		header</string>
 	<string name="common_back">戻す</string>
-
+	<string name="description">icon</string>
 
 	<string name="rootUrlStr">http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080</string>
 	<string name="companyUrlStr">http://192.168.100.6:3080</string>
@@ -34,8 +34,8 @@
 	<string name="partner_titol">接続先</string>
 
 	<string name="common_cancel">キャンセル</string>
-	
-			<string name="wv_set_url_titol">URL設定</string>
+
+	<string name="wv_set_url_titol">URL設定</string>
 	<string name="wd_web_menu_cap">webメニュー</string>
 
 
@@ -137,6 +137,7 @@
 	<string name="common_pixcel">px</string>
 	<string name="common_hyouka">評価</string>
 	<string name="againbt_caption">もう一度</string>
+	<string name="thumbnail_list_titol">定例パターン</string>
 
 	<string-array name="typeSelectList">
 		<item>フリーハンド</item>
