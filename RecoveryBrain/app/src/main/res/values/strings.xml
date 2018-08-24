@@ -75,8 +75,8 @@
 
 	<string name="rb_movement">動作設定</string>
 	<string name="rb_mirror_movement">鏡面動作</string>
-	<string name="rb_mirror_movement_to">上下</string>
-	<string name="rb_mirror_movement_lr">左右</string>
+	<string name="rb_mirror_movement_to">上下鏡面動作</string>
+	<string name="rb_mirror_movement_lr">左右鏡面動作</string>
 	<string name="rb_auto_judge">トレース後に自動判定</string>
 
 	<!--<string name="title_activity_video_chat">ホワイトボード</string>-->

@@ -41,13 +41,12 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
 	private Toolbar toolbar;
+	private TextView cp_score_tv;
 
 	private boolean isCall = false;                    //newで呼ばれた
 	private boolean isRecever = true;                    //受信側
 	private boolean isActionUp = false;                    //描画終了
-	public boolean  isMirror=false;				//上下鏡面動作
-	public boolean  is_h_Mirror=false;				//左右鏡面動作
-	public boolean  isAutoJudge=true;				//トレース後に自動判定
+	public boolean  isAutoJudge=true;				//トレース後に自動判定 //読み込み時、反転される
 	private boolean  isComp=false;				//比較中	;scoreStartRadyでtrueに設定
 
 
@@ -114,7 +113,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-	public CS_CanvasView(Context context , boolean isRecever,Toolbar _toolbar) {
+	public CS_CanvasView(Context context , boolean isRecever,Toolbar _toolbar ,TextView _cp_score_tv) {
 		super(context);
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "メソッド内から";
@@ -127,6 +126,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				dbMsg += "送信側として生成";
 			}
 			this.toolbar= _toolbar;
+			this.cp_score_tv= _cp_score_tv;
 			commonCon(context);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -349,11 +349,12 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 				switch ( REQUEST_CORD ) {
 					case REQUEST_CLEAR:                //500;全消去
-						canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
-						for ( PathObject pathObject : pathIist ) {
-							pathObject.path.reset();
-						}
-						canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
+						clearAllBody(canvas);
+//						canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
+//						for ( PathObject pathObject : pathIist ) {
+//							pathObject.path.reset();
+//						}
+//						canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
 						REQUEST_CORD = REQUEST_DROW_PATH;
 						break;
 					case REQUEST_DROW_PATH:                //501;フリーハンド
@@ -370,17 +371,17 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						if(lastPaint != null && isActionUp){
 							myCanvas  = new Canvas();
 							myCanvas = canvas;					//現在のCanvasの状態を保存
-							RectF bounds = new RectF(0, 0, caWidth, caHeight);
-//							int saveFlag = myCanvas.saveLayer(bounds, lastPaint, Canvas.CLIP_TO_LAYER_SAVE_FLAG);
-							int saveFlag = myCanvas.save();         //現在の状態を覚える
-							dbMsg += ".saveFlag=" + saveFlag;
-							/**
-							 MATRIX_SAVE_FLAG	Matrix情報（translate, rotate, scale, skew）の情報を保存
-							 CLIP_SAVE_FLAG	クリップ領域を保存
-							 HAS_ALPHA_LAYER_SAVE_FLAG	アルファ（不透明度）レイヤーを保存
-							 FULL_COLOR_LAYER_SAVE_FLAG	カラーレイヤーを保存
-							 CLIP_TO_LAYER_SAVE_FLAG	クリップレイヤーとして保存
-							 ALL_SAVE_FLAG	全ての状態を保存する*/
+//							RectF bounds = new RectF(0, 0, caWidth, caHeight);
+////							int saveFlag = myCanvas.saveLayer(bounds, lastPaint, Canvas.CLIP_TO_LAYER_SAVE_FLAG);
+//							int saveFlag = myCanvas.save();         //現在の状態を覚える
+//							dbMsg += ".saveFlag=" + saveFlag;
+//							/**
+//							 MATRIX_SAVE_FLAG	Matrix情報（translate, rotate, scale, skew）の情報を保存
+//							 CLIP_SAVE_FLAG	クリップ領域を保存
+//							 HAS_ALPHA_LAYER_SAVE_FLAG	アルファ（不透明度）レイヤーを保存
+//							 FULL_COLOR_LAYER_SAVE_FLAG	カラーレイヤーを保存
+//							 CLIP_TO_LAYER_SAVE_FLAG	クリップレイヤーとして保存
+//							 ALL_SAVE_FLAG	全ての状態を保存する*/
 							isActionUp = false;                    //描画終了
 
 							dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
@@ -390,11 +391,12 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 								Toast.makeText(context, wStr, Toast.LENGTH_SHORT).show();
 								scorePixcel();
 							}
-							myLog(TAG , dbMsg);
 						}
 						break;
 					case REQUEST_AGAIN:                //502；もう一度
 						if(output != null) {
+							clearAllBody(canvas);
+							dbMsg += "トレース前[" + output.getWidth() + "×" + output.getHeight() + "]" + output.getByteCount() + "バイト";
 							canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
 						} else{
 							String titolStr = "「もう一度」を指定されました";
@@ -402,6 +404,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 							messageShow(titolStr , mggStr);
 						}
 						REQUEST_CORD =  REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
+						myLog(TAG , dbMsg);
 						break;
 					case REQUEST_ADD_BITMAP:                //503;ビットマップ挿入
 						dbMsg += "(" + upX + "×" + upY + ")に[" + aBmp.getWidth() + "×" + aBmp.getHeight() + "]" + aBmp.getByteCount() + "バイトのビットマップ挿入";
@@ -414,7 +417,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						break;
 				}
 //				canvas.restore(); // save直前に戻る
-
 			}
 //			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -535,12 +537,13 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			float sVar = (((beforeCount - afterCount)*100) / beforeCount);
 			dbMsg +=  "=" + sVar;
 			scoreVar = (int)Math.round(sVar);
+			cp_score_tv.setText( " " + scoreVar );
 			CharSequence wStr = "スコア " + scoreVar +"点 "+ afterCount + "/ " + beforeCount +"ピクセル ";
 			dbMsg +=  ">>" + wStr;
 			Toast.makeText(contex, wStr, Toast.LENGTH_SHORT).show();
 			dbMsg +=  ">>" + toolbar;
+			wStr = ""+ afterCount + "/ " + beforeCount +"ピクセル ";
 			toolbar.setTitle(wStr);   //"" + scoreVar
-//			wStr = "点 "+ afterCount + "/ " + beforeCount +"ピクセル ";
 // toolbar.setSubtitle(wStr);      //2行になってTitolも小さくなる
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -753,11 +756,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		String dbMsg = "";
 		try {
 			if ( myCanvas != null ) {
-				CharSequence wStr = "トレースできた状況を読み取っています。";
-				dbMsg +=  ">>" + wStr;
-				Toast.makeText(context, wStr, Toast.LENGTH_SHORT).show();
-
-//				myCanvas.restore();               //: Underflow in restore - more restores than saves
 				dbMsg += "canvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
 				this.setDrawingCacheEnabled(true);
 				Bitmap cache = this.getDrawingCache();    				// Viewのキャッシュを取得
@@ -768,9 +766,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				dbMsg += "screenShot[" + bWidth + "×" + bHight + "]" + screenShot.getByteCount() + "バイト";
 				int[] trPixels = new int[bWidth * bHight];
 				screenShot.getPixels(trPixels , 0 , bWidth , 0 , 0 , bWidth , bHight);                //pixelsの配列にmyBitmapのデータを格納する
-
-//				Bitmap trBmp = Bitmap.createBitmap(bWidth , bHight , Bitmap.Config.ARGB_8888);        //現状を読み込むビットマップ
-//				trBmp.getPixels(trPixels , 0 , bWidth , 0 , 0 , bWidth , bHight);                //pixelsの配列にmyBitmapのデータを格納する
 				dbMsg +=  ",pixels=" + trPixels.length;
 				int whiteVar = Color.argb(255 , 255 ,255 , 255);   //反転 ;0xFF -各色
 				int brackVar = Color.argb(255 , 0 ,0 , 0);   //反転 ;0xFF -各色
@@ -876,6 +871,28 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+	/**
+	 * 全消去
+	 * */
+	public void clearAllBody(Canvas canvas) {
+		final String TAG = "clearAllBody[CView]";
+		String dbMsg = "";
+		try {
+			canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
+			for ( PathObject pathObject : pathIist ) {
+				pathObject.path.reset();
+			}
+			float caWidth = canvas.getWidth();
+			float caHeight = canvas.getHeight();
+			dbMsg += ",canvas[" + caWidth + "×" + caHeight + "]";
+			canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
+			writehScore(context,orgCount,orgCount);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 	/////////////////////////////////////////////////////////////////////////
 	@Override
@@ -912,7 +929,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			}
 			retBool = true;
 //			}
-//			myLog(TAG , dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}

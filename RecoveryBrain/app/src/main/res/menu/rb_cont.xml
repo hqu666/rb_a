@@ -31,7 +31,9 @@
 			<!--android:title="@string/menu_stand_alone"/>-->
 	</group>
 
-	<item android:title="@string/rb_job_select">
+	<item
+		android:id="@+id/rbm_job_select_setting"
+		android:title="@string/rb_job_select">
 		<menu
 			>
 			<item
@@ -54,7 +56,9 @@
 		</menu>
 	</item>
 
-	<item android:title="@string/rb_direction_select">
+	<item
+		android:id="@+id/rbm_direction_setting"
+		android:title="@string/rb_direction_select">
 		<menu>
 			<item
 				android:id="@+id/rbm_direction_org"
@@ -86,10 +90,11 @@
 		android:title="@string/rb_movement">
 		<menu
 			>
-			<item
-				android:id="@+id/rbm_mirror_movement"
-				android:checkable="false"
-				android:title="@string/rb_mirror_movement"/>
+			<!--<item-->
+				<!--android:id="@+id/rbm_mirror_movement"-->
+				<!--android:checkable="false"-->
+				<!--android:checked="false"-->
+				<!--android:title="@string/rb_mirror_movement"/>-->
 			<item
 				android:id="@+id/rbm_mirror_movement_to"
 				android:checkable="false"
@@ -112,16 +117,38 @@
 		android:icon="@android:drawable/ic_lock_power_off"
 		android:title="@string/menu_quit"/>
 
+	<!--<item-->
+		<!--android:id="@+id/mirror_v_bt"-->
+		<!--android:checkable="true"-->
+		<!--android:icon="@drawable/mirror_v"-->
+		<!--android:title="again"-->
+		<!--app:showAsAction="always"/>-->
 
-	<item
-		android:id="@+id/score_bt"
-		android:icon="@android:drawable/ic_menu_myplaces"
-		android:title="score"
-		app:showAsAction="always"/>
 
+	<!--<item-->
+		<!--android:id="@+id/mirror_h_bt"-->
+		<!--android:checkable="true"-->
+		<!--android:checked="false"-->
+		<!--android:icon="@drawable/mirror_h"-->
+		<!--android:title="score"-->
+		<!--app:showAsAction="always"/>-->
+	<!--<item-->
+		<!--android:id="@+id/score_bt"-->
+		<!--android:checkable="true"-->
+		<!--android:icon="@android:drawable/ic_menu_myplaces"-->
+		<!--android:title="score"-->
+		<!--app:showAsAction="always"/>-->
 	<item
 		android:id="@+id/again_bt"
 		android:icon="@android:drawable/ic_menu_revert"
 		android:title="again"
 		app:showAsAction="always"/>
+
+	<item
+		android:id="@+id/imgList_bt"
+		android:checkable="true"
+		android:icon="@android:drawable/ic_dialog_dialer"
+		android:title="score"
+		app:showAsAction="always"/>
+
 </menu>

@@ -1,8 +1,10 @@
 package com.hijiyam_koubou.recoverybrain;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +21,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.AndroidException;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,21 +33,25 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RecoveryBrainActivity extends AppCompatActivity   implements NavigationView.OnNavigationItemSelectedListener {
-	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v ;        //表示側
-	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v ;        //操作側
+public class RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v;        //表示側
+	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v;        //操作側
 	public Toolbar toolbar;
-//	public TextView cp_score_tv ;
-//	public TextView cp_after_tv;
-//	public TextView cp_befor_tv ;
+	public ImageButton cp_score_bt;
+	public ImageButton cp_mirror_h_bt;
+	public ImageButton cp_mirror_v_bt;
 
 //	public final int toolbar_id = 1000;
 //	public final int cp_score_tv_id = toolbar_id + 1;
@@ -53,11 +60,13 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
-	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";					//	String dataURI = "http://192.168.3.14:3080";	//自宅
+	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";                    //	String dataURI = "http://192.168.3.14:3080";	//自宅
 	public boolean isReadPref = false;
 	public boolean isRecoveryBrain = false;
 	public boolean isNotSet = true;
-	public String readFileName = "st001.png" ;
+	public String readFileName = "st001.png";
+	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
+	public boolean is_h_Mirror = true;                //上下鏡面動作
 
 
 	/**
@@ -69,8 +78,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		try {
 			if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {                //(初回起動で)全パーミッションの許諾を取る
 				dbMsg = "許諾確認";
-				String[] PERMISSIONS = { Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.WRITE_EXTERNAL_STORAGE,
-						Manifest.permission.INTERNET , Manifest.permission.CAMERA };
+				String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.WRITE_EXTERNAL_STORAGE , Manifest.permission.INTERNET , Manifest.permission.CAMERA};
 //				Manifest.permission.ACCESS_NETWORK_STATE , Manifest.permission.ACCESS_WIFI_STATE ,
 // , Manifest.permission.MODIFY_AUDIO_SETTINGS , Manifest.permission.RECORD_AUDIO ,  Manifest.permission.MODIFY_AUDIO_SETTINGS,
 				boolean isNeedParmissionReqest = false;
@@ -87,7 +95,8 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 					requestPermissions(PERMISSIONS , REQUEST_PREF);
 					return;
 				}
-			}		dbMsg += ",isReadPref=" + isReadPref;
+			}
+			dbMsg += ",isReadPref=" + isReadPref;
 			MyPreferenceFragment prefs = new MyPreferenceFragment();
 			prefs.readPref(this);
 			rootUrlStr = prefs.rootUrlStr;
@@ -115,23 +124,23 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 			setContentView(R.layout.activity_rb);
 			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
-
+			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
 			LinearLayout wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
 			wh_paret.setVisibility(View.GONE);
 
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
-			sa_disp_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,true,toolbar);        //表示(受信)側
+			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(this , true , toolbar , cp_score_tv);        //表示(受信)側
 			sa_disp_ll.addView(sa_disp_v);
-			sa_disp_v.readFileName="";
+			sa_disp_v.readFileName = "";
 
 			LinearLayout sa_pad_ll = ( LinearLayout ) findViewById(R.id.sa_pad_ll);
-			sa_pad_v = new  com.hijiyam_koubou.recoverybrain.CS_CanvasView(this,false,toolbar);        //表示側
+			sa_pad_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(this , false , toolbar , cp_score_tv);        //表示側
 			sa_pad_ll.addView(sa_pad_v);
 
 			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+				public boolean onTouch(View v , MotionEvent event) {
 					final String TAG = "sa_pad_v[RBS]";
 					String dbMsg = "";
 					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を書かせない)
@@ -140,12 +149,59 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 						float yPoint = event.getY();
 						int action = event.getAction();
 						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
+						if ( is_v_Mirror ) {   //左右反転
+							dbMsg += "、幅=" + sa_disp_v.getWidth();
+							xPoint = (sa_disp_v.getWidth() + 1.0f) - xPoint;
+							dbMsg += ">xPoint>" + xPoint;
+
+						}
+						if ( is_h_Mirror ) {   //上下反転
+							dbMsg += "、高さ=" + sa_disp_v.getHeight();
+							yPoint = (sa_disp_v.getHeight() + 1.0f) - yPoint;
+							dbMsg += ">yPoint>" + yPoint;
+						}
+						event.setLocation(xPoint , yPoint);
 						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
-//						myLog(TAG , dbMsg);
+						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 					}
 					return retBool;
+				}
+			});
+
+			cp_score_bt = ( ImageButton ) findViewById(R.id.cp_score_bt);
+			cp_mirror_h_bt = ( ImageButton ) findViewById(R.id.cp_mirror_h_bt);
+			cp_mirror_v_bt = ( ImageButton ) findViewById(R.id.cp_mirror_v_bt);
+			findViewById(R.id.cp_mirror_h_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mirror_h_click();
+				}
+			});
+
+			findViewById(R.id.cp_mirror_v_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mirror_v_click();
+				}
+			});
+
+			cp_score_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					CharSequence wStr = "トレースした状況を読み取っています。";
+//					dbMsg +=  ">>" + wStr;
+					Toast.makeText(RecoveryBrainActivity.this , wStr , Toast.LENGTH_SHORT).show();
+					sa_disp_v.scorePixcel();
+				}
+			});
+
+			cp_score_bt.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					scoreAuto();
+					return true;    // 戻り値をtrueにするとOnClickイベントは発生しない
 				}
 			});
 
@@ -165,7 +221,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "hasFocus=" + hasFocus;
 		try {
-			if(isNotSet){
+			if ( isNotSet ) {
 				laterCreate();
 				isNotSet = false;
 			}
@@ -239,6 +295,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	public ImageView navi_head_iv;
 	public TextView nave_head_main_tv;
 	public TextView navi_head_sub_tv;
+
 	@Override
 	public void onBackPressed() {
 		drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
@@ -256,9 +313,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		String dbMsg = "";
 		try {
 			abdToggle.syncState();    //NaviIconの回転アニメーションなど   Attempt to invoke virtual method 'void android.support.v7.app.ActionBarDrawerToggle.syncState()' on a null object reference
-			myLog(TAG, dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception e) {
-			myErrorLog(TAG, dbMsg + "で" + e.toString());
+			myErrorLog(TAG , dbMsg + "で" + e.toString());
 		}
 	}
 
@@ -269,9 +326,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		String dbMsg = "";
 		try {
 			abdToggle.onConfigurationChanged(newConfig);
-			myLog(TAG, dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception e) {
-			myErrorLog(TAG, dbMsg + "で" + e.toString());
+			myErrorLog(TAG , dbMsg + "で" + e.toString());
 		}
 	}
 
@@ -286,15 +343,15 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		try {
 //					nvh_img = ( ImageView ) findViewById(R.id.nvh_img);                //NaviViewヘッダーのアイコン
 			drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
-			abdToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+			abdToggle = new ActionBarDrawerToggle(this , drawer , toolbar , R.string.navigation_drawer_open , R.string.navigation_drawer_close);
 			abdToggle.setDrawerIndicatorEnabled(true);
 			drawer.setDrawerListener(abdToggle);    //Attempt to invoke virtual method 'void android.support.v4.widget.DrawerLayout.setDrawerListener(android.support.v4.widget.DrawerLayout$DrawerListener)' on a null object reference
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);            //左矢印←アイコンになる
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-			navi_head_iv = (ImageView ) findViewById(R.id.navi_head_iv);
-			nave_head_main_tv = (TextView ) findViewById(R.id.nave_head_main_tv);
-			navi_head_sub_tv = (TextView ) findViewById(R.id.navi_head_sub_tv);
+			navi_head_iv = ( ImageView ) findViewById(R.id.navi_head_iv);
+			nave_head_main_tv = ( TextView ) findViewById(R.id.nave_head_main_tv);
+			navi_head_sub_tv = ( TextView ) findViewById(R.id.navi_head_sub_tv);
 
 			navigationView = ( NavigationView ) findViewById(R.id.nav_view);
 			navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -307,22 +364,53 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 						retBool = funcSelected(menuItem);
 						RecoveryBrainActivity.this.drawer.closeDrawers();
 					} catch (Exception e) {
-						myLog(TAG, dbMsg + "で" + e.toString());
+						myLog(TAG , dbMsg + "で" + e.toString());
 						return false;
 					}
 					return retBool;
 				}
 			});
-			myLog(TAG, dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception e) {
-			myErrorLog(TAG, dbMsg + "で" + e.toString());
+			myErrorLog(TAG , dbMsg + "で" + e.toString());
 		}
 	}                                                                    //NaviViewの初期設定
+
 	///toolbarへメニュー追加///////////////////////////////////////////////////////////////////////////
+	public Menu myMenu;
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.rb_cont , menu);
+		myMenu = menu;
+		return true;
+	}
+
+	/**
+	 * メニュー作成時の非表示や無効化
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		final String TAG = "onPrepareOptionsMenu[RBS]";
+		String dbMsg = "";
+		try {
+			dbMsg = ",上下鏡面=" + is_h_Mirror;
+			mirror_h_click();
+//			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_h_Mirror);
+			dbMsg = ",左右鏡面=" + is_v_Mirror;
+			mirror_v_click();
+//			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_v_Mirror);
+			dbMsg = ",isAutoJudge=" + sa_disp_v.isAutoJudge;
+			scoreAuto();
+//			myMenu.findItem(R.id.rbm_auto_judge).setChecked( sa_disp_v.isAutoJudge);
+//			menu.findItem(R.id.score_bt).setEnabled(! sa_disp_v.isAutoJudge);					//有効/無効
+//			menu.findItem(R.id.score_bt).setVisible(! sa_disp_v.isAutoJudge);					//表示/非表示
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + "で" + er.toString());
+		}
 		return true;
 	}
 
@@ -330,7 +418,6 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		funcSelected(item);
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -350,7 +437,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 //					navigationView.inflateMenu(R.menu.wev_cont);
 //					break;
 //				default:
-					funcSelected(item);
+			funcSelected(item);
 //					//		DrawerLayout drawer = ( DrawerLayout ) findViewById(R.id.drawer_layout);
 //					break;
 //			}
@@ -362,41 +449,103 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	}
 
 	/**
+	 * 上下鏡面動作
+	 **/
+	public void mirror_h_click() {
+		final String TAG = "mirror_h_click[RBS]";
+		String dbMsg = "";
+		try {
+			CharSequence toastStr = "";
+			if ( is_h_Mirror ) {
+				is_h_Mirror = false;
+				toastStr = "上下反転を解除します";
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
+			} else {
+				is_h_Mirror = true;
+				toastStr = "トレース結果が上下反転して反映されます";
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
+			}
+			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	/**
+	 * 左右鏡面動作
+	 **/
+	public void mirror_v_click() {
+		final String TAG = "mirror_v_click[RBS]";
+		String dbMsg = "";
+		try {
+			CharSequence toastStr = "";
+			if ( is_v_Mirror ) {
+				is_v_Mirror = false;
+				toastStr = "左右反転を解除します";
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
+			} else {
+				is_v_Mirror = true;
+				toastStr = "トレース結果が左右反転して反映されます";
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
+			}
+			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	/**
+	 * 自動判定
+	 **/
+	public void scoreAuto() {
+		final String TAG = "scoreAuto[RBS]";
+		String dbMsg = "";
+		try {
+			CharSequence toastStr = "";
+			toastStr = "トレース後は判定ボタンをタップして下さい。";
+			if ( sa_disp_v.isAutoJudge ) {
+				sa_disp_v.isAutoJudge = false;
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_off);
+			} else {
+				sa_disp_v.isAutoJudge = true;
+				toastStr = "トレース後に自動判定を行います。";
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
+			}
+			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	/**
 	 * MainActivityのメニュー
 	 * ドロワーと共通になるので関数化
 	 */
 	public boolean funcSelected(MenuItem item) {
-		final String TAG = "funcSelected[WabA]";
+		final String TAG = "funcSelected[RBS]";
 		String dbMsg = "MenuItem" + item.toString();/////////////////////////////////////////////////
 		try {
 			Bundle bundle = new Bundle();
+			CharSequence toastStr = "";
 			int id = item.getItemId();
 			dbMsg = "id=" + id;
 			switch ( id ) {
-				case R.id.rbm_trace_setting:     //動作設定
+				case R.id.rbm_job_select_setting:            //トレース元設定
+				case R.id.rbm_direction_setting:            //変形設定
+				case R.id.rbm_trace_setting:                //動作設定
 					//メニューグループはまずスキップ //
 					break;
 				case R.id.rbm_common_back:     //戻す
 					sa_disp_v.canvasBack();
-					break;
-				case R.id.rbm_auto_judge:     //自動判定
-					CharSequence wStr = "トレース後は判定ボタンをタップして下さい。";
-					if(sa_disp_v.isAutoJudge){
-						sa_disp_v.isAutoJudge = false;
-					} else{
-						sa_disp_v.isAutoJudge = true;
-						wStr = "トレース後に自動判定を行います。";
-					}
-					dbMsg +=  ">>" + wStr;
-					Toast.makeText(this, wStr, Toast.LENGTH_SHORT).show();
-
-					break;
-				case R.id.score_bt:     //評価
-					sa_disp_v.scorePixcel();
-					break;
-				case R.id.again_bt:     //戻す
-				case R.id.rbm_hand_again:     //戻す
-					sa_disp_v.backAgain();
 					break;
 				case R.id.md_qr_read:     //QRコードから接続
 					Intent qra = new Intent(this , QRActivity.class);
@@ -421,6 +570,26 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 //					fType = extras.getString("fType");							//データタイプ
 					startActivity(webIntent);
 					break;
+
+///動作設定////////////////////////////////
+				case R.id.rbm_auto_judge:     //自動判定
+					scoreAuto();
+					break;
+				case R.id.rbm_mirror_movement_to:
+					mirror_h_click();
+					break;
+				case R.id.rbm_mirror_movement_lr:
+					mirror_v_click();
+					break;
+
+				case R.id.imgList_bt:     //トレース元画像のリスト表示
+					stereoTypeSelect();
+					break;
+				case R.id.again_bt:     //戻す
+				case R.id.rbm_hand_again:     //戻す
+					sa_disp_v.backAgain();
+					break;
+/////////////////////////////////動作設定//
 				case R.id.md_prefarence:      //設定
 				case R.id.mm_prefarence:      //設定
 					Intent settingsIntent = new Intent(RecoveryBrainActivity.this , MyPreferencesActivty.class);
@@ -436,9 +605,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 //					drawer.openDrawer(GravityCompat.START);
 					break;
 				default:
-					String titolStr ="制作中です";
-					String mggStr   ="最終リリースをお待ちください";
-					messageShow(titolStr , mggStr) ;
+					String titolStr = "制作中です";
+					String mggStr = "最終リリースをお待ちください";
+					messageShow(titolStr , mggStr);
 //					onContextItemSelected(item);
 					break;
 			}
@@ -449,6 +618,10 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 //				drawer.openDrawer(GravityCompat.START);
 //				// ドロワーメニューが開いた際に閉じる画像を表示する
 //			}
+			dbMsg += ">>" + toastStr;
+			if ( !toastStr.equals("") ) {
+				Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			}
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -458,8 +631,9 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 	}                                        //メニューとDrowerからの画面/機能選択
 
 	static final int REQUEST_PREF = 100;                          //Prefarensからの戻り
+
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(int requestCode , int resultCode , Intent data) {
 		final String TAG = "onActivityResult[MA]";
 		String dbMsg = "requestCode=" + requestCode + ",resultCode=" + resultCode;
 		try {
@@ -505,7 +679,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		}
 	}
 
-//	@Override
+	//	@Override
 //	public boolean dispatchTouchEvent(MotionEvent event) {
 //		final String TAG = "dispatchTouchEvent[RBS]";
 //		String dbMsg = "";
@@ -555,6 +729,7 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		}
 	}
 	///////////////////////////////////////////
+
 	/**
 	 * onCreateに有ったイベントなどの処理パート
 	 * onCreateは終了処理後のonDestroyの後でも再度、呼び出されるので実データの割り付けなどを分離する
@@ -571,10 +746,10 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 				dbMsg += "=縦向き";
 			}
 
-			int canvasWidth =sa_disp_v.getWidth() ;
-			int canvasHeight =sa_disp_v.getHeight() ;
+			int canvasWidth = sa_disp_v.getWidth();
+			int canvasHeight = sa_disp_v.getHeight();
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap( readFileName ,canvasWidth ,canvasHeight );
+			sa_disp_v.addBitMap(readFileName , canvasWidth , canvasHeight);
 //						writehScore( this,1000,100);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -616,6 +791,71 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 		}
 	}
 
+	/**
+	 * 定例パターン選択
+	 *  http://hakoniwadesign.com/?p=10661
+	 * */
+	public void stereoTypeSelect() {
+		final String TAG = "stereoTypeSelect[RBS]";
+		String dbMsg = "";
+		try {
+			AssetManager assetMgr = getResources().getAssets();
+			String files[] = assetMgr.list("");
+			List<ImageView> ivs = new ArrayList<ImageView>();
+			for ( int i = 0 ; i < files.length ; i++ ) {
+				dbMsg += "(" + i + ")" + files[i];
+				if ( files[i].endsWith(".png") ) {
+					Bitmap rsBitmap = loadBitmapAsset(files[i] , assetMgr);
+					int bmpWidth = rsBitmap.getWidth();
+					int bmpHeight = rsBitmap.getHeight();
+					dbMsg += "[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
+					ImageView iv = new ImageView(this);
+					iv.setImageBitmap(rsBitmap);
+					ivs.add(iv) ;
+				}
+			}
+//			AlertDialog.Builder listDlg = new AlertDialog.Builder(this);
+//			listDlg.setTitle("定型パターン");
+//			listDlg.setItems(
+//					items,
+//					new DialogInterface.OnClickListener() {
+//						public void onClick(DialogInterface dialog, int which) {
+//							// リスト選択時の処理
+//							// which は、選択されたアイテムのインデックス
+//						}
+//					});
+//			listDlg.create().show(); 			// 表示
+
+			myLog(TAG , dbMsg);
+		} catch (IOException er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+	/**
+	 * assets フォルダから、画像ファイルを読み込む
+	 * http://fantom1x.blog130.fc2.com/blog-entry-130.html
+	 */
+	public static final Bitmap loadBitmapAsset(String fileName , AssetManager assetManager) throws IOException {
+		final String TAG = "loadBitmapAsset[RBS]";
+		String dbMsg = "";
+//		final AssetManager assetManager = context.getAssets();
+		dbMsg = "fileName=" + fileName;
+		BufferedInputStream bis = null;
+		try {
+			bis = new BufferedInputStream(assetManager.open(fileName));
+			return BitmapFactory.decodeStream(bis);
+		} finally {
+			try {
+				bis.close();
+			} catch (Exception er) {
+				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+			}
+		}
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public void messageShow(String titolStr , String mggStr) {
@@ -636,46 +876,46 @@ public class RecoveryBrainActivity extends AppCompatActivity   implements Naviga
 }
 
 /**
- 課題
- 	・起動Activtyの入れ替え
- 	 	・単独実行Actvtyから開始
-  	 ・canvas間通信
-		 ・padのトレースでveiw側に描画
-
-8/20 ・定例パターン読込み
- 		・パターン再作成（droｗで端部をきれいに、反転で作った定型の差替え；web更新）
-8/21 	・pixcel配列読込み
-	 ・評価実装
-8/22	 ・消し込みPaintプロパティ送信
-		 ・消し込み評価
-		 ・padのtachiendで自動評価
-		 ・toolbarへの書き込み
-		 ・もう一度
-	 ・変形
-		 ・右へ90度回転
-		 ・左へ90度回転
-		 ・180度回転
-		 ・上下反転
-		 ・左右反転
-		 ・オリジナル（に戻す）
-	 ・動作設定
-		 ・鏡面動作
-		 ・上下
-		 ・左右
-		 ・トレース後に自動判定
- 	・toolBarカスタマイズ
- 		・もう一度ボタン
- 		・変形ボタンリスト
- 		・手動評価ボタン
- 	・配布
- 		・GoogleDrive登録
- 		・取説web
- 			・リンク
- 			・概要紹介
- 	・iOS移植
- 		・フレームワーク
- 			・ライフサイクル
- 			・コールバック
- 			・GUI
- 			・デバイスアクセス
- * **/
+ * 課題
+ * ・起動Activtyの入れ替え
+ * ・単独実行Actvtyから開始
+ * ・canvas間通信
+ * ・padのトレースでveiw側に描画
+ * <p>
+ * 8/20 ・定例パターン読込み
+ * ・パターン再作成（droｗで端部をきれいに、反転で作った定型の差替え；web更新）
+ * 8/21 	・pixcel配列読込み
+ * ・評価実装
+ * 8/22	 ・消し込みPaintプロパティ送信
+ * ・消し込み評価
+ * ・padのtachiendで自動評価
+ * ・toolbarへの書き込み
+ * ・もう一度
+ * ・変形
+ * ・右へ90度回転
+ * ・左へ90度回転
+ * ・180度回転
+ * ・上下反転
+ * ・左右反転
+ * ・オリジナル（に戻す）
+ * ・動作設定
+ * ・鏡面動作
+ * ・上下
+ * ・左右
+ * ・トレース後に自動判定
+ * ・toolBarカスタマイズ
+ * ・もう一度ボタン
+ * ・変形ボタンリスト
+ * ・手動評価ボタン
+ * ・配布
+ * ・GoogleDrive登録
+ * ・取説web
+ * ・リンク
+ * ・概要紹介
+ * ・iOS移植
+ * ・フレームワーク
+ * ・ライフサイクル
+ * ・コールバック
+ * ・GUI
+ * ・デバイスアクセス
+ **/
