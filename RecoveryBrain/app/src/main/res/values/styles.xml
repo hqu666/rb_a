@@ -24,8 +24,11 @@
 		<!-- actionBarのテキストメニューのカラーを変更 -->
 		<!--<item name="android:actionMenuTextColor">@android:color/black</item>-->
 		<!--<item name="actionMenuTextColor">@android:color/black</item>-->
+	</style>
 
-
+	<style name="MyAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+		<item name="android:windowMinWidthMajor">@dimen/dialog_min_width_major</item> 		<!--最大のサイズ-->
+		<item name="android:windowMinWidthMinor">@dimen/dialog_min_width_minor</item> 		<!--最小のサイズ-->
 	</style>
 
 	<style name="ToolbarMenu" parent="@style/Widget.AppCompat.Toolbar">

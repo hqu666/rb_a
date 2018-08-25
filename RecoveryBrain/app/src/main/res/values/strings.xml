@@ -72,6 +72,7 @@
 	<string name="rb_flip_vertical">上下反転</string>
 	<string name="rb_flip_horizontal">左右反転</string>
 	<string name="rb_make_original">オリジナルにする</string>
+	<string name="rb_direction_save">保存</string>
 
 	<string name="rb_movement">動作設定</string>
 	<string name="rb_mirror_movement">鏡面動作</string>
@@ -138,6 +139,18 @@
 	<string name="common_hyouka">評価</string>
 	<string name="againbt_caption">もう一度</string>
 	<string name="thumbnail_list_titol">定例パターン</string>
+
+	<string-array name="directionSelectList">
+		<item>@string/rb_direction_org</item>
+		<item>@string/rb_roat_right</item>
+		<item>@string/rb_roat_left</item>
+		<item>@string/rb_roat_half</item>
+		<item>@string/rb_flip_vertical</item>
+		<item>@string/rb_flip_horizontal</item>
+		<item>@string/rb_make_original</item>
+		<item>@string/rb_direction_save</item>
+	</string-array>
+
 
 	<string-array name="typeSelectList">
 		<item>フリーハンド</item>

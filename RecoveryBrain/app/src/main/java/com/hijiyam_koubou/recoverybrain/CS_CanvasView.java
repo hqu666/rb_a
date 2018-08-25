@@ -73,10 +73,17 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 	float upX;
 	float upY;
+	private Matrix matrix = new Matrix();
 
 	static final int REQUEST_CLEAR = 500;                            //全消去
 	static final int REQUEST_DROW_PATH = REQUEST_CLEAR + 1;            //フリーハンド
 	static final int REQUEST_AGAIN = REQUEST_DROW_PATH + 1;            //もう一度
+//	static final int REQUEST_ROOT_RIGHT = REQUEST_AGAIN + 1;            //右へ90度回転
+//	static final int REQUEST_ROOT_LEFT = REQUEST_ROOT_RIGHT + 1;            //左へ90度回転
+//	static final int REQUEST_ROOT_HALF = REQUEST_ROOT_LEFT + 1;            //180度回転
+//	static final int REQUEST_FLIP_VERTICAL = REQUEST_ROOT_HALF + 1;            //上下反転
+//	static final int REQUEST_FLIP_HRIZONAL = REQUEST_FLIP_VERTICAL + 1;            //左右反転
+
 	static final int REQUEST_ADD_BITMAP = REQUEST_AGAIN + 1;            //ビットマップ挿入
 	public int REQUEST_CORD = REQUEST_DROW_PATH;
 
@@ -404,7 +411,25 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 							messageShow(titolStr , mggStr);
 						}
 						REQUEST_CORD =  REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
-						myLog(TAG , dbMsg);
+						break;
+					case R.string.rb_roat_right:
+						dbMsg += ",右へ90度回転";
+						break;
+					case R.string.rb_roat_left:
+						dbMsg += ",左へ90度回転";
+						break;
+					case R.string.rb_roat_half:
+					case R.string.rb_flip_vertical:
+					case R.string.rb_flip_horizontal:
+						dbMsg += ",output=" + output.getWidth() + "×" + output.getHeight() + "]" + output.getByteCount() + "バイト";
+						dbMsg += ",matrix=" + matrix.toString();
+						Bitmap screenShot  = Bitmap.createBitmap(output, 0, 0, output.getWidth(), output.getHeight(), matrix, false);
+						dbMsg += ",screenShot[" + screenShot.getWidth() + "×" + screenShot.getHeight() + "]" + screenShot.getByteCount() + "バイト";
+						canvas.drawColor(Color.WHITE);
+						canvas.drawBitmap(screenShot, 0, 0, paint);
+						getCanvasPixcel( screenShot ,  canvas);
+						screenShot.recycle();
+						backAgain();   //トレース後の線を消す☆先にできない？
 						break;
 					case REQUEST_ADD_BITMAP:                //503;ビットマップ挿入
 						dbMsg += "(" + upX + "×" + upY + ")に[" + aBmp.getWidth() + "×" + aBmp.getHeight() + "]" + aBmp.getByteCount() + "バイトのビットマップ挿入";
@@ -418,7 +443,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				}
 //				canvas.restore(); // save直前に戻る
 			}
-//			myLog(TAG , dbMsg);
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -757,10 +782,11 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		try {
 			if ( myCanvas != null ) {
 				dbMsg += "canvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
-				this.setDrawingCacheEnabled(true);
-				Bitmap cache = this.getDrawingCache();    				// Viewのキャッシュを取得
-				Bitmap screenShot = Bitmap.createBitmap(cache);
-				this.setDrawingCacheEnabled(false);
+				Bitmap screenShot =getViewBitmap(this);
+//				this.setDrawingCacheEnabled(true);
+//				Bitmap cache = this.getDrawingCache();    				// Viewのキャッシュを取得
+//				Bitmap screenShot = Bitmap.createBitmap(cache);
+//				this.setDrawingCacheEnabled(false);
 				int bWidth = screenShot.getWidth();
 				int bHight = screenShot.getHeight();
 				dbMsg += "screenShot[" + bWidth + "×" + bHight + "]" + screenShot.getByteCount() + "バイト";
@@ -797,6 +823,29 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+	/**
+	 * このViewのBitMapを読込む
+	 * 8/25;scorePixcelからしか使えない
+	 * */
+	public Bitmap getViewBitmap(			View targetView) {
+		final String TAG = "getViewBitmap[CView]";
+		String dbMsg = "";
+		Bitmap retBitmap = null;
+		try {
+			dbMsg += "対象[" + targetView.getWidth() + "×" +  targetView.getHeight() + "]" ;
+			targetView.setDrawingCacheEnabled(true);
+			Bitmap cache = targetView.getDrawingCache();    				// Viewのキャッシュを取得
+			retBitmap = Bitmap.createBitmap(cache);
+			targetView.setDrawingCacheEnabled(false);
+			int bWidth = retBitmap.getWidth();
+			int bHight = retBitmap.getHeight();
+			dbMsg += "screenShot[" + bWidth + "×" + bHight + "]" + retBitmap.getByteCount() + "バイト";
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return retBitmap;
+	}
 
 
 	/**
@@ -837,6 +886,222 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	/**
+	 *現在canvasに在るピクセル配列を保持する
+	 */
+	public void  setOriginPixcel() {
+		final String TAG = "setOriginPixcel[CSC]";
+		String dbMsg = "";
+		try {
+		 dbMsg += "originPixcel="+pixels.length;
+//		var cWidth = canvas.width;
+//		var cHeight = canvas.height;
+//		dbMsg += "["+ cWidth + "×"+ cHeight +  "]";
+//		// var context = canvas.getContext('2d');
+//		originalCanvas = context.getImageData(0, 0, cWidth, cHeight);
+//		originPixcel = new Array();											//原版の保持領域初期化
+//		originPixcel = originalCanvas.data;					//ファイルから読み込まれたピクセル配列を保持
+//		dbMsg += ">>"+originPixcel.length;
+//		myLog(dbMsg);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 *保持したピクセル配列をcanvasに戻す
+	 */
+	public void   redrowOrigin() {
+		final String TAG = "redrowOrigin[CSC]";
+		String dbMsg = "";
+		try {
+			dbMsg += "originPixcel="+pixels.length;
+//		if(0 < originPixcel.length){						//再選択時は
+//			context.putImageData(originalCanvas, 0, 0);			// コピーしたピクセル情報をCanvasに転送
+//		}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 *①読み込んだ画像をピクセル配列に変換する。
+	 *②指定されたCanvacs内のビットマップを指定方向に置き換える。
+	 * @param {*} canvas 捜査対象
+	 * @param {*} direction 置換え方向　0：そのまま　、　1;鏡面（上下）
+	 */
+	public void canvasSubstitution(int direction) {
+		final String TAG = "canvasSubstitution[CSC]";
+		String dbMsg = "";
+		try {
+			dbMsg = "direction=" + direction +"="+context.getString(direction) ;
+			REQUEST_CORD = direction;
+//			backAgain();
+			paint = new Paint();
+			matrix = new Matrix();
+			switch ( direction ) {
+				case R.string.rb_roat_right:
+					break;
+				case R.string.rb_roat_left:
+					break;
+				case R.string.rb_roat_half:
+					matrix.preScale(-1, -1);
+					break;
+				case R.string.rb_flip_vertical:
+					matrix.preScale(1, -1);
+					break;
+				case R.string.rb_flip_horizontal:
+					matrix.preScale(-1, 1);
+					break;
+			}
+
+								invalidate();                        //onDrawを発生させて描画実行
+
+//		var cWidth = canvas.width;       Canvas canvas ,
+//		var cHeight = canvas.height;
+//		dbMsg += "["+ cWidth + "×"+ cHeight +  "]direction="+direction;
+//		var context = canvas.getContext('2d');
+//		var canvasImageData = context.getImageData(0, 0, cWidth, cHeight);
+//		var canvasRGBA = canvasImageData.data;
+//		var newImageData = context.createImageData(cWidth, cHeight);
+//		var newRGBA = newImageData.data;
+//		var colorArray = new Array();
+//		oRed = 255;
+//		oGreen = 255;
+//		oBule = 255;
+//
+//		context.lineWidth=0;
+//		var lineWidthMax = 0
+//		for (var yPos = 0;yPos < cHeight;yPos++) {
+//			for (var xPos = 0;xPos < cWidth;xPos++) {
+//				var carentPos =	4 * xPos +  4 * cWidth * yPos ;			//(x,y) = 4x+4wy
+//				var mirrorInversion =carentPos
+//				switch (direction) {
+//					case 1:		//右へ90度;(x,y) => (h/2+y , w/2-x)			//×(w/2-(h/2-y) , h/2+(w/2-x))
+//						// mirrorInversion =(cHeight/2 - xPos) * 4* cWidth  + ((cHeight/2 - yPos) )*4 *cWidth;	//上ずれ（下に残る）
+//						mirrorInversion = (cWidth/2 - (cHeight/2 - yPos) )*4 + (cHeight/2 + (cWidth/2-xPos)) * 4 * cWidth;	//8/20;上ずれ（下に残る）
+//						break;
+//					case 2:		//左へ90度;(x,y) => (w/2+(h/2-y) , h/2+w/2-x)
+//						mirrorInversion = (cWidth/2 + (cHeight/2 - yPos) )*4 + (cHeight/2 - (cWidth/2-xPos)) * 4 * cWidth;	//左右反転
+//						break;
+//					case 4:			//180度回転
+//						mirrorInversion = (cHeight - yPos)*(cWidth*4) - (xPos * 4) ;
+//						// mirrorInversion = ( cWidth -3 - xPos * 4) - (cWidth - 3) + ((cHeight - 1 - yPos) * cWidth * 4);
+//						break;
+//					case 8:			//上下反転
+//						mirrorInversion =(xPos * 4) + ((cHeight - 1 - yPos) * cWidth * 4);			//org	http://www.programmingmat.jp/webhtml_lab/canvas_image.html
+//						// mirrorInversion = (xPos * 4) + (cHeight - yPos)*(cWidth*4) ;			//上下反転
+//						break;
+//					case 16:			//左右反転
+//						mirrorInversion = ( cWidth -3 - xPos * 4) - (cWidth - 3) + (yPos * cWidth * 4 );
+//						// mirrorInversion = ( cWidth -3 - xPos * 4) + (cWidth - 3) + (yPos*(cWidth*4));	//始点が+ｘ/2ズレる
+//						// ( cWidth -3 - xPos * 4) * 2 + (yPos*(cWidth*4)) もしくは (xPos * 4)*2 + (yPos*(cWidth*4)) ;	//2周する
+//						// mirrorInversion = cWidth - 3 - (xPos * 4)*2 + (yPos*(cWidth*4)) ;	//2州する
+//						// mirrorInversion = cWidth -3 - (xPos * 4) + (yPos*(cWidth*4)) ;	//始点が-ｘ/4ズレる
+//						// mirrorInversion =(cWidth + 1 + xPos * 4) + (yPos*(cWidth*4)) ;	//始点が-ｘ/4ズレる
+//						// mirrorInversion =(cWidth - 2- xPos * 4 ) + (yPos*(cWidth*4)) ;	//cWidth - 2も：始点がｘ/4ズレて色もBが水色。線の高さが減少
+//						// mirrorInversion =(cWidth -  xPos * 4 ) + (yPos*(cWidth*4)) ;	//cWidth - 8も：始点がｘ/4ズレて色もBがRに
+//						// mirrorInversion = cWidth - 5 - (xPos * 4) + (yPos*(cWidth*4)) ;	//線になる
+//						break;
+//				}
+//				newRGBA[carentPos] = canvasRGBA[mirrorInversion];
+//				newRGBA[1 + carentPos] = canvasRGBA[1 + mirrorInversion];
+//				newRGBA[2 + carentPos] = canvasRGBA[2 + mirrorInversion];
+//				newRGBA[3 + carentPos] = canvasRGBA[3 + mirrorInversion];
+//			}
+//		}
+//		context.putImageData(newImageData, 0, 0);					// コピーしたピクセル情報をCanvasに転送
+//		if(direction == 0){								//読込み直後は
+//			setOriginPixcel();
+//		}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+	// 上下反転		http://www.programmingmat.jp/webhtml_lab/canvas_image.html
+
+	/**
+	 *canvasに書込まれているピクセル配列をファイルに保存する
+	 *
+	 *	https://st40.xyz/one-run/article/133/
+	 */
+	public void  bitmapSave() {
+		final String TAG = "bitmapSave[CSC]";
+		String dbMsg = "";
+		try {
+			dbMsg += ",output[" + output.getWidth() + "×" + output.getHeight() + "]" + output.getByteCount() + "バイト";
+
+//		var imageType = "image/ping";			//"image/jpeg";
+//		var fileName = retNowStr() + ".png";			//
+//		dbMsg += "fileName=" + fileName;
+//		setOriginPixcel();									//保存前の状態を保存する
+//		var base64 = canvas.toDataURL(imageType);				// base64エンコードされたデータを取得 「data:image/png;base64,iVBORw0k～」
+//		dbMsg += "base64=" + base64.length;
+//		var blob = Base64toBlob(base64);								// base64データをblobに変換
+//		dbMsg += ",blob=" + blob.length;
+//		saveBlob(blob, fileName);		// blobデータをa要素を使ってダウンロード
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * Base64データをBlobデータに変換
+	 */
+	public String Base64toBlob(String base64){
+		final String TAG = "Base64toBlob[CSC]";
+		String dbMsg = "";
+		String blob = "";
+		try {
+		dbMsg += ",base64=" + base64.length();
+//		var tmp = base64.split(',');    // カンマで分割して以下のようにデータを分ける; tmp[0] : データ形式（data:image/png;base64）/ tmp[1] : base64データ（iVBORw0k～）
+//		var data = atob(tmp[1]);											    // base64データの文字列をデコード
+//		var mime = tmp[0].split(':')[1].split(';')[0];	    					// tmp[0]の文字列（data:image/png;base64）からコンテンツタイプ（image/png）部分を取得
+//		dbMsg += ",mime=" +mime;
+//		var buf = new Uint8Array(data.length);	    							//  1文字ごとにUTF-16コードを表す 0から65535 の整数を取得
+//		for (var i = 0; i < data.length; i++) {
+//			buf[i] = data.charCodeAt(i);
+//		}
+//		dbMsg += ",buf=" +buf.length;
+//		var blob = new Blob([buf], { type: mime });	    // blobデータを作成
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return blob;
+	}
+
+	/**
+	 * 画像のダウンロード
+	 */
+	public void saveBlob(String blob,String fileName){
+		final String TAG = "saveBlob[CSC]";
+		String dbMsg = "";
+		try {
+//		dbMsg += "fileName=" + fileName;
+//		dbMsg += ",blob=" + blob.length;
+//		var url = (window.URL || window.webkitURL);
+//		dbMsg += ",url=" + url;
+//		var dataUrl = url.createObjectURL(blob);	    // ダウンロード用のURL作成
+//		dbMsg += ",dataUrl=" + dataUrl;
+//		var event = document.createEvent("MouseEvents");	    // イベント作成
+//		event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+//		var a = document.createElementNS("http://www.w3.org/1999/xhtml", "a");	    // a要素を作成
+//		a.href = dataUrl;	    // ダウンロード用のURLセット
+//		a.download = fileName;	    // ファイル名セット
+//		a.dispatchEvent(event);	    // イベントの発火
+//		redrowOrigin();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		}
+
 
 	/**
 	 *

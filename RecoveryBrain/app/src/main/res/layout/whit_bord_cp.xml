@@ -13,11 +13,39 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
 
+		<ImageButton
+			android:id="@+id/cp_mirror_h_bt"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:layout_marginLeft="10dp"
+			android:background="@android:color/transparent"
+			android:padding="5dp"
+			android:scaleType="centerCrop"
+			app:srcCompat="@drawable/mirror_h"/>
+
+		<ImageButton
+			android:id="@+id/cp_mirror_v_bt"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:layout_marginRight="10dp"
+			android:background="@android:color/transparent"
+			android:padding="5dp"
+			android:scaleType="centerCrop"
+			android:src="@drawable/mirror_v"/>
+
+		<ImageButton
+			android:id="@+id/cp_direction_bt"
+			android:layout_width="40dp"
+			android:layout_height="40dp"
+			android:background="@android:color/transparent"
+			android:src="@android:drawable/ic_menu_rotate"/>
+
+
 		<TextView
 			android:id="@+id/textView5"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginLeft="25dp"
+			android:layout_marginLeft="5dp"
 			android:text="@string/common_score"/>
 
 		<TextView
@@ -30,9 +58,9 @@
 
 		<TextView
 			android:id="@+id/textView7"
-			android:layout_width="match_parent"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"
+			android:layout_marginRight="60dp"
 			android:text="@string/common_ten"/>
 
 		<!--<TextView-->
@@ -69,28 +97,9 @@
 			android:id="@+id/cp_score_bt"
 			android:layout_width="40dp"
 			android:layout_height="40dp"
-			android:layout_marginRight="80dp"
+			android:layout_marginRight="25dp"
 			android:background="@android:color/transparent"
 			app:srcCompat="@android:drawable/btn_star_big_on"/>
-
-		<ImageButton
-			android:id="@+id/cp_mirror_h_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			app:srcCompat="@drawable/mirror_h"/>
-
-		<ImageButton
-			android:id="@+id/cp_mirror_v_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_marginRight="10dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			android:src="@drawable/mirror_v"/>
 
 		<!--<Button-->
 		<!--android:id="@+id/cp_again_bt"-->

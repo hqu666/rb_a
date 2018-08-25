@@ -40,6 +40,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,9 +50,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public
-class
-RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemClickListener{
+public class RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v;        //表示側
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v;        //操作側
 	public Toolbar toolbar;
@@ -173,6 +172,14 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 					}
 					return retBool;
+				}
+			});
+
+
+			findViewById(R.id.cp_direction_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					direction_click();
 				}
 			});
 
@@ -719,6 +726,66 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 		}
 	}
 
+	public AlertDialog directionDlog;
+	public CharSequence[] directiontListitems;
+
+	/**
+	 * トレース元画像の回転ボタンクリック
+	 **/
+	public void direction_click() {
+		final String TAG = "cp_direction_click[RBS]";
+		String dbMsg = "";
+		try {
+			directiontListitems = getResources().getStringArray(R.array.directionSelectList);  //				final CharSequence[] items = {"item1", "item2", "item3"};
+			AlertDialog.Builder listDlg = new AlertDialog.Builder(this);                // リスト表示用のアラートダイアログ
+			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
+			listDlg.setCustomTitle(titolLayout);
+			TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
+			dlog_title_tv.setText(R.string.rb_direction_select);
+			ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
+			dlog_close_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					directionDlog.dismiss();
+				}
+			});
+			listDlg.setItems(directiontListitems , new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog , int which) {
+					final String TAG = "onClick[direction]";
+					String directionName = ( String ) directiontListitems[which];
+					String dbMsg = "(" + which + ")" + directionName;
+					if ( directionName.equals(getString(R.string.rb_direction_org)) ) {
+						sa_disp_v.redrowOrigin();
+					} else if ( directionName.equals(getString(R.string.rb_roat_right)) ) {
+						sa_disp_v.canvasSubstitution(R.string.rb_roat_right);
+					} else if ( directionName.equals(getString(R.string.rb_roat_left)) ) {
+						sa_disp_v.canvasSubstitution(R.string.rb_roat_left);
+					} else if ( directionName.equals(getString(R.string.rb_roat_half)) ) {
+						sa_disp_v.canvasSubstitution(R.string.rb_roat_half);
+					} else if ( directionName.equals(getString(R.string.rb_flip_vertical)) ) {
+						sa_disp_v.canvasSubstitution(R.string.rb_flip_vertical);
+					} else if ( directionName.equals(getString(R.string.rb_flip_horizontal)) ) {
+						sa_disp_v.canvasSubstitution(R.string.rb_flip_horizontal);
+					} else if ( directionName.equals(getString(R.string.rb_make_original)) ) {
+						sa_disp_v.setOriginPixcel();
+					} else if ( directionName.equals(getString(R.string.rb_direction_save)) ) {
+						sa_disp_v.bitmapSave();
+					}
+					myLog(TAG , dbMsg);
+				}
+			});
+			directionDlog = listDlg.create();                // 表示
+			directionDlog.show();                // 表示
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onStop();
+	}
+
+
 	/**
 	 * 上下鏡面動作
 	 **/
@@ -797,42 +864,68 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 		super.onStop();
 	}
 
-	public List<String> iconList ;
+	public AlertDialog stereoTypeDlog;
+	public List< String > iconList;
+
 	/**
 	 * 定例パターン選択
-	 *  http://hakoniwadesign.com/?p=10661
-	 * */
+	 * http://hakoniwadesign.com/?p=10661
+	 */
 	public void stereoTypeSelect() {
 		final String TAG = "stereoTypeSelect[RBS]";
 		String dbMsg = "";
 		try {
-			iconList = new ArrayList<>();            	// 要素をArrayListで設定
+			iconList = new ArrayList<>();                // 要素をArrayListで設定
 			AssetManager assetMgr = getResources().getAssets();
 			String files[] = assetMgr.list("");
 			for ( int i = 0 ; i < files.length ; i++ ) {
 				dbMsg += "(" + i + ")" + files[i];
 				if ( files[i].endsWith(".png") ) {
-					iconList.add( files[i]) ;
+					iconList.add(files[i]);
 				}
 			}
-			dbMsg += "," + iconList.size() + "件" ;
+			dbMsg += "," + iconList.size() + "件";
 			// カスタムビューを設定    http://androidguide.nomaki.jp/html/dlg/custom/customMain.html
-			LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
-			final View layout = inflater.inflate(R.layout.dlog_thumb,(ViewGroup )findViewById(R.id.thum_root));
-			GridView gridview = layout.findViewById(R.id.gridview);      			// GridViewのインスタンスを生成
-			GridAdapter adapter = new GridAdapter( RecoveryBrainActivity.this ,R.layout.grid_items,iconList);  			// BaseAdapter を継承したGridAdapterのインスタンスを生成
-			gridview.setAdapter(adapter);       			// gridViewにadapterをセット
-			gridview.setOnItemClickListener(this); 			// item clickのListnerをセット
+			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View layout = inflater.inflate(R.layout.dlog_thumb , ( ViewGroup ) findViewById(R.id.thum_root));
+			GridView gridview = layout.findViewById(R.id.gridview);                // GridViewのインスタンスを生成
+			GridAdapter adapter = new GridAdapter(RecoveryBrainActivity.this , R.layout.grid_items , iconList);            // BaseAdapter を継承したGridAdapterのインスタンスを生成
+			gridview.setAdapter(adapter);                // gridViewにadapterをセット
+			gridview.setOnItemClickListener(this);            // item clickのListnerをセット
 			// アラーとダイアログ を生成
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle( R.string.thumbnail_list_titol);
-			builder.setView(layout);
-			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					// Cancel ボタンクリック処理
+			AlertDialog.Builder builder = new AlertDialog.Builder(this , R.style.MyAlertDialogStyle);
+			final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
+			builder.setCustomTitle(titolLayout);
+			TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
+			dlog_title_tv.setText(R.string.thumbnail_list_titol);  //			builder.setTitle( R.string.thumbnail_list_titol);
+			ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
+			dlog_close_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					stereoTypeDlog.dismiss();
 				}
 			});
-			builder.create().show();     			// 表示
+			builder.setView(layout);
+//			builder.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+//				@Override
+//				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//					// タップしたアイテムの取得
+//					ListView listView = (ListView)parent;
+//					SampleListItem item = (SampleListItem)listView.getItemAtPosition(position);  // SampleListItemにキャスト
+//
+//					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//					builder.setTitle("Tap No. " + String.valueOf(position));
+//					builder.setMessage(item.getTitle());
+//					builder.show();
+//				}
+//			};
+//			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int which) {
+//					// Cancel ボタンクリック処理
+//				}
+//			});
+			stereoTypeDlog = builder.create();                // 表示
+			stereoTypeDlog.show();                // 表示
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -840,12 +933,18 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+	public void onItemClick(AdapterView< ? > parent , View v , int position , long id) {
 		final String TAG = "onItemClick[TA]";
 		String dbMsg = "";
 		try {
-			dbMsg = ""+iconList.get(position);   //			textView.setText(il.getName(position));
+			readFileName = "" + iconList.get(position);
+			dbMsg = "" + readFileName;   //			textView.setText(il.getName(position));
+			int canvasWidth = sa_disp_v.getWidth();
+			int canvasHeight = sa_disp_v.getHeight();
+			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
+			sa_disp_v.addBitMap(readFileName , canvasWidth , canvasHeight);
 			myLog(TAG , dbMsg);
+			stereoTypeDlog.dismiss();
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -860,29 +959,28 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 	class GridAdapter extends BaseAdapter {
 		private LayoutInflater inflater;
 		private int layoutId;
-		private List<String> icList = new ArrayList<String>();
+		private List< String > icList = new ArrayList< String >();
 
-		GridAdapter(Context context, int layoutId, List<String> iconList) {
+		GridAdapter(Context context , int layoutId , List< String > iconList) {
 			super();
-			this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			this.inflater = ( LayoutInflater ) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			this.layoutId = layoutId;
 			icList = iconList;
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position , View convertView , ViewGroup parent) {
 			final String TAG = "getView[TA]";
 			String dbMsg = "";
 			try {
 				ViewHolder holder;
-				if (convertView == null) {
-					convertView = inflater.inflate(layoutId, parent, false);   					// main.xml の <GridView .../> に grid_items.xml を inflate して convertView とする
-					holder = new RecoveryBrainActivity.ViewHolder();    					// ViewHolder を生成
-					holder.imageView = (ImageView) convertView.findViewById(R.id.image_view);
+				if ( convertView == null ) {
+					convertView = inflater.inflate(layoutId , parent , false);                    // main.xml の <GridView .../> に grid_items.xml を inflate して convertView とする
+					holder = new RecoveryBrainActivity.ViewHolder();                        // ViewHolder を生成
+					holder.imageView = ( ImageView ) convertView.findViewById(R.id.image_view);
 					convertView.setTag(holder);
-				}
-				else {
-					holder = (RecoveryBrainActivity.ViewHolder ) convertView.getTag();
+				} else {
+					holder = ( RecoveryBrainActivity.ViewHolder ) convertView.getTag();
 				}
 				Bitmap rsBitmap = loadBitmapAsset(icList.get(position));
 				int bmpWidth = rsBitmap.getWidth();
@@ -900,7 +998,7 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 		 * assets フォルダから、画像ファイルを読み込む
 		 * http://fantom1x.blog130.fc2.com/blog-entry-130.html
 		 */
-		public  final Bitmap loadBitmapAsset(String fileName ) throws IOException {
+		public final Bitmap loadBitmapAsset(String fileName) throws IOException {
 			final String TAG = "loadBitmapAsset[TA]";
 			String dbMsg = "";
 			final AssetManager assetManager = RecoveryBrainActivity.this.getAssets();
@@ -920,7 +1018,7 @@ RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavi
 
 		@Override
 		public int getCount() {
-			return iconList.size();   			// 全要素数を返す
+			return iconList.size();            // 全要素数を返す
 		}
 
 		@Override
