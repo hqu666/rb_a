@@ -413,11 +413,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						REQUEST_CORD =  REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
 						break;
 					case R.string.rb_roat_right:
-						dbMsg += ",右へ90度回転";
-						break;
 					case R.string.rb_roat_left:
-						dbMsg += ",左へ90度回転";
-						break;
 					case R.string.rb_roat_half:
 					case R.string.rb_flip_vertical:
 					case R.string.rb_flip_horizontal:
@@ -932,6 +928,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	 *②指定されたCanvacs内のビットマップを指定方向に置き換える。
 	 * @param {*} canvas 捜査対象
 	 * @param {*} direction 置換え方向　0：そのまま　、　1;鏡面（上下）
+	 * http://andante.in/i/%E6%8F%8F%E7%94%BB/android%E3%81%AEbitmap%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%81%BE%E3%81%A8%E3%82%81/
 	 */
 	public void canvasSubstitution(int direction) {
 		final String TAG = "canvasSubstitution[CSC]";
@@ -944,8 +941,10 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			matrix = new Matrix();
 			switch ( direction ) {
 				case R.string.rb_roat_right:
+					matrix.postRotate(90);
 					break;
 				case R.string.rb_roat_left:
+					matrix.postRotate(270);
 					break;
 				case R.string.rb_roat_half:
 					matrix.preScale(-1, -1);
@@ -957,72 +956,12 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					matrix.preScale(-1, 1);
 					break;
 			}
-
 								invalidate();                        //onDrawを発生させて描画実行
-
-//		var cWidth = canvas.width;       Canvas canvas ,
-//		var cHeight = canvas.height;
-//		dbMsg += "["+ cWidth + "×"+ cHeight +  "]direction="+direction;
-//		var context = canvas.getContext('2d');
-//		var canvasImageData = context.getImageData(0, 0, cWidth, cHeight);
-//		var canvasRGBA = canvasImageData.data;
-//		var newImageData = context.createImageData(cWidth, cHeight);
-//		var newRGBA = newImageData.data;
-//		var colorArray = new Array();
-//		oRed = 255;
-//		oGreen = 255;
-//		oBule = 255;
-//
-//		context.lineWidth=0;
-//		var lineWidthMax = 0
-//		for (var yPos = 0;yPos < cHeight;yPos++) {
-//			for (var xPos = 0;xPos < cWidth;xPos++) {
-//				var carentPos =	4 * xPos +  4 * cWidth * yPos ;			//(x,y) = 4x+4wy
-//				var mirrorInversion =carentPos
-//				switch (direction) {
-//					case 1:		//右へ90度;(x,y) => (h/2+y , w/2-x)			//×(w/2-(h/2-y) , h/2+(w/2-x))
-//						// mirrorInversion =(cHeight/2 - xPos) * 4* cWidth  + ((cHeight/2 - yPos) )*4 *cWidth;	//上ずれ（下に残る）
-//						mirrorInversion = (cWidth/2 - (cHeight/2 - yPos) )*4 + (cHeight/2 + (cWidth/2-xPos)) * 4 * cWidth;	//8/20;上ずれ（下に残る）
-//						break;
-//					case 2:		//左へ90度;(x,y) => (w/2+(h/2-y) , h/2+w/2-x)
-//						mirrorInversion = (cWidth/2 + (cHeight/2 - yPos) )*4 + (cHeight/2 - (cWidth/2-xPos)) * 4 * cWidth;	//左右反転
-//						break;
-//					case 4:			//180度回転
-//						mirrorInversion = (cHeight - yPos)*(cWidth*4) - (xPos * 4) ;
-//						// mirrorInversion = ( cWidth -3 - xPos * 4) - (cWidth - 3) + ((cHeight - 1 - yPos) * cWidth * 4);
-//						break;
-//					case 8:			//上下反転
-//						mirrorInversion =(xPos * 4) + ((cHeight - 1 - yPos) * cWidth * 4);			//org	http://www.programmingmat.jp/webhtml_lab/canvas_image.html
-//						// mirrorInversion = (xPos * 4) + (cHeight - yPos)*(cWidth*4) ;			//上下反転
-//						break;
-//					case 16:			//左右反転
-//						mirrorInversion = ( cWidth -3 - xPos * 4) - (cWidth - 3) + (yPos * cWidth * 4 );
-//						// mirrorInversion = ( cWidth -3 - xPos * 4) + (cWidth - 3) + (yPos*(cWidth*4));	//始点が+ｘ/2ズレる
-//						// ( cWidth -3 - xPos * 4) * 2 + (yPos*(cWidth*4)) もしくは (xPos * 4)*2 + (yPos*(cWidth*4)) ;	//2周する
-//						// mirrorInversion = cWidth - 3 - (xPos * 4)*2 + (yPos*(cWidth*4)) ;	//2州する
-//						// mirrorInversion = cWidth -3 - (xPos * 4) + (yPos*(cWidth*4)) ;	//始点が-ｘ/4ズレる
-//						// mirrorInversion =(cWidth + 1 + xPos * 4) + (yPos*(cWidth*4)) ;	//始点が-ｘ/4ズレる
-//						// mirrorInversion =(cWidth - 2- xPos * 4 ) + (yPos*(cWidth*4)) ;	//cWidth - 2も：始点がｘ/4ズレて色もBが水色。線の高さが減少
-//						// mirrorInversion =(cWidth -  xPos * 4 ) + (yPos*(cWidth*4)) ;	//cWidth - 8も：始点がｘ/4ズレて色もBがRに
-//						// mirrorInversion = cWidth - 5 - (xPos * 4) + (yPos*(cWidth*4)) ;	//線になる
-//						break;
-//				}
-//				newRGBA[carentPos] = canvasRGBA[mirrorInversion];
-//				newRGBA[1 + carentPos] = canvasRGBA[1 + mirrorInversion];
-//				newRGBA[2 + carentPos] = canvasRGBA[2 + mirrorInversion];
-//				newRGBA[3 + carentPos] = canvasRGBA[3 + mirrorInversion];
-//			}
-//		}
-//		context.putImageData(newImageData, 0, 0);					// コピーしたピクセル情報をCanvasに転送
-//		if(direction == 0){								//読込み直後は
-//			setOriginPixcel();
-//		}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-	// 上下反転		http://www.programmingmat.jp/webhtml_lab/canvas_image.html
 
 	/**
 	 *canvasに書込まれているピクセル配列をファイルに保存する

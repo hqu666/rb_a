@@ -8,6 +8,15 @@
 	android:orientation="horizontal"
 	android:padding="5dp">
 
+	<ImageButton
+		android:id="@+id/dlog_left_bt"
+		android:layout_width="24dp"
+		android:layout_height="20dp"
+		android:layout_gravity="center_vertical"
+		android:background="@android:color/transparent"
+		android:scaleType="fitCenter"
+		android:src="@drawable/menu"/>
+
 	<TextView
 		android:id="@+id/dlog_title_tv"
 		android:layout_width="match_parent"
@@ -24,9 +33,10 @@
 
 	<ImageButton
 		android:id="@+id/dlog_close_bt"
-		android:layout_width="48dp"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
+		android:layout_width="24dp"
+		android:layout_height="24dp"
+		android:layout_gravity="center_vertical"
 		android:background="@android:color/transparent"
-		app:srcCompat="@android:drawable/btn_dialog"/>
+		android:src="@android:drawable/btn_dialog"/>
+
 </LinearLayout>

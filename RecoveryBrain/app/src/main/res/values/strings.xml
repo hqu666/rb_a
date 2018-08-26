@@ -140,6 +140,14 @@
 	<string name="againbt_caption">もう一度</string>
 	<string name="thumbnail_list_titol">定例パターン</string>
 
+
+	<string-array name="jobSelectList">
+		<item>@string/rb_file_read</item>
+		<item>@string/rb_hand_made</item>
+		<item>@string/rb_hand_again</item>
+		<item>@string/rb_decision_original</item>
+	</string-array>
+
 	<string-array name="directionSelectList">
 		<item>@string/rb_direction_org</item>
 		<item>@string/rb_roat_right</item>
