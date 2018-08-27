@@ -563,7 +563,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			dbMsg +=  ">>" + wStr;
 			Toast.makeText(contex, wStr, Toast.LENGTH_SHORT).show();
 			dbMsg +=  ">>" + toolbar;
-			wStr = ""+ afterCount + "/ " + beforeCount +"ピクセル ";
+			wStr = ""+ afterCount + "/ " + beforeCount +"px ";
 			toolbar.setTitle(wStr);   //"" + scoreVar
 // toolbar.setSubtitle(wStr);      //2行になってTitolも小さくなる
 			myLog(TAG , dbMsg);
@@ -583,6 +583,10 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				CharSequence wStr ="トレース元画像に" +  fileName + "を読み込んでいます";
 				dbMsg +=  ">>" + wStr;
 				Toast.makeText(context, wStr, Toast.LENGTH_SHORT).show();
+				for ( PathObject pathObject : pathIist ) {
+					pathObject.path.reset();
+				}
+
 
 				REQUEST_CORD = REQUEST_ADD_BITMAP;
 				Bitmap rBmp= readFIle( fileName);

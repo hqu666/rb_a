@@ -5,178 +5,190 @@
 			  android:layout_width="match_parent"
 			  android:layout_height="wrap_content"
 			  android:background="#0f3a89cf"
-			  android:orientation="vertical">
+			  android:orientation="horizontal">
 
 	<LinearLayout
-		android:id="@+id/score_aria_ll"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-
-		<ImageButton
-			android:id="@+id/cp_jobselect_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_marginLeft="10dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			android:src="@drawable/edit"/>
-
-		<ImageButton
-			android:id="@+id/cp_mirror_h_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			app:srcCompat="@drawable/mirror_h"/>
-
-		<ImageButton
-			android:id="@+id/cp_mirror_v_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			android:src="@drawable/mirror_v"/>
-
-		<ImageButton
-			android:id="@+id/cp_direction_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:background="@android:color/transparent"
-			android:src="@android:drawable/ic_menu_rotate"/>
-
-
-		<TextView
-			android:id="@+id/textView5"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/common_score"/>
-
-		<TextView
-			android:id="@+id/cp_score_tv"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="100"
-			android:textAlignment="textEnd"
-			android:textSize="30sp"/>
-
-		<TextView
-			android:id="@+id/textView7"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="@string/common_ten"/>
-
-		<!--<TextView-->
-		<!--android:id="@+id/cp_after_tv"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:text="99999"-->
-		<!--android:textColor="@android:color/background_light"/>-->
-
-		<!--<TextView-->
-		<!--android:id="@+id/textView9"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:layout_weight="1"-->
-		<!--android:text="/"-->
-		<!--android:textColor="@android:color/background_light"/>-->
-
-		<!--<TextView-->
-		<!--android:id="@+id/cp_befor_tv"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:layout_weight="1"-->
-		<!--android:text="99999"-->
-		<!--android:textColor="@android:color/background_light"/>-->
-
-		<!--<TextView-->
-		<!--android:id="@+id/textView11"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:text="@string/common_pixcel"-->
-		<!--android:textColor="@android:color/background_light"/>-->
-
-		<ImageButton
-			android:id="@+id/cp_score_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:background="@android:color/transparent"
-			app:srcCompat="@android:drawable/btn_star_big_on"/>
-
-
-		<ImageButton
-			android:id="@+id/cp_about_bt"
-			android:layout_width="40dp"
-			android:layout_height="40dp"
-			android:layout_marginRight="10dp"
-			android:background="@android:color/transparent"
-			android:padding="5dp"
-			android:scaleType="centerCrop"
-			android:src="@drawable/help"/>
-	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/wh_paret"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
+		android:layout_weight="7"
+		android:orientation="vertical">
 
-		<Spinner
-			android:id="@+id/wb_mode_sp"
-			android:layout_width="wrap_content"
+		<LinearLayout
+			android:id="@+id/score_aria_ll"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:entries="@array/typeSelectList"/>
+			android:orientation="horizontal">
 
-		<ImageButton
-			android:id="@+id/wb_color_bt"
-			android:layout_width="42dp"
-			android:layout_height="42dp"
-			android:scaleType="centerCrop"
-			android:src="@drawable/color_paret"/>
+			<ImageButton
+				android:id="@+id/cp_jobselect_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:layout_marginLeft="10dp"
+				android:background="@android:color/transparent"
+				android:padding="5dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/edit"/>
 
-		<Spinner
-			android:id="@+id/wb_width_sp"
+			<ImageButton
+				android:id="@+id/cp_mirror_h_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:background="@android:color/transparent"
+				android:padding="5dp"
+				android:scaleType="centerCrop"
+				app:srcCompat="@drawable/mirror_h"/>
+
+			<ImageButton
+				android:id="@+id/cp_mirror_v_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:background="@android:color/transparent"
+				android:padding="5dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/mirror_v"/>
+
+			<ImageButton
+				android:id="@+id/cp_direction_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:background="@android:color/transparent"
+				android:src="@android:drawable/ic_menu_rotate"/>
+
+
+			<TextView
+				android:id="@+id/textView5"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/common_score"/>
+
+			<TextView
+				android:id="@+id/cp_score_tv"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="100"
+				android:textAlignment="textEnd"
+				android:textSize="30sp"/>
+
+			<TextView
+				android:id="@+id/textView7"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/common_ten"/>
+
+			<!--<TextView-->
+			<!--android:id="@+id/cp_after_tv"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:text="99999"-->
+			<!--android:textColor="@android:color/background_light"/>-->
+
+			<!--<TextView-->
+			<!--android:id="@+id/textView9"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_weight="1"-->
+			<!--android:text="/"-->
+			<!--android:textColor="@android:color/background_light"/>-->
+
+			<!--<TextView-->
+			<!--android:id="@+id/cp_befor_tv"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_weight="1"-->
+			<!--android:text="99999"-->
+			<!--android:textColor="@android:color/background_light"/>-->
+
+			<!--<TextView-->
+			<!--android:id="@+id/textView11"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:text="@string/common_pixcel"-->
+			<!--android:textColor="@android:color/background_light"/>-->
+
+			<ImageButton
+				android:id="@+id/cp_score_bt"
+				android:layout_width="40dp"
+				android:layout_height="40dp"
+				android:background="@android:color/transparent"
+				app:srcCompat="@android:drawable/btn_star_big_on"/>
+
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/wh_paret"
 			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:entries="@array/lineWidthSelectList"/>
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-		<TextView
-			android:id="@+id/textView2"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:gravity="bottom"
-			android:paddingBottom="5px"
-			android:text="px"/>
+			<Spinner
+				android:id="@+id/wb_mode_sp"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:entries="@array/typeSelectList"/>
 
-		<Spinner
-			android:id="@+id/wb_linecaps_sp"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:entries="@array/lineCapSelecttList"/>
+			<ImageButton
+				android:id="@+id/wb_color_bt"
+				android:layout_width="42dp"
+				android:layout_height="42dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/color_paret"/>
 
-		<!--<TextView-->
-		<!--android:id="@+id/wb_info_tv"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="match_parent"-->
-		<!--android:layout_weight="1"-->
-		<!--android:gravity="center_vertical"-->
-		<!--android:maxLines="2"-->
-		<!--android:singleLine="false"-->
-		<!--android:text="TextView"-->
-		<!--android:textAlignment="gravity"-->
-		<!--android:textSize="12sp"/>-->
+			<Spinner
+				android:id="@+id/wb_width_sp"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:entries="@array/lineWidthSelectList"/>
 
-		<!--<ImageButton-->
-		<!--android:id="@+id/wb_all_clear_bt"-->
-		<!--android:layout_width="42dp"-->
-		<!--android:layout_height="42dp"-->
-		<!--android:layout_gravity="right|end"-->
-		<!--android:src="@android:drawable/ic_menu_delete"/>-->
+			<TextView
+				android:id="@+id/textView2"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:gravity="bottom"
+				android:paddingBottom="5px"
+				android:text="px"/>
 
+			<Spinner
+				android:id="@+id/wb_linecaps_sp"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:entries="@array/lineCapSelecttList"/>
+
+			<!--<TextView-->
+			<!--android:id="@+id/wb_info_tv"-->
+			<!--android:layout_width="wrap_content"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:layout_weight="1"-->
+			<!--android:gravity="center_vertical"-->
+			<!--android:maxLines="2"-->
+			<!--android:singleLine="false"-->
+			<!--android:text="TextView"-->
+			<!--android:textAlignment="gravity"-->
+			<!--android:textSize="12sp"/>-->
+
+			<!--<ImageButton-->
+			<!--android:id="@+id/wb_all_clear_bt"-->
+			<!--android:layout_width="42dp"-->
+			<!--android:layout_height="42dp"-->
+			<!--android:layout_gravity="right|end"-->
+			<!--android:src="@android:drawable/ic_menu_delete"/>-->
+
+		</LinearLayout>
 	</LinearLayout>
+
+	<ImageButton
+		android:id="@+id/cp_about_bt"
+		android:layout_width="40dp"
+		android:layout_height="40dp"
+		android:layout_marginRight="10dp"
+		android:layout_weight="1"
+		android:background="@android:color/transparent"
+		android:padding="5dp"
+		android:scaleType="centerCrop"
+		android:src="@drawable/help"/>
 
 </LinearLayout>

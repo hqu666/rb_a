@@ -12,6 +12,7 @@ import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -41,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,14 +56,21 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_disp_v;        //表示側
 	public com.hijiyam_koubou.recoverybrain.CS_CanvasView sa_pad_v;        //操作側
 	public Toolbar toolbar;
+	public LinearLayout score_aria_ll;                //トレース操作パネル
 	public ImageButton cp_score_bt;
 	public ImageButton cp_mirror_h_bt;
 	public ImageButton cp_mirror_v_bt;
+	public LinearLayout wh_paret;                //手書きツールパネル
+	public Spinner wb_mode_sp;
+	public ImageButton wb_color_bt;
+	public Spinner wb_width_sp;
+	public Spinner wb_linecaps_sp;
 	public AlertDialog splashDlog;
-//	public final int toolbar_id = 1000;
-//	public final int cp_score_tv_id = toolbar_id + 1;
-//	public final int cp_after_tv_id = cp_score_tv_id + 1;
-//	public final int cp_befor_tv_id  = cp_after_tv_id + 1;
+	public String selectMode;                     //手書き編集のモード
+	public String selectCaps = "round";
+	public int selectWidth = 5;
+	public int selectColor = Color.GREEN;
+	private ColorPickerDialog mColorPickerDialog;
 
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
@@ -128,11 +137,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
 			readPref();
 			isFarst = false;       //初回起動
-			int stayTime=1000;
+			int stayTime = 1000;
 			if ( savedInstanceState == null ) {
 				isFarst = true;
 				dbMsg += "初回起動=" + isFarst;
-				stayTime=3000;
+				stayTime = 3000;
 			}
 			try {
 				Thread.sleep(stayTime);            // ここで設定秒間スリープし、スプラッシュを表示させたままにする。
@@ -145,9 +154,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
 			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
-			LinearLayout wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
+			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
 			wh_paret.setVisibility(View.GONE);
-
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
 			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(this , true , toolbar , cp_score_tv);        //表示(受信)側
@@ -189,6 +197,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					return retBool;
 				}
 			});
+
+
+			score_aria_ll = ( LinearLayout ) findViewById(R.id.score_aria_ll);
 
 			findViewById(R.id.cp_jobselect_bt).setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -232,7 +243,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			cp_score_bt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if(! isNotSet){
+					if ( !isNotSet ) {
 						CharSequence wStr = "トレースした状況を読み取っています。";
 						Toast.makeText(RecoveryBrainActivity.this , wStr , Toast.LENGTH_SHORT).show();
 					}
@@ -257,6 +268,139 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					startActivity(webIntent);
 				}
 			});
+
+			wb_mode_sp = ( Spinner ) findViewById(R.id.wb_mode_sp);
+			wb_mode_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_mode_sp[WBC]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { //
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							selectMode= ( String ) spinner.getSelectedItem();
+							dbMsg += ",selectMode=" + selectMode;
+							if ( selectMode.equals(getString(R.string.rb_edit_tool)) ||
+										 selectMode.equals(getString(R.string.rb_edit_tool_line)) || selectMode.equals(getString(R.string.rb_edit_tool_trigone)) || selectMode.equals(getString(R.string.rb_edit_tool_rect)) || selectMode.equals(getString(R.string.rb_edit_tool_oval)) || selectMode.equals(getString(R.string.rb_edit_tool_text)) || selectMode.equals(getString(R.string.rb_edit_tool_erasre)) || selectMode.equals(getString(R.string.rb_edit_tool_select_del)) || selectMode.equals(getString(R.string.rb_edit_tool_stamp)) || selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
+								pendeingMessege();
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
+								transTraceMode();
+							}
+
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+//			色選択
+			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);
+			wb_color_bt.setBackgroundColor(selectColor);
+			wb_color_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "wb_color_bt[WB]";
+					String dbMsg = "";
+					try {
+						mColorPickerDialog = new ColorPickerDialog(RecoveryBrainActivity.this , new ColorPickerDialog.OnColorChangedListener() {
+							@Override
+							public void colorChanged(int color) {
+								final String TAG = "wb_color_bt[WB]";
+								String dbMsg = "";
+								selectColor = color;
+								dbMsg = "selectColor=" + selectColor;
+								sa_disp_v.setPenColor(selectColor);
+								wb_color_bt.setBackgroundColor(selectColor);
+								myLog(TAG , dbMsg);
+							}
+						} , selectColor);
+						mColorPickerDialog.show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+
+			wb_width_sp = ( Spinner ) findViewById(R.id.wb_width_sp);
+			wb_width_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_width_sp[WBC]";
+					String dbMsg = "";
+					try {
+
+						dbMsg = "position=" + position + "id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += "item=" + item;
+							selectWidth = Integer.parseInt(item);
+							dbMsg += "selectWidth=" + selectWidth;
+							if ( selectWidth < 1 ) {
+								selectWidth = 1;
+							}
+							if ( sa_disp_v != null ) {
+								sa_disp_v.setPenWidth(selectWidth);
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+			wb_linecaps_sp = ( Spinner ) findViewById(R.id.wb_linecaps_sp);
+			wb_linecaps_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_linecaps_sp[WBC]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += ",item=" + item;
+							String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
+							selectCaps = items[position];
+							dbMsg += ",selectCaps=" + selectCaps;
+							if ( sa_disp_v != null ) {
+								sa_disp_v.setPenCap(selectCaps);                             //先端形状
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
 
 			initDrawer();   //ここで取らないとonPostCreateでNullPointerException
 //			if(isFarst){
@@ -300,7 +444,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
 
 	@Override
 	protected void onStart() {
@@ -770,12 +913,12 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			sa_disp_v.addBitMap(readFileName , canvasWidth , canvasHeight);
 //						writehScore( this,1000,100);
 //			if(isFarst){
-				if(splashDlog != null){
-					if(	splashDlog.isShowing()){
-			splashDlog.dismiss();
-					}
+			if ( splashDlog != null ) {
+				if ( splashDlog.isShowing() ) {
+					splashDlog.dismiss();
 				}
-				isFarst = false;       //初回起動
+			}
+			isFarst = false;       //初回起動
 //			}
 			isNotSet = false;
 			myLog(TAG , dbMsg);
@@ -851,8 +994,12 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					final String TAG = "onClick[jobserect]";
 					String directionName = ( String ) jobListitems[which];
 					String dbMsg = "(" + which + ")" + directionName;
-					if ( directionName.equals(getString(R.string.rb_file_read)) || directionName.equals(getString(R.string.rb_hand_made)) || directionName.equals(getString(R.string.rb_decision_original)) ) {
+					if ( directionName.equals(getString(R.string.rb_file_read)) ) {
 						pendeingMessege();
+					} else if ( directionName.equals(getString(R.string.rb_hand_made)) ) {
+						transEditMode();
+					} else if ( directionName.equals(getString(R.string.rb_decision_original)) ) {
+						transTraceMode();
 					} else if ( directionName.equals(getString(R.string.rb_hand_again)) ) {
 						sa_disp_v.backAgain();
 					}
@@ -867,6 +1014,74 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 		super.onStop();
+	}
+
+	/**
+	 * 手書きで作成　に切り替え
+	 */
+	protected void transEditMode() {
+		final String TAG = "transEditMode[RBS]";
+		String dbMsg = "";
+		try {
+			score_aria_ll.setVisibility(View.GONE);
+			wh_paret.setVisibility(View.VISIBLE);
+			AlertDialog.Builder mDlg = new AlertDialog.Builder(RecoveryBrainActivity.this);
+			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
+			mDlg.setCustomTitle(titolLayout);
+			TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
+			dlog_title_tv.setText(R.string.rb_edit_tr_titol);
+			ImageButton dlog_left_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_left_bt);
+			dlog_left_bt.setImageResource(R.drawable.edit);
+			ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
+			dlog_close_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					jobDlog.dismiss();
+				}
+			});
+			mDlg.setTitle(getString(R.string.rb_edit_tr_titol));
+			mDlg.setMessage(getString(R.string.rb_edit_tr_msg));
+			mDlg.setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog , int which) {
+					sa_disp_v.clearAll();					//課題；全消去
+				}
+			});
+			mDlg.setNegativeButton(android.R.string.no , new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog , int which) {
+					sa_disp_v.backAgain();       					//トレース前に戻す
+					selectColor = sa_disp_v.orgColor;					//トレース元の線色//sa_disp_v.getPenColor();
+					sa_disp_v.setPenColor(selectColor);
+					wb_color_bt.setBackgroundColor(selectColor);
+//					selectWidth = (int)sa_disp_v,orgWidth;					//トレース元の線の太さ								//(int)sa_disp_v.getPenWidth();
+					selectCaps = sa_disp_v.getPenCap();       					//線の色と太さを現行トレース元に合わせる
+				}
+			});
+			jobDlog =mDlg.create();
+			jobDlog.show();
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onPause();
+	}
+
+	/**
+	 * トレースに切り替え
+	 */
+	protected void transTraceMode() {
+		final String TAG = "トレースに切り替え[RBS]";
+		String dbMsg = "";
+		try {
+			wh_paret.setVisibility(View.GONE);
+			score_aria_ll.setVisibility(View.VISIBLE);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onPause();
 	}
 
 
@@ -931,7 +1146,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		super.onStop();
 	}
 
-
 	/**
 	 * 上下鏡面動作
 	 **/
@@ -950,7 +1164,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
-			if(! isNotSet){
+			if ( !isNotSet ) {
 				Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
 			}
 			myLog(TAG , dbMsg);
@@ -978,7 +1192,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
-			if(! isNotSet){
+			if ( !isNotSet ) {
 				Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
 			}
 			myLog(TAG , dbMsg);
@@ -1006,9 +1220,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
 			}
 			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
-			if(! isNotSet){
-				Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
-			}
+//			if(! isNotSet){
+			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+//			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1091,6 +1305,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onItemClick[TA]";
 		String dbMsg = "";
 		try {
+
 			readFileName = "" + iconList.get(position);
 			dbMsg = "" + readFileName;   //			textView.setText(il.getName(position));
 			int canvasWidth = sa_disp_v.getWidth();
@@ -1184,6 +1399,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			return 0;
 		}
 	}
+	///手書き編集//////////////////////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public void pendeingMessege() {
@@ -1254,8 +1470,17 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	・直線/三角/矩形/楕円
 	・消しゴム
 ・ファイル保存
+
+着手後課題
 ・起動最適化
-	・Splasy >> 実際の起動処理中表示
+	・保留バグフィックス
+		・トレース/手書きモード保持；説明書きから戻ると初期化される
+		・メニュー表示後、鏡面動作や自動評価などのフラグがリセットされる
+	・追加開発
+		・プログレス処理
+		・Splash >> 実際の起動処理中表示
+		・Stringリソース英訳
+
  * ・iOS移植
 	 * ・フレームワーク
 	 * ・ライフサイクル

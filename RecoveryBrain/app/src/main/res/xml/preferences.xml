@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 				  xmlns:tools="http://schemas.android.com/tools">
+	<PreferenceScreen
+		android:key="trace_setting_key"
+		android:title="@string/trace_setting">
+
+		<EditTextPreference
+			android:defaultValue="st001.ping"
+			android:key="file_name_key"
+			android:selectAllOnFocus="true"
+			android:singleLine="true"
+			android:summary="st001.ping"
+			android:title="@string/trace_setting_file_name"
+			android:dialogTitle="@string/trace_setting_file_name"
+			/>
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="is_start_last_key"
+			android:title="@string/trace_setting_file_next"/>
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="mirror_movement_to_key"
+			android:title="@string/rb_mirror_movement_to"/>
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="mirror_movement_lr_key"
+			android:title="@string/rb_mirror_movement_lr"/>
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="auto_judge_key"
+			android:title="@string/rb_auto_judge"/>
+
+		<ListPreference
+			android:defaultValue="@string/rootUrlStr"
+			android:entries="@array/intervalTenList"
+			android:entryValues="@array/intervalTenList"
+			android:key="trace_line_width_key"
+			android:summary="%s"
+			android:title="@string/trace_setting_lwidth"
+			android:dialogTitle="@string/trace_setting_lwidth"
+			/>
+		<!--android:summary="@string/video_output_format_mpeg_4"-->
+
+	</PreferenceScreen>
 	
 	<PreferenceScreen
 		android:key="conection_setting_key"
@@ -30,5 +76,21 @@
 
 	</PreferenceScreen>
 
+	<PreferenceScreen
+		android:key="other_setting_key"
+		android:title="@string/other_setting">
+		<!--android:summary="@string/rootUrlStr"-->
+
+		<EditTextPreference
+			android:defaultValue="/starage/emurated/0/Pictures/RecoveryBrain"
+			android:key="save_path_key"
+			android:selectAllOnFocus="true"
+			android:singleLine="true"
+			android:summary="/starage/emurated/0/Pictures/RecoveryBrain"
+			android:title="@string/other_setting_save_path"
+			android:dialogTitle="@string/other_setting_save_path"
+			/>
+
+	</PreferenceScreen>
 
 </PreferenceScreen>

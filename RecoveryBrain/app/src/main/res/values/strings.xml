@@ -28,6 +28,14 @@
 	<string name="menu_quit">終了</string>
 	<string name="menu_web_reconect">再接続</string>
 
+	<string name="trace_setting">トレース設定</string>
+	<string name="trace_setting_file_name">最初に表示する元画像</string>
+	<string name="trace_setting_file_next">次回は最後に使った元画像からスタート</string>
+	<string name="trace_setting_lwidth">トレース線の太さ[元画像の%増し]</string>
+
+	<string name="other_setting">その他の設定</string>
+	<string name="other_setting_save_path">作成したファイルの保存先</string>
+
 	<string name="conection_setting">接続設定</string>
 	<string name="rootUrl">URL</string>
 	<string name="testUrl">URL選択</string>
@@ -79,6 +87,21 @@
 	<string name="rb_mirror_movement_to">上下鏡面動作</string>
 	<string name="rb_mirror_movement_lr">左右鏡面動作</string>
 	<string name="rb_auto_judge">トレース後に自動判定</string>
+
+	<string name="rb_edit_tool">ツール</string>
+	<string name="rb_edit_tool_free">フリーハンド</string>
+	<string name="rb_edit_tool_line">直線</string>
+	<string name="rb_edit_tool_trigone">三角</string>
+	<string name="rb_edit_tool_rect">矩形</string>
+	<string name="rb_edit_tool_oval">楕円</string>
+	<string name="rb_edit_tool_text">テキスト</string>
+	<string name="rb_edit_tool_erasre">消しゴム</string>
+	<string name="rb_edit_tool_select_del">選択範囲を消去</string>
+	<string name="rb_edit_tool_stamp">図形スタンプ</string>
+	<string name="rb_edit_tool_colorpic">カラーピッカー</string>
+	<string name="rb_edit_tool_comp">確定</string>
+	<string name="rb_edit_tr_titol">トレース元画像の手書き編集</string>
+	<string name="rb_edit_tr_msg">現在書き込まれている元画像を消去して新規の画像を作成しますか</string>
 
 	<!--<string name="title_activity_video_chat">ホワイトボード</string>-->
 	<string name="can_not_conect_titol">現在接続できません</string>
@@ -161,12 +184,20 @@
 
 
 	<string-array name="typeSelectList">
-		<item>フリーハンド</item>
-		<item>テキスト</item>
-		<item>直線</item>
-		<item>図形スタンプ</item>
-		<item>消しゴム</item>
+		<item>@string/rb_edit_tool_free</item>
+		<item>@string/rb_edit_tool_line</item>
+		<item>@string/rb_edit_tool_trigone</item>
+		<item>@string/rb_edit_tool_rect</item>
+		<item>@string/rb_edit_tool_oval</item>
+		<item>@string/rb_edit_tool_text</item>
+		<item>@string/rb_edit_tool_erasre</item>
+		<item>@string/rb_edit_tool_select_del</item>
+		<item>@string/rb_edit_tool_comp</item>
 	</string-array>
+	<!--<item>@string/rb_edit_tool</item>-->
+	<!--<string name="rb_edit_tool_stamp">図形スタンプ</string>-->
+	<!--<string name="rb_edit_tool_colorpic">カラーピッカー</string>-->
+
 	<string-array name="typeSelectValList">
 		<item>free</item>
 		<item>text</item>
@@ -192,6 +223,19 @@
 		<item>square</item>
 		<item>butt</item>
 	</string-array>
-
+	<!--線の太さ-->
+	<string-array name="intervalTenList">
+		<item>0</item>
+		<item>10</item>
+		<item>20</item>
+		<item>30</item>
+		<item>40</item>
+		<item>50</item>
+		<item>60</item>
+		<item>70</item>
+		<item>80</item>
+		<item>90</item>
+		<item>100</item>
+	</string-array>
 
 </resources>
