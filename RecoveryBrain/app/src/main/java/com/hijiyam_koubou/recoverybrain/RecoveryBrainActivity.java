@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -80,8 +81,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean isNotSet = true;
 	public boolean isFarst = false;       //初回起動
 	public String readFileName = "st001.png";
+	public String savePatht =""; 		//作成したファイルの保存場所
+	public boolean isStartLast =true;  		//次回は最後に使った元画像からスタート
 	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
 	public boolean is_h_Mirror = true;                //上下鏡面動作
+	public boolean isAautoJudge =false;  		//トレース後に自動判定
+	public int traceLineWidth =50;  		//トレース線の太さ
+	public boolean isLotetCanselt =true;  		//自動回転阻止
 
 
 	/**
@@ -116,7 +122,22 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			prefs.readPref(this);
 			rootUrlStr = prefs.rootUrlStr;
 			dbMsg += ",rootUrlStr=" + rootUrlStr;
-
+			readFileName = prefs.readFileName;
+			dbMsg += ",readFileName=" + readFileName;
+			savePatht = prefs.savePatht;
+			dbMsg += ",作成したファイルの保存場所=" + savePatht;
+			isStartLast = prefs.isStartLast;
+			dbMsg += ",次回は最後に使った元画像からスタート=" + isStartLast;
+			is_v_Mirror = prefs.is_v_Mirror;
+			dbMsg += ",左右鏡面動作=" + is_v_Mirror;
+			is_h_Mirror = prefs.is_h_Mirror;
+			dbMsg += ",上下鏡面動作=" + is_h_Mirror;
+			isAautoJudge = prefs.isAautoJudge;
+			dbMsg += ",トレース後に自動判定=" + isAautoJudge;
+			traceLineWidth = prefs.traceLineWidth;
+			dbMsg += ",トレース線の太さ=" + traceLineWidth;
+			isLotetCanselt = prefs.isLotetCanselt;
+			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			sharedPref = PreferenceManager.getDefaultSharedPreferences(this);            //	getActivity().getBaseContext()
 			myEditor = sharedPref.edit();
 
@@ -546,6 +567,22 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		String dbMsg = "";
 		try {
 			abdToggle.onConfigurationChanged(newConfig);
+			dbMsg += ",自動回転阻止="+isLotetCanselt;
+			if ( isLotetCanselt ) {
+				switch (newConfig.orientation) {
+					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
+						dbMsg += ";縦長";
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+						break;
+					case Configuration.ORIENTATION_LANDSCAPE:  // 横長
+						dbMsg += ";横長";
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+						break;
+					default:
+						break;
+				}
+				//方向固定するとonConfigurationChangedも一切発生しなくなる
+			}
 			myLog(TAG , dbMsg);
 		} catch (Exception e) {
 			myErrorLog(TAG , dbMsg + "で" + e.toString());

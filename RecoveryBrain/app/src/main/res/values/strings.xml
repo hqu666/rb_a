@@ -35,6 +35,7 @@
 
 	<string name="other_setting">その他の設定</string>
 	<string name="other_setting_save_path">作成したファイルの保存先</string>
+	<string name="other_setting_lotet_cansel">自動化移転阻止</string>
 
 	<string name="conection_setting">接続設定</string>
 	<string name="rootUrl">URL</string>

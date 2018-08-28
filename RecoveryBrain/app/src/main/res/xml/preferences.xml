@@ -91,6 +91,12 @@
 			android:dialogTitle="@string/other_setting_save_path"
 			/>
 
+
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="lotet_cansel_key"
+			android:title="@string/other_setting_lotet_cansel"/>
+
 	</PreferenceScreen>
 
 </PreferenceScreen>

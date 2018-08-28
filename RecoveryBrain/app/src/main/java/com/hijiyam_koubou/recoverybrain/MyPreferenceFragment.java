@@ -33,14 +33,43 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
 
+	public PreferenceScreen trace_setting_key;        //トレース設定
+	public EditTextPreference file_name_key;  		//最初に表示する元画像
+	public CheckBoxPreference is_start_last_key;  		//次回は最後に使った元画像からスタート
+	public CheckBoxPreference mirror_movement_to_key;  		//上下鏡面動作
+	public CheckBoxPreference mirror_movement_lr_key;  		//左右鏡面動作
+	public CheckBoxPreference auto_judge_key;  		//トレース後に自動判定
+	public ListPreference trace_line_width_key;  		//トレース線の太さ
+
 	public PreferenceScreen conection_setting_key;        //接続設定
 	public EditTextPreference rootUrl_key;
 	public ListPreference testUrlt_key;
+
+	public PreferenceScreen other_setting_key;        //その他の設定
+	public EditTextPreference save_path_key;  		//作成したファイルの保存場所
+	public CheckBoxPreference lotet_cansel_key;  		//自動回転阻止
+
+	public String readFileName ="st001.png";  		//最初に表示する元画像
+	public String is_start_last ="true";  		//次回は最後に使った元画像からスタート
+	public String mirror_movement_to ="false";  		//上下鏡面動作
+	public String mirror_movement_lr ="false";  		//左右鏡面動作
+	public String auto_judge ="false";  		//トレース後に自動判定
+	public String trace_line_width ="50";  		//トレース線の太さ
+
+	public boolean isStartLast =true;  		//次回は最後に使った元画像からスタート
+	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
+	public boolean is_h_Mirror = true;                //上下鏡面動作
+	public boolean isAautoJudge =false;  		//トレース後に自動判定
+	public int traceLineWidth =50;  		//トレース線の太さ
 
 
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";					//	String dataURI = "http://192.168.3.14:3080";	//自宅
 	public String testUrlStr = "http://192.168.3.14:3080";	//自宅
 	public TypedArray testUrlArray;
+
+	public String savePatht =""; 		//作成したファイルの保存場所
+	public String lotet_canselt ="true";  		//自動回転阻止
+	public boolean isLotetCanselt =true;  		//自動回転阻止
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
