@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -28,6 +29,32 @@ public class CS_Util {
 //		context = context;
 //	}
 	//ファイル操作///////////////////
+	/**
+	 * 端末内でファイル保存できる場所
+	 */
+	public String getSavePath(Context context,String evironmentType,String savePassName) {
+		final String TAG = "getSavePath[MPF]";
+		String dbMsg = "開始";
+		String  write_folder ="";
+		try {
+			dbMsg += ",evironmentType=" + evironmentType;
+			File photDir = Environment.getExternalStoragePublicDirectory(evironmentType);
+				//              //自分のアプリ用の内部ディレクトリ    context.getFilesDir();
+				dbMsg += ",photDir=" + photDir.getPath() + File.separator;      //pathSeparatorは：
+				write_folder = photDir.getPath() + File.separator + savePassName;
+				dbMsg += ",端末内の保存先=" + write_folder;
+//			String local_dir_size = userDir.getFreeSpace() + "";// "5000000";
+//			dbMsg +=+ ",保存先の空き容量=" + local_dir_size;
+//			if ( local_dir_size.isEmpty() ) {
+//				local_dir_size = "5000000";
+//				dbMsg +=+ ">>" + local_dir_size;
+//			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return write_folder;
+	}            //端末内にファイル保存する為のパラメータ調整
 
 	/**
 	 * 指定されたパスが無ければ新規作成する

@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -72,12 +73,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public int selectWidth = 5;
 	public int selectColor = Color.GREEN;
 	private ColorPickerDialog mColorPickerDialog;
+	public boolean isReadPref = false;
+	public boolean isRecoveryBrain = false;
+	public boolean isStartLandscape =true;  		//起動時は横向き
 
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";                    //	String dataURI = "http://192.168.3.14:3080";	//自宅
-	public boolean isReadPref = false;
-	public boolean isRecoveryBrain = false;
 	public boolean isNotSet = true;
 	public boolean isFarst = false;       //初回起動
 	public String readFileName = "st001.png";
@@ -87,7 +89,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean is_h_Mirror = true;                //上下鏡面動作
 	public boolean isAautoJudge =false;  		//トレース後に自動判定
 	public int traceLineWidth =50;  		//トレース線の太さ
-	public boolean isLotetCanselt =true;  		//自動回転阻止
+	public boolean isLotetCanselt =false;  		//自動回転阻止
 
 
 	/**
@@ -157,6 +159,32 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			requestWindowFeature(Window.FEATURE_NO_TITLE);                            //タイトルバーを非表示
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
 			readPref();
+			dbMsg += ",自動回転阻止=" + isLotetCanselt;
+			if ( isLotetCanselt ) {
+				switch (getResources().getConfiguration().orientation ) {
+					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
+						dbMsg += ";縦長";
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+						break;
+					case Configuration.ORIENTATION_LANDSCAPE:  // 横長
+						dbMsg += ";横長";
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+						break;
+					default:
+						break;
+				}
+				switch ( (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation() ) {
+					case Surface.ROTATION_90:
+					case Surface.ROTATION_270:
+						isStartLandscape = true;        //起動時は横向き
+						break;
+					case Surface.ROTATION_180:
+					default:
+						isStartLandscape = false;
+						break;
+				}
+				dbMsg += ",起動時は横向き=" + isStartLandscape;
+			}
 			isFarst = false;       //初回起動
 			int stayTime = 1000;
 			if ( savedInstanceState == null ) {
@@ -165,6 +193,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				stayTime = 3000;
 			}
 			try {
+
 				Thread.sleep(stayTime);            // ここで設定秒間スリープし、スプラッシュを表示させたままにする。
 			} catch (InterruptedException e) {
 			}
@@ -572,11 +601,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				switch (newConfig.orientation) {
 					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
 						dbMsg += ";縦長";
-						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 						break;
 					case Configuration.ORIENTATION_LANDSCAPE:  // 横長
 						dbMsg += ";横長";
-						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 						break;
 					default:
 						break;
