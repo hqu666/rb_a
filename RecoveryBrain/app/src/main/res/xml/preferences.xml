@@ -35,6 +35,12 @@
 			android:key="auto_judge_key"
 			android:title="@string/rb_auto_judge"/>
 
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="is_pad_left_key"
+			android:title="@string/trace_setting_is_pad_left"/>
+		<string name="">左側にPad</string>
+
 		<ListPreference
 			android:defaultValue="@string/rootUrlStr"
 			android:entries="@array/intervalTenList"

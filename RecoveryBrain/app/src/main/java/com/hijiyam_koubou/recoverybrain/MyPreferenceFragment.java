@@ -40,6 +40,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	public CheckBoxPreference mirror_movement_lr_key;        //左右鏡面動作
 	public CheckBoxPreference auto_judge_key;        //トレース後に自動判定
 	public ListPreference trace_line_width_key;        //トレース線の太さ
+	public CheckBoxPreference is_pad_left_key;        //左側にPad
 
 	public PreferenceScreen conection_setting_key;        //接続設定
 	public EditTextPreference rootUrl_key;
@@ -61,7 +62,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	public boolean is_h_Mirror = false;                //上下鏡面動作
 	public boolean isAautoJudge = true;        //トレース後に自動判定
 	public int traceLineWidth = 50;        //トレース線の太さ
-
+	public boolean isPadLeft= false;          //左側にPad
 
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";                    //	String dataURI = "http://192.168.3.14:3080";	//自宅
 	public String testUrlStr = "http://192.168.3.14:3080";    //自宅
@@ -224,7 +225,33 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 		String dbMsg = "設定変更;";/////////////////////////////////////////////////
 		try {
 			dbMsg += key;
-			if ( key.equals("testUrlt_key") ) {
+			if ( key.equals("file_name_key") ) {
+//				readFileName = sharedPref.getString(key , readFileName);
+				dbMsg += ",最初に表示する元画像=" + readFileName;
+			} else if ( key.equals("is_start_last_key") ) {
+				dbMsg += ",次回は最後に使った元画像からスタート=" + isStartLast+">>" + is_start_last_key.isChecked();
+				myEditor.putBoolean(key , is_start_last_key.isChecked());
+			} else if ( key.equals("mirror_movement_to_key") ) {
+//				is_v_Mirror = sharedPref.getBoolean(key , is_v_Mirror);
+				dbMsg += ",上下鏡面動作=" + is_v_Mirror +">>" + mirror_movement_to_key.isChecked();
+				myEditor.putBoolean(key , mirror_movement_to_key.isChecked());
+			} else if ( key.equals("mirror_movement_lr_key") ) {
+//				is_h_Mirror = sharedPref.getBoolean(key , is_h_Mirror);
+				dbMsg += ",左右鏡面動作=" + is_h_Mirror+">>" + mirror_movement_lr_key.isChecked();
+				myEditor.putBoolean(key , mirror_movement_lr_key.isChecked());
+			} else if ( key.equals("auto_judge_key") ) {
+//				isAautoJudge = sharedPref.getBoolean(key , isAautoJudge);
+				dbMsg += ",トレース後に自動判定=" + isAautoJudge+">>" + auto_judge_key.isChecked();
+				myEditor.putBoolean(key , auto_judge_key.isChecked());
+//				} else if ( key.equals("trace_line_width_key") ) {
+//					trace_line_width = sharedPref.getString(key , trace_line_width);
+//					dbMsg += ",トレース線の太さ=" + trace_line_width;
+//					traceLineWidth = Integer.parseInt(trace_line_width);
+//					dbMsg += ">>" + traceLineWidth;
+			} else if ( key.equals("is_pad_left_key") ) {
+				dbMsg += ",左側にPad=" + isPadLeft+">>" + is_pad_left_key.isChecked();
+				myEditor.putBoolean(key , is_pad_left_key.isChecked());
+			}else if ( key.equals("testUrlt_key") ) {
 				dbMsg += ",testUrlStr=" + sharedPref.getString(key , testUrlStr);
 				String pEntry = ( String ) testUrlt_key.getEntry();
 				String pVal = ( String ) testUrlt_key.getValue();
@@ -233,9 +260,6 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					testUrlStr = pVal;
 					myEditor.putString("rootUrl_key" , pVal);
 					myEditor.putString("testUrlt_key" , pVal);
-					dbMsg += ",更新";
-					myEditor.commit();
-					dbMsg += "完了";
 					rootUrlStr = sharedPref.getString("rootUrl_key" , rootUrlStr);
 					rootUrl_key.setSummary(rootUrlStr);
 					testUrlStr = sharedPref.getString("testUrlt_key" , testUrlStr);
@@ -244,10 +268,16 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 					dbMsg += ";書き換え=" + wrString;
 					conection_setting_key.setSummary(wrString);
 				}
-//			}else{
-//				myEditor.putString(key, pVal);
+			} else if ( key.equals("save_path_key") ) {
+//				savePatht = sharedPref.getString(key , savePatht);       //その他の設定
+				dbMsg += ",作成したファイルの保存場所=" + savePatht;
+			} else if ( key.equals("lotet_cansel_key") ) {
+				dbMsg += ",自動回転阻止=" + isLotetCanselt+">>" + is_pad_left_key.isChecked();
+				myEditor.putBoolean(key , is_pad_left_key.isChecked());
 			}
-
+			dbMsg += ",更新";
+			myEditor.commit();
+			dbMsg += "完了";
 //			reloadSummary();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -402,24 +432,24 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 				if ( key.equals("file_name_key") ) {
 					readFileName = sharedPref.getString(key , readFileName);
 					dbMsg += ",最初に表示する元画像=" + readFileName;
-//				} else if ( key.equals("is_start_last_key") ) {
-//					isStartLast = sharedPref.getBoolean(key , isStartLast);
-//					dbMsg += ",次回は最後に使った元画像からスタート=" + isStartLast;
-////					isStartLast = Boolean.valueOf(is_start_last);
+				} else if ( key.equals("is_start_last_key") ) {
+					isStartLast = sharedPref.getBoolean(key , isStartLast);
+					dbMsg += ",次回は最後に使った元画像からスタート=" + isStartLast;
+//					isStartLast = Boolean.valueOf(is_start_last);
 //					dbMsg += ">>" + isStartLast;
-//				} else if ( key.equals("mirror_movement_to_key") ) {
-//					mirror_movement_to = sharedPref.getString(key , mirror_movement_to);
-//					dbMsg += ",上下鏡面動作=" + mirror_movement_to;
+				} else if ( key.equals("mirror_movement_to_key") ) {
+					is_v_Mirror = sharedPref.getBoolean(key , is_v_Mirror);
+					dbMsg += ",上下鏡面動作=" + is_v_Mirror;
 //					is_v_Mirror = Boolean.valueOf(mirror_movement_to);             //読み込み時、反転される
 //					dbMsg += ">>" + is_v_Mirror;
-//				} else if ( key.equals("mirror_movement_lr_key") ) {
-//					mirror_movement_lr = sharedPref.getString(key , mirror_movement_lr);
-//					dbMsg += ",左右鏡面動作=" + mirror_movement_lr;
+				} else if ( key.equals("mirror_movement_lr_key") ) {
+					is_h_Mirror = sharedPref.getBoolean(key , is_h_Mirror);
+					dbMsg += ",左右鏡面動作=" + is_h_Mirror;
 //					is_h_Mirror = Boolean.valueOf(mirror_movement_lr);             //読み込み時、反転される
 //					dbMsg += ">>" + is_h_Mirror;
-//				} else if ( key.equals("auto_judge_key") ) {
-//					auto_judge = sharedPref.getString(key , auto_judge);
-//					dbMsg += ",トレース後に自動判定=" + auto_judge;
+				} else if ( key.equals("auto_judge_key") ) {
+					isAautoJudge = sharedPref.getBoolean(key , isAautoJudge);
+					dbMsg += ",トレース後に自動判定=" + isAautoJudge;
 //					isAautoJudge = Boolean.valueOf(auto_judge);             //読み込み時、反転される
 //					dbMsg += ">>" + isAautoJudge;
 //				} else if ( key.equals("trace_line_width_key") ) {
@@ -427,6 +457,9 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 //					dbMsg += ",トレース線の太さ=" + trace_line_width;
 //					traceLineWidth = Integer.parseInt(trace_line_width);
 //					dbMsg += ">>" + traceLineWidth;
+				} else if ( key.equals("is_pad_left_key") ) {
+					isPadLeft = sharedPref.getBoolean(key , isPadLeft);
+					dbMsg += ",左側にPad=" + isPadLeft;
 				} else if ( key.equals("rootUrl_key") ) {                                     //接続設定
 					rootUrlStr = sharedPref.getString(key , rootUrlStr);
 					dbMsg += ",rootUrlStr=" + rootUrlStr;
@@ -436,9 +469,9 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 				} else if ( key.equals("save_path_key") ) {
 					savePatht = sharedPref.getString(key , savePatht);       //その他の設定
 					dbMsg += ",作成したファイルの保存場所=" + savePatht;
-//				} else if ( key.equals("lotet_cansel_key") ) {
-//					lotet_canselt = sharedPref.getString(key , lotet_canselt);
-//					dbMsg += ",自動回転阻止=" + lotet_canselt;
+				} else if ( key.equals("lotet_cansel_key") ) {
+					isLotetCanselt = sharedPref.getBoolean(key , isLotetCanselt);
+					dbMsg += ",自動回転阻止=" + isLotetCanselt;
 //					isLotetCanselt = Boolean.valueOf(lotet_canselt);             //読み込み時、反転される
 //					dbMsg += ">>" + isLotetCanselt;
 				}

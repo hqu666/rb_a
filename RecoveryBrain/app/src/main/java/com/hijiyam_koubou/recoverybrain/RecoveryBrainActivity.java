@@ -1,6 +1,7 @@
 package com.hijiyam_koubou.recoverybrain;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -89,6 +90,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean is_h_Mirror = true;                //上下鏡面動作
 	public boolean isAautoJudge = false;        //トレース後に自動判定
 	public int traceLineWidth = 50;        //トレース線の太さ
+	public boolean isPadLeft = false;          //左側にPad
 	public boolean isLotetCanselt = false;        //自動回転阻止
 
 
@@ -138,6 +140,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			dbMsg += ",トレース後に自動判定=" + isAautoJudge;
 			traceLineWidth = prefs.traceLineWidth;
 			dbMsg += ",トレース線の太さ=" + traceLineWidth;
+			isPadLeft = prefs.isPadLeft;
+			dbMsg += ",左側にPad=" + isPadLeft;
 			isLotetCanselt = prefs.isLotetCanselt;
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			sharedPref = PreferenceManager.getDefaultSharedPreferences(this);            //	getActivity().getBaseContext()
@@ -149,41 +153,47 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		}
 	}
 
+	@SuppressLint ( "ResourceAsColor" )
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final String TAG = "onCreate[RBS]";
 		String dbMsg = "";
 		try {
+			readPref();
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        //タスクバーを 非表示
 			requestWindowFeature(Window.FEATURE_NO_TITLE);                            //タイトルバーを非表示
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
-			readPref();
-			dbMsg += ",自動回転阻止=" + isLotetCanselt;
-			if ( isLotetCanselt ) {
 				switch ( getResources().getConfiguration().orientation ) {
 					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
 						dbMsg += ";縦長";
-						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+						isStartLandscape = false;
 						break;
 					case Configuration.ORIENTATION_LANDSCAPE:  // 横長
 						dbMsg += ";横長";
-						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-						break;
-					default:
-						break;
-				}
-				switch ( (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation() ) {
-					case Surface.ROTATION_90:
-					case Surface.ROTATION_270:
 						isStartLandscape = true;        //起動時は横向き
 						break;
-					case Surface.ROTATION_180:
 					default:
-						isStartLandscape = false;
 						break;
 				}
+//				switch ( (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation() ) {
+//					case Surface.ROTATION_90:
+//					case Surface.ROTATION_270:
+//						isStartLandscape = true;        //起動時は横向き
+//						break;
+//					case Surface.ROTATION_180:
+//					default:
+//						isStartLandscape = false;
+//						break;
+//				}
 				dbMsg += ",起動時は横向き=" + isStartLandscape;
+			dbMsg += ",自動回転阻止=" + isLotetCanselt;
+			if ( isLotetCanselt ) {
+				if ( isStartLandscape ) {
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+				} else{
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+				}
 			}
 			isFarst = false;       //初回起動
 			int stayTime = 1000;
@@ -208,13 +218,23 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			wh_paret.setVisibility(View.GONE);
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
-			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(RecoveryBrainActivity.this , true , toolbar , cp_score_tv);        //表示(受信)側
-			sa_disp_ll.addView(sa_disp_v);
-			sa_disp_v.readFileName = "";
-
 			LinearLayout sa_pad_ll = ( LinearLayout ) findViewById(R.id.sa_pad_ll);
+			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(RecoveryBrainActivity.this , true , toolbar , cp_score_tv);        //表示(受信)側
 			sa_pad_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(this , false , toolbar , cp_score_tv);        //表示側
-			sa_pad_ll.addView(sa_pad_v);
+			sa_pad_v.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+			if ( isStartLandscape ) {                 //起動時は横向き
+				dbMsg += ",左側にPad=" + isPadLeft;
+				if ( isPadLeft ) {
+					sa_disp_ll.addView(sa_pad_v);
+//				sa_disp_ll.setBackgroundColor(android.R.color.darker_gray);
+					sa_pad_ll.addView(sa_disp_v);
+				} else {
+					sa_disp_ll.addView(sa_disp_v);
+					sa_pad_ll.addView(sa_pad_v);
+//				sa_pad_ll.setBackgroundColor(android.R.color.darker_gray);
+				}
+			}
+			sa_disp_v.readFileName = "";
 
 			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
 				@Override
@@ -535,11 +555,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
 			}
 //			if ( isFarst ) {
-				if ( splashDlog != null ) {
-					if ( splashDlog.isShowing() ) {
-						splashDlog.dismiss();
-					}
+			if ( splashDlog != null ) {
+				if ( splashDlog.isShowing() ) {
+					splashDlog.dismiss();
 				}
+			}
 //				isFarst = false;       //初回起動
 //			}
 			myLog(TAG , dbMsg);
@@ -701,7 +721,15 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onPrepareOptionsMenu[RBS]";
 		String dbMsg = "";
 		try {
-			dbMsg = ",上下鏡面=" + is_h_Mirror;
+			dbMsg = ",左側にPad=" + isPadLeft;
+			if ( isPadLeft ) {
+				menu.findItem(R.id.rbm_lotet_pad).setTitle(getString(R.string.trace_setting_is_pad_right));
+			} else {
+				menu.findItem(R.id.rbm_lotet_pad).setTitle(getString(R.string.trace_setting_is_pad_left));
+			}
+			dbMsg = ",起動時は横向き=" + isStartLandscape;
+//				menu.findItem(R.id.rbm_lotet_pad).setEnabled(! isStartLandscape);
+//			dbMsg = ",上下鏡面=" + is_h_Mirror;
 //			mirror_h_click();
 ////			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_h_Mirror);
 //			dbMsg = ",左右鏡面=" + is_v_Mirror;
@@ -771,9 +799,22 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				case R.id.rbm_trace_setting:                //動作設定
 					//メニューグループはまずスキップ //
 					break;
-				case R.id.rbm_common_back:     //戻す
-					sa_disp_v.canvasBack();
+				case R.id.rbm_lotet_pad:     //Padの左右
+					dbMsg += ",isPadLeft=" + isPadLeft;
+					if ( isPadLeft ) {
+						isPadLeft = false;
+					} else {
+						isPadLeft = true;
+					}
+					myEditor.putBoolean("is_pad_left_key" , isPadLeft);
+					dbMsg += ",更新";
+					myEditor.commit();
+					dbMsg += "完了";
+					reStart();
 					break;
+//				case R.id.rbm_common_back:     //戻す
+//					sa_disp_v.canvasBack();
+//					break;
 				case R.id.md_qr_read:     //QRコードから接続
 					Intent qra = new Intent(this , QRActivity.class);
 					startActivity(qra);

@@ -22,7 +22,7 @@
 	<string name="btf_re_scan">再読取</string>
 	<string name="menu_qr_read">QRコードから接続</string>
 	<string name="menu_call_main">メイン画面として接続</string>
-	<string name="menu_stand_alone">スタンドアロン</string>
+	<string name="menu_stand_alone">スタート</string>
 
 	<string name="menu_setting">設定</string>
 	<string name="menu_quit">終了</string>
@@ -32,6 +32,8 @@
 	<string name="trace_setting_file_name">最初に表示する元画像</string>
 	<string name="trace_setting_file_next">次回は最後に使った元画像からスタート</string>
 	<string name="trace_setting_lwidth">トレース線の太さ[元画像の%増し]</string>
+	<string name="trace_setting_is_pad_left">左側にPad</string>
+	<string name="trace_setting_is_pad_right">右側にPad</string>
 
 	<string name="other_setting">その他の設定</string>
 	<string name="other_setting_save_path">作成したファイルの保存先</string>

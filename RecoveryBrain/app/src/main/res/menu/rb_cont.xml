@@ -4,9 +4,9 @@
 	  xmlns:tools="http://schemas.android.com/tools">
 
 	<item
-		android:id="@+id/rbm_common_back"
+		android:id="@+id/rbm_lotet_pad"
 		android:checkable="false"
-		android:title="@string/common_back"/>
+		android:title="@string/trace_setting_is_pad_left"/>
 
 
 	<group android:checkableBehavior="single">
