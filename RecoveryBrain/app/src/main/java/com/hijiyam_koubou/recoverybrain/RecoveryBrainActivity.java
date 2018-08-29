@@ -75,7 +75,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	private ColorPickerDialog mColorPickerDialog;
 	public boolean isReadPref = false;
 	public boolean isRecoveryBrain = false;
-	public boolean isStartLandscape =true;  		//起動時は横向き
+	public boolean isStartLandscape = true;        //起動時は横向き
 
 	public static SharedPreferences sharedPref;
 	public SharedPreferences.Editor myEditor;
@@ -83,13 +83,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean isNotSet = true;
 	public boolean isFarst = false;       //初回起動
 	public String readFileName = "st001.png";
-	public String savePatht =""; 		//作成したファイルの保存場所
-	public boolean isStartLast =true;  		//次回は最後に使った元画像からスタート
+	public String savePatht = "";        //作成したファイルの保存場所
+	public boolean isStartLast = true;        //次回は最後に使った元画像からスタート
 	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
 	public boolean is_h_Mirror = true;                //上下鏡面動作
-	public boolean isAautoJudge =false;  		//トレース後に自動判定
-	public int traceLineWidth =50;  		//トレース線の太さ
-	public boolean isLotetCanselt =false;  		//自動回転阻止
+	public boolean isAautoJudge = false;        //トレース後に自動判定
+	public int traceLineWidth = 50;        //トレース線の太さ
+	public boolean isLotetCanselt = false;        //自動回転阻止
 
 
 	/**
@@ -161,7 +161,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			readPref();
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			if ( isLotetCanselt ) {
-				switch (getResources().getConfiguration().orientation ) {
+				switch ( getResources().getConfiguration().orientation ) {
 					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
 						dbMsg += ";縦長";
 						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -193,9 +193,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				stayTime = 3000;
 			}
 			try {
-
 				Thread.sleep(stayTime);            // ここで設定秒間スリープし、スプラッシュを表示させたままにする。
-			} catch (InterruptedException e) {
+			} catch (InterruptedException er) {
+				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
 			setTheme(R.style.AppTheme);                // スプラッシュthemeを通常themeに変更する
 //			super.onCreate(savedInstanceState);
@@ -208,7 +208,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			wh_paret.setVisibility(View.GONE);
 
 			LinearLayout sa_disp_ll = ( LinearLayout ) findViewById(R.id.sa_disp_ll);
-			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(this , true , toolbar , cp_score_tv);        //表示(受信)側
+			sa_disp_v = new com.hijiyam_koubou.recoverybrain.CS_CanvasView(RecoveryBrainActivity.this , true , toolbar , cp_score_tv);        //表示(受信)側
 			sa_disp_ll.addView(sa_disp_v);
 			sa_disp_v.readFileName = "";
 
@@ -276,6 +276,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			cp_score_bt = ( ImageButton ) findViewById(R.id.cp_score_bt);
 			cp_mirror_h_bt = ( ImageButton ) findViewById(R.id.cp_mirror_h_bt);
 			cp_mirror_v_bt = ( ImageButton ) findViewById(R.id.cp_mirror_v_bt);
+
+
 			findViewById(R.id.cp_mirror_h_bt).setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -332,10 +334,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							dbMsg += "isFocusable=false";
 							spinner.setFocusable(true);
 						} else {
-							selectMode= ( String ) spinner.getSelectedItem();
+							selectMode = ( String ) spinner.getSelectedItem();
 							dbMsg += ",selectMode=" + selectMode;
-							if ( selectMode.equals(getString(R.string.rb_edit_tool)) ||
-										 selectMode.equals(getString(R.string.rb_edit_tool_line)) || selectMode.equals(getString(R.string.rb_edit_tool_trigone)) || selectMode.equals(getString(R.string.rb_edit_tool_rect)) || selectMode.equals(getString(R.string.rb_edit_tool_oval)) || selectMode.equals(getString(R.string.rb_edit_tool_text)) || selectMode.equals(getString(R.string.rb_edit_tool_erasre)) || selectMode.equals(getString(R.string.rb_edit_tool_select_del)) || selectMode.equals(getString(R.string.rb_edit_tool_stamp)) || selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
+							if ( selectMode.equals(getString(R.string.rb_edit_tool)) || selectMode.equals(getString(R.string.rb_edit_tool_line)) || selectMode.equals(getString(R.string.rb_edit_tool_trigone)) || selectMode.equals(getString(R.string.rb_edit_tool_rect)) || selectMode.equals(getString(R.string.rb_edit_tool_oval)) || selectMode.equals(getString(R.string.rb_edit_tool_text)) || selectMode.equals(getString(R.string.rb_edit_tool_erasre)) || selectMode.equals(getString(R.string.rb_edit_tool_select_del)) || selectMode.equals(getString(R.string.rb_edit_tool_stamp)) || selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
 								pendeingMessege();
 							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
 							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
@@ -453,15 +454,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 
 
 			initDrawer();   //ここで取らないとonPostCreateでNullPointerException
-//			if(isFarst){
-//				AlertDialog.Builder builder  = new AlertDialog.Builder(RecoveryBrainActivity.this ,R.style.SplashDialogStyle);		//
-//				LayoutInflater inflater = ( LayoutInflater ) RecoveryBrainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
-//				final View layout = inflater.inflate(R.layout.dlog_splash,(ViewGroup)findViewById(R.id.splash_root_ll));
-//				builder.setView(layout);
-//				splashDlog = builder.create();                // 表示
-//				splashDlog.show();                // 表示
-//			}
-			myLog(TAG , dbMsg);
+			if ( isFarst ) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(RecoveryBrainActivity.this , R.style.SplashDialogStyle);        //
+				LayoutInflater inflater = ( LayoutInflater ) RecoveryBrainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+				final View layout = inflater.inflate(R.layout.dlog_splash , ( ViewGroup ) findViewById(R.id.splash_root_ll));
+				builder.setView(layout);
+				splashDlog = builder.create();                // 表示
+				splashDlog.show();                // 表示
+			}
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -515,15 +515,34 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		super.onResume();
 		final String TAG = "onResume[RBS]";
 		String dbMsg = "";
-//		//			if(isFarst){
-//		if ( splashDlog != null ) {
-//			if ( splashDlog.isShowing() ) {
-//				splashDlog.dismiss();
-//			}
-//		}
-////				isFarst = false;       //初回起動
-////			}
 		try {
+			dbMsg += ",トレース後に自動判定=" + isAautoJudge;
+			if ( isAautoJudge ) {
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
+			} else {
+				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_off);
+			}
+			dbMsg += ",上下鏡面動作=" + is_h_Mirror;
+			if ( is_h_Mirror ) {
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
+			} else {
+				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
+			}
+			dbMsg += ",左右鏡面動作=" + is_v_Mirror;
+			if ( is_v_Mirror ) {
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
+			} else {
+				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
+			}
+//			if ( isFarst ) {
+				if ( splashDlog != null ) {
+					if ( splashDlog.isShowing() ) {
+						splashDlog.dismiss();
+					}
+				}
+//				isFarst = false;       //初回起動
+//			}
+			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -596,9 +615,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		String dbMsg = "";
 		try {
 			abdToggle.onConfigurationChanged(newConfig);
-			dbMsg += ",自動回転阻止="+isLotetCanselt;
+			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			if ( isLotetCanselt ) {
-				switch (newConfig.orientation) {
+				switch ( newConfig.orientation ) {
 					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
 						dbMsg += ";縦長";
 //						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -683,13 +702,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		String dbMsg = "";
 		try {
 			dbMsg = ",上下鏡面=" + is_h_Mirror;
-			mirror_h_click();
-//			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_h_Mirror);
-			dbMsg = ",左右鏡面=" + is_v_Mirror;
-			mirror_v_click();
-//			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_v_Mirror);
-			dbMsg = ",isAutoJudge=" + sa_disp_v.isAutoJudge;
-			scoreAuto();
+//			mirror_h_click();
+////			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_h_Mirror);
+//			dbMsg = ",左右鏡面=" + is_v_Mirror;
+//			mirror_v_click();
+////			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked( is_v_Mirror);
+//			dbMsg = ",isAutoJudge=" + sa_disp_v.isAutoJudge;
+//			scoreAuto();
 //			myMenu.findItem(R.id.rbm_auto_judge).setChecked( sa_disp_v.isAutoJudge);
 //			menu.findItem(R.id.score_bt).setEnabled(! sa_disp_v.isAutoJudge);					//有効/無効
 //			menu.findItem(R.id.score_bt).setVisible(! sa_disp_v.isAutoJudge);					//表示/非表示
@@ -814,6 +833,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				case R.id.again_bt:     //戻す
 				case R.id.rbm_hand_again:     //戻す
 					sa_disp_v.backAgain();
+					sa_disp_v.isPreparation = true;                    //トレーススタート前の準備中
 					break;
 /////////////////////////////////動作設定//
 				case R.id.md_prefarence:      //設定
@@ -976,7 +996,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			int canvasWidth = sa_disp_v.getWidth();
 			int canvasHeight = sa_disp_v.getHeight();
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap(readFileName , canvasWidth , canvasHeight);
+			sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight);
 //						writehScore( this,1000,100);
 //			if(isFarst){
 			if ( splashDlog != null ) {
@@ -1111,21 +1131,21 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			mDlg.setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
-					sa_disp_v.clearAll();					//課題；全消去
+					sa_disp_v.clearAll();                    //課題；全消去
 				}
 			});
 			mDlg.setNegativeButton(android.R.string.no , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
-					sa_disp_v.backAgain();       					//トレース前に戻す
-					selectColor = sa_disp_v.orgColor;					//トレース元の線色//sa_disp_v.getPenColor();
+					sa_disp_v.backAgain();                        //トレース前に戻す
+					selectColor = sa_disp_v.orgColor;                    //トレース元の線色//sa_disp_v.getPenColor();
 					sa_disp_v.setPenColor(selectColor);
 					wb_color_bt.setBackgroundColor(selectColor);
 //					selectWidth = (int)sa_disp_v,orgWidth;					//トレース元の線の太さ								//(int)sa_disp_v.getPenWidth();
-					selectCaps = sa_disp_v.getPenCap();       					//線の色と太さを現行トレース元に合わせる
+					selectCaps = sa_disp_v.getPenCap();                        //線の色と太さを現行トレース元に合わせる
 				}
 			});
-			jobDlog =mDlg.create();
+			jobDlog = mDlg.create();
 			jobDlog.show();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -1286,9 +1306,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
 			}
 			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
-//			if(! isNotSet){
-			Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
-//			}
+			if ( !isNotSet ) {
+				Toast.makeText(this , toastStr , Toast.LENGTH_SHORT).show();
+			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1377,7 +1397,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			int canvasWidth = sa_disp_v.getWidth();
 			int canvasHeight = sa_disp_v.getHeight();
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap(readFileName , canvasWidth , canvasHeight);
+			sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight);
 			myLog(TAG , dbMsg);
 			stereoTypeDlog.dismiss();
 		} catch (Exception er) {
