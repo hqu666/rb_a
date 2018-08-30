@@ -59,15 +59,18 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	private boolean isActionUp = false;                    //描画終了
 	public boolean isAutoJudge = true;                //トレース後に自動判定 //読み込み時、反転される
 	private boolean isComp = false;                //比較中	;scoreStartRadyでtrueに設定
+	public boolean isDrow = false;                //手書き編集中
+	public int stdColor = Color.BLUE;
+	public String stdCaps = "round";
+	public int stdWidth = 5;
 
 
 	private Canvas myCanvas;
 	private Paint paint;                        //ペン
 	private Path path;                     //ペン
-	//	public int penColor = 0xFF008800;        //蛍光グリーン
 	public int selectColor = 0xFF008800;        //蛍光グリーン
-	public float selectWidth = 5;
-	public String selectLineCap = "";
+	public float selectWidth = stdWidth;
+	public String selectLineCap = stdCaps;
 	public String[] lineCapList;
 
 	private Paint eraserPaint;                //消しゴム
@@ -100,6 +103,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 	//RecvrryBrain
 	private Paint orignLine = null;                        //トレース元画像
+	public boolean isPreparation = true;                    //トレーススタート前の準備中
 
 
 	/**
@@ -171,6 +175,11 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "InitCanva[CView]";
 		String dbMsg = "";
 		try {
+			if(isDrow){
+				selectColor= stdColor;
+				selectWidth = stdWidth;
+				selectLineCap = stdCaps;
+			}
 			pathIist = new ArrayList< PathObject >();
 			paint = new Paint();
 			dbMsg += ",ペン；" + selectColor;
@@ -401,14 +410,15 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //							 CLIP_TO_LAYER_SAVE_FLAG	クリップレイヤーとして保存
 //							 ALL_SAVE_FLAG	全ての状態を保存する*/
 							isActionUp = false;                    //描画終了
-
-							dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
-							if ( isAutoJudge ) {
-								CharSequence wStr = "自動判定";
-								dbMsg += ">>" + wStr;
-								Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
-								scorePixcel();
-							}
+							  if(! isDrow){
+								  dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
+								  if ( isAutoJudge ) {
+									  CharSequence wStr = "自動判定";
+									  dbMsg += ">>" + wStr;
+									  Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
+									  scorePixcel();
+								  }
+							  }
 						}
 						break;
 					case REQUEST_AGAIN:                //502；もう一度
@@ -488,7 +498,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-
 	/**
 	 * 受信/送信前のイベント処理
 	 */
@@ -540,7 +549,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	public int remainsCount = 0;
 	//	public int before_Count = 0;
 //	public int tracceCount = 0;
-	public boolean isPreparation = true;                    //トレーススタート前の準備中
 
 	private ProgressDialog progressDialog;
 
@@ -1262,10 +1270,17 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "clearAllBody[CView]";
 		String dbMsg = "";
 		try {
+			if(isDrow){
+				if(output != null){
+					output.recycle();
+					output = null;
+				}
+			}
 			canvas.drawColor(eraserColor , PorterDuff.Mode.CLEAR);                // 描画クリア
 			for ( PathObject pathObject : pathIist ) {
 				pathObject.path.reset();
 			}
+			canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			float caWidth = canvas.getWidth();
 			float caHeight = canvas.getHeight();
 			dbMsg += ",canvas[" + caWidth + "×" + caHeight + "]";
@@ -1296,6 +1311,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
 			switch ( REQUEST_CORD ) {
 				case REQUEST_CLEAR:                        //全消去
+					clearAll();
 					break;
 				case REQUEST_DROW_PATH:                        //フリーハンド
 					dbMsg += ",selectColor=" + selectColor + "mselectWidth=" + selectWidth + ",selectLineCap=" + selectLineCap;

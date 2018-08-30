@@ -1172,21 +1172,40 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			});
 			mDlg.setTitle(getString(R.string.rb_edit_tr_titol));
 			mDlg.setMessage(getString(R.string.rb_edit_tr_msg));
-			mDlg.setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
+			mDlg.setPositiveButton(android.R.string.yes , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
-					sa_disp_v.clearAll();                    //課題；全消去
+					final String TAG = "Positive[transEditMode]";
+					String dbMsg = "";
+					try {
+						sa_disp_v.isDrow = true;
+						sa_disp_v.isPreparation = false;                    //トレーススタート前の準備中
+						sa_disp_v.clearAll();
+						sa_disp_v.InitCanvas();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
 				}
 			});
 			mDlg.setNegativeButton(android.R.string.no , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
-					sa_disp_v.backAgain();                        //トレース前に戻す
-					selectColor = sa_disp_v.orgColor;                    //トレース元の線色//sa_disp_v.getPenColor();
-					sa_disp_v.setPenColor(selectColor);
-					wb_color_bt.setBackgroundColor(selectColor);
+					final String TAG = "Negativ[transEditMode]";
+					String dbMsg = "";
+					try {
+						sa_disp_v.isDrow = true;
+						sa_disp_v.isPreparation = false;                    //トレーススタート前の準備中
+						sa_disp_v.backAgain();                        //トレース前に戻す
+						selectColor = sa_disp_v.orgColor;                    //トレース元の線色//sa_disp_v.getPenColor();
+						sa_disp_v.setPenColor(selectColor);
+						wb_color_bt.setBackgroundColor(selectColor);
 //					selectWidth = (int)sa_disp_v,orgWidth;					//トレース元の線の太さ								//(int)sa_disp_v.getPenWidth();
-					selectCaps = sa_disp_v.getPenCap();                        //線の色と太さを現行トレース元に合わせる
+						selectCaps = sa_disp_v.getPenCap();                        //線の色と太さを現行トレース元に合わせる
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
 				}
 			});
 			jobDlog = mDlg.create();
@@ -1207,6 +1226,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		try {
 			wh_paret.setVisibility(View.GONE);
 			score_aria_ll.setVisibility(View.VISIBLE);
+			sa_disp_v.isDrow = false;
+			sa_disp_v.isPreparation = true;                    //トレーススタート前の準備中
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1376,17 +1398,30 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			String dLogTitol = getString(R.string.thumbnail_list_titol);
 			if ( !writeFolder.equals("") ) {
 				dbMsg += "writeFolder= " + writeFolder;
+				CS_Util UTIL = new CS_Util();
+				UTIL.maikOrgPass(writeFolder);                    //フォルダを検索して無ければ作る
+//				File tFolder = new File(writeFolder);
+//				if(tFolder.exists()){
+//
+//				}
 				dLogTitol = getString(R.string.file_list_titol);
 				File[] tFiles = new File(writeFolder).listFiles();
-				dbMsg += ",tFiles= " + tFiles.length + "件";
-				for ( int i = 0 ; i < tFiles.length ; i++ ) {
-					String tfName = tFiles[i].getName();
-					dbMsg += "(" + i + ")" + tfName;
-					if ( tfName.endsWith(".png") ) {
-						String fpn = writeFolder + File.separator + tfName;
-						dbMsg += ">>" + fpn;
-						iconList.add(fpn);
+				int fLen = tFiles.length;
+				dbMsg += ",tFiles= " + fLen + "件";
+				if ( 0 < fLen ) {
+					for ( int i = 0 ; i < fLen ; i++ ) {
+						String tfName = tFiles[i].getName();
+						dbMsg += "(" + i + ")" + tfName;
+						if ( tfName.endsWith(".png") ) {
+							String fpn = writeFolder + File.separator + tfName;
+							dbMsg += ">>" + fpn;
+							iconList.add(fpn);
+						}
 					}
+				} else {
+					String mggStr = writeFolder + "にファイルが有りません。\nPCなどからコピーするか手書きで作成して保存して下さい。";
+					messageShow(dLogTitol , mggStr);
+					return;
 				}
 			} else {
 				for ( int i = 0 ; i < files.length ; i++ ) {
@@ -1452,7 +1487,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onItemClick[TA]";
 		String dbMsg = "";
 		try {
-
 			readFileName = "" + iconList.get(position);
 			dbMsg = "" + readFileName;   //			textView.setText(il.getName(position));
 			int canvasWidth = sa_disp_v.getWidth();
@@ -1518,7 +1552,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		public final Bitmap loadBitmapAsset(String fileName) throws IOException {
 			final String TAG = "loadBitmapAsset[TA]";
 			String dbMsg = "";
-			Bitmap retBM = null ;
+			Bitmap retBM = null;
 			dbMsg = "fileName=" + fileName;
 			if ( fileName.contains(File.separator) ) {
 				try {
@@ -1536,7 +1570,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				try {
 					final AssetManager assetManager = RecoveryBrainActivity.this.getAssets();
 					bis = new BufferedInputStream(assetManager.open(fileName));
-					retBM= BitmapFactory.decodeStream(bis);
+					retBM = BitmapFactory.decodeStream(bis);
 				} finally {
 					try {
 						bis.close();
