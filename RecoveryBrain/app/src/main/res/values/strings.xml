@@ -165,6 +165,7 @@
 	<string name="common_hyouka">評価</string>
 	<string name="againbt_caption">もう一度</string>
 	<string name="thumbnail_list_titol">定例パターン</string>
+	<string name="file_list_titol">ファイル選択</string>
 
 
 	<string-array name="jobSelectList">

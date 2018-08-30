@@ -50,6 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -164,18 +166,18 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        //タスクバーを 非表示
 			requestWindowFeature(Window.FEATURE_NO_TITLE);                            //タイトルバーを非表示
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
-				switch ( getResources().getConfiguration().orientation ) {
-					case Configuration.ORIENTATION_PORTRAIT:  // 縦長
-						dbMsg += ";縦長";
-						isStartLandscape = false;
-						break;
-					case Configuration.ORIENTATION_LANDSCAPE:  // 横長
-						dbMsg += ";横長";
-						isStartLandscape = true;        //起動時は横向き
-						break;
-					default:
-						break;
-				}
+			switch ( getResources().getConfiguration().orientation ) {
+				case Configuration.ORIENTATION_PORTRAIT:  // 縦長
+					dbMsg += ";縦長";
+					isStartLandscape = false;
+					break;
+				case Configuration.ORIENTATION_LANDSCAPE:  // 横長
+					dbMsg += ";横長";
+					isStartLandscape = true;        //起動時は横向き
+					break;
+				default:
+					break;
+			}
 //				switch ( (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation() ) {
 //					case Surface.ROTATION_90:
 //					case Surface.ROTATION_270:
@@ -186,12 +188,12 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 //						isStartLandscape = false;
 //						break;
 //				}
-				dbMsg += ",起動時は横向き=" + isStartLandscape;
+			dbMsg += ",起動時は横向き=" + isStartLandscape;
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			if ( isLotetCanselt ) {
 				if ( isStartLandscape ) {
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);        //横画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-				} else{
+				} else {
 					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);        //縦画面で止めておく	横	ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 				}
 			}
@@ -274,7 +276,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			findViewById(R.id.cp_jobselect_bt).setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					stereoTypeSelect();
+					stereoTypeSelect("");
 				}
 			});
 
@@ -1123,7 +1125,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					String directionName = ( String ) jobListitems[which];
 					String dbMsg = "(" + which + ")" + directionName;
 					if ( directionName.equals(getString(R.string.rb_file_read)) ) {
-						pendeingMessege();
+						stereoTypeSelect(savePatht);
 					} else if ( directionName.equals(getString(R.string.rb_hand_made)) ) {
 						transEditMode();
 					} else if ( directionName.equals(getString(R.string.rb_decision_original)) ) {
@@ -1258,8 +1260,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 						pendeingMessege();
 						sa_disp_v.setOriginPixcel();
 					} else if ( directionName.equals(getString(R.string.rb_direction_save)) ) {
-						pendeingMessege();
-						sa_disp_v.bitmapSave();
+						sa_disp_v.bitmapSave(RecoveryBrainActivity.this , RecoveryBrainActivity.this , savePatht);
 					}
 					myLog(TAG , dbMsg);
 				}
@@ -1365,20 +1366,38 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * 定例パターン選択
 	 * http://hakoniwadesign.com/?p=10661
 	 */
-	public void stereoTypeSelect() {
+	public void stereoTypeSelect(String writeFolder) {
 		final String TAG = "stereoTypeSelect[RBS]";
 		String dbMsg = "";
 		try {
 			iconList = new ArrayList<>();                // 要素をArrayListで設定
 			AssetManager assetMgr = getResources().getAssets();
 			String files[] = assetMgr.list("");
-			for ( int i = 0 ; i < files.length ; i++ ) {
-				dbMsg += "(" + i + ")" + files[i];
-				if ( files[i].endsWith(".png") ) {
-					iconList.add(files[i]);
+			String dLogTitol = getString(R.string.thumbnail_list_titol);
+			if ( !writeFolder.equals("") ) {
+				dbMsg += "writeFolder= " + writeFolder;
+				dLogTitol = getString(R.string.file_list_titol);
+				File[] tFiles = new File(writeFolder).listFiles();
+				dbMsg += ",tFiles= " + tFiles.length + "件";
+				for ( int i = 0 ; i < tFiles.length ; i++ ) {
+					String tfName = tFiles[i].getName();
+					dbMsg += "(" + i + ")" + tfName;
+					if ( tfName.endsWith(".png") ) {
+						String fpn = writeFolder + File.separator + tfName;
+						dbMsg += ">>" + fpn;
+						iconList.add(fpn);
+					}
+				}
+			} else {
+				for ( int i = 0 ; i < files.length ; i++ ) {
+					dbMsg += "(" + i + ")" + files[i];
+					if ( files[i].endsWith(".png") ) {
+						iconList.add(files[i]);
+					}
 				}
 			}
-			dbMsg += "," + iconList.size() + "件";
+			dbMsg += "," + dLogTitol;
+			dbMsg += ">>" + iconList.size() + "件";
 			// カスタムビューを設定    http://androidguide.nomaki.jp/html/dlg/custom/customMain.html
 			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 			final View layout = inflater.inflate(R.layout.dlog_thumb , ( ViewGroup ) findViewById(R.id.thum_root));
@@ -1391,7 +1410,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
 			builder.setCustomTitle(titolLayout);
 			TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
-			dlog_title_tv.setText(R.string.thumbnail_list_titol);  //			builder.setTitle( R.string.thumbnail_list_titol);
+			dlog_title_tv.setText(dLogTitol);  //			builder.setTitle( R.string.thumbnail_list_titol);
 			ImageButton dlog_left_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_left_bt);
 			dlog_left_bt.setImageResource(R.drawable.edit);
 			ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
@@ -1456,12 +1475,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		private LayoutInflater inflater;
 		private int layoutId;
 		private List< String > icList = new ArrayList< String >();
+//		private String writeFolder;
 
 		GridAdapter(Context context , int layoutId , List< String > iconList) {
 			super();
 			this.inflater = ( LayoutInflater ) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			this.layoutId = layoutId;
 			icList = iconList;
+//			this.writeFolder = writeFolder;
 		}
 
 		@Override
@@ -1497,19 +1518,34 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		public final Bitmap loadBitmapAsset(String fileName) throws IOException {
 			final String TAG = "loadBitmapAsset[TA]";
 			String dbMsg = "";
-			final AssetManager assetManager = RecoveryBrainActivity.this.getAssets();
+			Bitmap retBM = null ;
 			dbMsg = "fileName=" + fileName;
-			BufferedInputStream bis = null;
-			try {
-				bis = new BufferedInputStream(assetManager.open(fileName));
-				return BitmapFactory.decodeStream(bis);
-			} finally {
+			if ( fileName.contains(File.separator) ) {
 				try {
-					bis.close();
+					File srcFile = new File(fileName);
+					FileInputStream fis = new FileInputStream(srcFile);
+					retBM = BitmapFactory.decodeStream(fis);
+					fis.close();
+				} catch (IOException er) {
+					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 				} catch (Exception er) {
 					myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 				}
+			} else {
+				BufferedInputStream bis = null;
+				try {
+					final AssetManager assetManager = RecoveryBrainActivity.this.getAssets();
+					bis = new BufferedInputStream(assetManager.open(fileName));
+					retBM= BitmapFactory.decodeStream(bis);
+				} finally {
+					try {
+						bis.close();
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
 			}
+			return retBM;
 		}
 
 		@Override
@@ -1528,6 +1564,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		}
 	}
 	///手書き編集//////////////////////////////////////////////////////////////////
+
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public void pendeingMessege() {

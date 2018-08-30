@@ -2,6 +2,7 @@ package com.hijiyam_koubou.recoverybrain;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -17,6 +18,8 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,12 +32,16 @@ import android.widget.Toast;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -678,11 +685,18 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		String dbMsg = "";
 		Bitmap bm = null;
 		try {
-			AssetManager as = getResources().getAssets();
-			dbMsg += "fileName=" + fileName;
-			InputStream is = as.open(fileName);
-			bm = BitmapFactory.decodeStream(is);
-			is.close();
+			if ( fileName.contains(File.separator) ) {
+				File srcFile = new File(fileName);
+				FileInputStream fis = new FileInputStream(srcFile);
+				bm = BitmapFactory.decodeStream(fis);
+				fis.close();
+			}else {
+				AssetManager as = getResources().getAssets();
+				dbMsg += "fileName=" + fileName;
+				InputStream is = as.open(fileName);
+				bm = BitmapFactory.decodeStream(is);
+				is.close();
+			}
 			//decodeStream(InputStream,padding.options);
 			dbMsg += " = " + bm.getByteCount() + "バイト";
 			myLog(TAG , dbMsg);
@@ -723,6 +737,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //////				//context.getApplicationContext()	  android.view.WindowManager$BadTokenException: Unable to add window -- token null is not for an application
 //				progD.execute(pixels.length/4);
 
+				Toast.makeText(context , pixels.length+"pxを解析中・・・" , Toast.LENGTH_SHORT).show();
 
 				for ( int yPoint = 0 ; yPoint < bHight ; yPoint++ ) {
 					for ( int xPoint = 0 ; xPoint < bWidth ; xPoint++ ) {
@@ -1043,7 +1058,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		return retBitmap;
 	}
 
-
 	/**
 	 * ファイルからBitMap配列の読込み
 	 * 未使用
@@ -1164,83 +1178,49 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	}
 
 	/**
-	 * canvasに書込まれているピクセル配列をファイルに保存する
-	 * <p>
-	 * https://st40.xyz/one-run/article/133/
+	 * viewの内容をファイルに保存する
 	 */
-	public void bitmapSave() {
+	public void bitmapSave(Context _context , Activity _activity ,String writeFolder) {
 		final String TAG = "bitmapSave[CSC]";
 		String dbMsg = "";
 		try {
-			dbMsg += ",output[" + output.getWidth() + "×" + output.getHeight() + "]" + output.getByteCount() + "バイト";
+			if ( output != null ) {
+				int byteCount = output.getByteCount();
+				dbMsg += ",output[" + output.getWidth() + "×" + output.getHeight() + "]";
+				dbMsg += "" + byteCount + "バイト";
+				if ( 0 < byteCount ) {
+					CS_Util UTIL = new CS_Util();
+					UTIL.maikOrgPass(writeFolder) ;
+					Date mDate = new Date();
+					SimpleDateFormat fileNameDate = new SimpleDateFormat("yyyyMMdd_HHmmss");
+					String fileName = fileNameDate.format(mDate) + ".png";
+					String saveFileName = writeFolder + File.separator + fileName;
+					dbMsg += ",saveFileName=" + saveFileName;
+					BmpSaver BS = new BmpSaver(_context , _activity , output , saveFileName );
+					
+					HandlerThread mBackgroundThread;
+					mBackgroundThread = new HandlerThread("CameraBackground");
+					mBackgroundThread.start();
+					Handler mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
 
-//		var imageType = "image/ping";			//"image/jpeg";
-//		var fileName = retNowStr() + ".png";			//
-//		dbMsg += "fileName=" + fileName;
-//		setOriginPixcel();									//保存前の状態を保存する
-//		var base64 = canvas.toDataURL(imageType);				// base64エンコードされたデータを取得 「data:image/png;base64,iVBORw0k～」
-//		dbMsg += "base64=" + base64.length;
-//		var blob = Base64toBlob(base64);								// base64データをblobに変換
-//		dbMsg += ",blob=" + blob.length;
-//		saveBlob(blob, fileName);		// blobデータをa要素を使ってダウンロード
+					mBackgroundHandler.post(BS);
+
+					mBackgroundHandler = null;
+					mBackgroundThread.quitSafely();
+					mBackgroundThread.join();
+					mBackgroundThread = null;
+
+					Toast.makeText(context , saveFileName+"を保存しました。" , Toast.LENGTH_SHORT).show();
+				}
+			} else {
+				Toast.makeText(context , "保存できませんでした" , Toast.LENGTH_SHORT).show();
+			}
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
-
-	/**
-	 * Base64データをBlobデータに変換
-	 */
-	public String Base64toBlob(String base64) {
-		final String TAG = "Base64toBlob[CSC]";
-		String dbMsg = "";
-		String blob = "";
-		try {
-			dbMsg += ",base64=" + base64.length();
-//		var tmp = base64.split(',');    // カンマで分割して以下のようにデータを分ける; tmp[0] : データ形式（data:image/png;base64）/ tmp[1] : base64データ（iVBORw0k～）
-//		var data = atob(tmp[1]);											    // base64データの文字列をデコード
-//		var mime = tmp[0].split(':')[1].split(';')[0];	    					// tmp[0]の文字列（data:image/png;base64）からコンテンツタイプ（image/png）部分を取得
-//		dbMsg += ",mime=" +mime;
-//		var buf = new Uint8Array(data.length);	    							//  1文字ごとにUTF-16コードを表す 0から65535 の整数を取得
-//		for (var i = 0; i < data.length; i++) {
-//			buf[i] = data.charCodeAt(i);
-//		}
-//		dbMsg += ",buf=" +buf.length;
-//		var blob = new Blob([buf], { type: mime });	    // blobデータを作成
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		return blob;
-	}
-
-	/**
-	 * 画像のダウンロード
-	 */
-	public void saveBlob(String blob , String fileName) {
-		final String TAG = "saveBlob[CSC]";
-		String dbMsg = "";
-		try {
-//		dbMsg += "fileName=" + fileName;
-//		dbMsg += ",blob=" + blob.length;
-//		var url = (window.URL || window.webkitURL);
-//		dbMsg += ",url=" + url;
-//		var dataUrl = url.createObjectURL(blob);	    // ダウンロード用のURL作成
-//		dbMsg += ",dataUrl=" + dataUrl;
-//		var event = document.createEvent("MouseEvents");	    // イベント作成
-//		event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-//		var a = document.createElementNS("http://www.w3.org/1999/xhtml", "a");	    // a要素を作成
-//		a.href = dataUrl;	    // ダウンロード用のURLセット
-//		a.download = fileName;	    // ファイル名セット
-//		a.dispatchEvent(event);	    // イベントの発火
-//		redrowOrigin();
-			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-	}
-
 
 	/**
 	 *
