@@ -609,52 +609,60 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				CharSequence wStr = "トレース元画像に" + fileName + "を読み込んでいます";
 				dbMsg += ">>" + wStr;
 				Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
-				for ( PathObject pathObject : pathIist ) {
-					pathObject.path.reset();
+				if(pathIist != null){
+					for ( PathObject pathObject : pathIist ) {
+						pathObject.path.reset();
+					}
 				}
 
 
 				REQUEST_CORD = REQUEST_ADD_BITMAP;
 				Bitmap rBmp = readFIle(fileName);
-				int bmpWidth = rBmp.getWidth();
-				int bmpHeight = rBmp.getHeight();
-				dbMsg += "読込み[" + bmpWidth + "×" + bmpHeight + "]" + rBmp.getByteCount() + "バイト";
-				dbMsg += "、 canvas[" + canvasWidth + "×" + canvasHeight + "]";
-				double scaleWidth = 1.0;
-				if ( canvasWidth < bmpWidth ) {
-					scaleWidth = ( double ) ((canvasWidth * 1000) / bmpWidth) / 1000;
+				if(rBmp != null){
+					int bmpWidth = rBmp.getWidth();
+					int bmpHeight = rBmp.getHeight();
+					dbMsg += "読込み[" + bmpWidth + "×" + bmpHeight + "]" + rBmp.getByteCount() + "バイト";
+					dbMsg += "、 canvas[" + canvasWidth + "×" + canvasHeight + "]";
+					double scaleWidth = 1.0;
+					if ( canvasWidth < bmpWidth ) {
+						scaleWidth = ( double ) ((canvasWidth * 1000) / bmpWidth) / 1000;
+					}
+					double scaleHeight = 1.0;
+					if ( canvasHeight < bmpHeight ) {
+						scaleHeight = ( double ) ((canvasHeight * 1000) / bmpHeight) / 1000;
+					}
+					dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
+					double scaleWH = scaleWidth;
+					if ( scaleHeight < scaleWidth ) {
+						scaleWH = scaleHeight;
+					}
+					int rWidth = ( int ) Math.ceil(( double ) bmpWidth * scaleWH);
+					int rHight = ( int ) Math.ceil(( double ) bmpHeight * scaleWH);
+					dbMsg += "、縮小[" + rWidth + "×" + rHight + "]" + scaleWH + "倍";
+					Bitmap rsBitmap = Bitmap.createScaledBitmap(rBmp , rWidth , rHight , false);            // 100x100にリサイズ
+					bmpWidth = rsBitmap.getWidth();
+					bmpHeight = rsBitmap.getHeight();
+					dbMsg += ",リサイズ[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
+					int canvasShiftX = 0;
+					int canvasShiftY = 0;
+					if ( 1 < (canvasWidth - bmpWidth) ) {
+						canvasShiftX = (canvasWidth - bmpWidth) / 2;
+					}
+					if ( 1 < (canvasHeight - bmpHeight) ) {
+						canvasShiftY = (canvasHeight - bmpHeight) / 2;
+					}
+					dbMsg += ",シフト(" + canvasShiftX + " , " + canvasShiftY + ")";
+					aBmp = Bitmap.createBitmap(canvasWidth , canvasHeight , Bitmap.Config.ARGB_8888);    //キャンバスサイズのビットマップを作成して
+					Canvas cv = new Canvas(aBmp);                                                        //ビットマップをcanvasにして
+					cv.drawBitmap(rsBitmap , canvasShiftX , canvasShiftY , ( Paint ) null); // リサイズしたビットマップを, x座標, y座標, Paintイタンスで書き込む
+					invalidate();                        //onDrawを発生させて描画実行
+					rsBitmap.recycle();
+					readFileName = fileName;
+				} else{
+					wStr = "読込みに失敗しました。再起動してください。";
+					dbMsg += ">>" + wStr;
+					Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
 				}
-				double scaleHeight = 1.0;
-				if ( canvasHeight < bmpHeight ) {
-					scaleHeight = ( double ) ((canvasHeight * 1000) / bmpHeight) / 1000;
-				}
-				dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
-				double scaleWH = scaleWidth;
-				if ( scaleHeight < scaleWidth ) {
-					scaleWH = scaleHeight;
-				}
-				int rWidth = ( int ) Math.ceil(( double ) bmpWidth * scaleWH);
-				int rHight = ( int ) Math.ceil(( double ) bmpHeight * scaleWH);
-				dbMsg += "、縮小[" + rWidth + "×" + rHight + "]" + scaleWH + "倍";
-				Bitmap rsBitmap = Bitmap.createScaledBitmap(rBmp , rWidth , rHight , false);            // 100x100にリサイズ
-				bmpWidth = rsBitmap.getWidth();
-				bmpHeight = rsBitmap.getHeight();
-				dbMsg += ",リサイズ[" + bmpWidth + "×" + bmpHeight + "]" + rsBitmap.getByteCount() + "バイト";
-				int canvasShiftX = 0;
-				int canvasShiftY = 0;
-				if ( 1 < (canvasWidth - bmpWidth) ) {
-					canvasShiftX = (canvasWidth - bmpWidth) / 2;
-				}
-				if ( 1 < (canvasHeight - bmpHeight) ) {
-					canvasShiftY = (canvasHeight - bmpHeight) / 2;
-				}
-				dbMsg += ",シフト(" + canvasShiftX + " , " + canvasShiftY + ")";
-				aBmp = Bitmap.createBitmap(canvasWidth , canvasHeight , Bitmap.Config.ARGB_8888);    //キャンバスサイズのビットマップを作成して
-				Canvas cv = new Canvas(aBmp);                                                        //ビットマップをcanvasにして
-				cv.drawBitmap(rsBitmap , canvasShiftX , canvasShiftY , ( Paint ) null); // リサイズしたビットマップを, x座標, y座標, Paintイタンスで書き込む
-				invalidate();                        //onDrawを発生させて描画実行
-				rsBitmap.recycle();
-				readFileName = fileName;
 			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {

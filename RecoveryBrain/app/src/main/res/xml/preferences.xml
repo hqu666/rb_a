@@ -6,7 +6,7 @@
 		android:title="@string/trace_setting">
 
 		<EditTextPreference
-			android:defaultValue="st001.ping"
+			android:defaultValue="st001.png"
 			android:key="file_name_key"
 			android:selectAllOnFocus="true"
 			android:singleLine="true"
@@ -39,10 +39,9 @@
 			android:defaultValue="false"
 			android:key="is_pad_left_key"
 			android:title="@string/trace_setting_is_pad_left"/>
-		<string name="">左側にPad</string>
 
 		<ListPreference
-			android:defaultValue="@string/rootUrlStr"
+			android:defaultValue="50"
 			android:entries="@array/intervalTenList"
 			android:entryValues="@array/intervalTenList"
 			android:key="trace_line_width_key"
@@ -50,17 +49,16 @@
 			android:title="@string/trace_setting_lwidth"
 			android:dialogTitle="@string/trace_setting_lwidth"
 			/>
-		<!--android:summary="@string/video_output_format_mpeg_4"-->
 
 	</PreferenceScreen>
 	
 	<PreferenceScreen
 		android:key="conection_setting_key"
-		android:title="@string/conection_setting">
-		<!--android:summary="@string/rootUrlStr"-->
+		android:title="@string/conection_setting"
+		android:summary="@string/rootUrlStr">
 
 		<EditTextPreference
-			android:defaultValue="http://192.168.3.14:3080"
+			android:defaultValue="@string/rootUrlStr"
 			android:key="rootUrl_key"
 			android:selectAllOnFocus="true"
 			android:singleLine="true"

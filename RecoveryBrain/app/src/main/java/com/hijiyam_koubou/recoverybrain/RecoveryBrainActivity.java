@@ -475,13 +475,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 
 			initDrawer();   //ここで取らないとonPostCreateでNullPointerException
 			if ( isFarst ) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(RecoveryBrainActivity.this , R.style.SplashDialogStyle);        //
-				LayoutInflater inflater = ( LayoutInflater ) RecoveryBrainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
-				final View layout = inflater.inflate(R.layout.dlog_splash , ( ViewGroup ) findViewById(R.id.splash_root_ll));
-				builder.setView(layout);
-				splashDlog = builder.create();                // 表示
-				splashDlog.show();                // 表示
+//				AlertDialog.Builder builder = new AlertDialog.Builder(RecoveryBrainActivity.this , R.style.SplashDialogStyle);        //
+//				LayoutInflater inflater = ( LayoutInflater ) RecoveryBrainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+//				final View layout = inflater.inflate(R.layout.dlog_splash , ( ViewGroup ) findViewById(R.id.splash_root_ll));
+//				builder.setView(layout);
+//				splashDlog = builder.create();                // 表示
+//				splashDlog.show();                // 表示
 			}
+			Toast.makeText(this , "読込み中・・・・・・" , Toast.LENGTH_SHORT).show();
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -502,13 +503,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				laterCreate();
 			}
 			//			if(isFarst){
-			if ( splashDlog != null ) {
-				if ( splashDlog.isShowing() ) {
-					splashDlog.dismiss();
-				}
-			}
-//				isFarst = false;       //初回起動
+//			if ( splashDlog != null ) {
+//				if ( splashDlog.isShowing() ) {
+//					splashDlog.dismiss();
+//				}
 //			}
+////				isFarst = false;       //初回起動
+////			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -554,14 +555,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			} else {
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
 			}
-//			if ( isFarst ) {
-			if ( splashDlog != null ) {
-				if ( splashDlog.isShowing() ) {
-					splashDlog.dismiss();
-				}
-			}
-//				isFarst = false;       //初回起動
+////			if ( isFarst ) {
+//			if ( splashDlog != null ) {
+//				if ( splashDlog.isShowing() ) {
+//					splashDlog.dismiss();
+//				}
 //			}
+////				isFarst = false;       //初回起動
+////			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1614,4 +1615,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * ・コールバック
 	 * ・GUI
 	 * ・デバイスアクセス
+
+課題
+   PreferenceScreenの"conection_setting_key"；URLの書き込み方 ；
  **/

@@ -31,13 +31,13 @@
 	<string name="trace_setting">トレース設定</string>
 	<string name="trace_setting_file_name">最初に表示する元画像</string>
 	<string name="trace_setting_file_next">次回は最後に使った元画像からスタート</string>
-	<string name="trace_setting_lwidth">トレース線の太さ[元画像の%増し]</string>
+	<string name="trace_setting_lwidth">トレース線の太さ</string>
 	<string name="trace_setting_is_pad_left">左側にPad</string>
 	<string name="trace_setting_is_pad_right">右側にPad</string>
 
 	<string name="other_setting">その他の設定</string>
 	<string name="other_setting_save_path">作成したファイルの保存先</string>
-	<string name="other_setting_lotet_cansel">自動化移転阻止</string>
+	<string name="other_setting_lotet_cansel">自動回転阻止</string>
 
 	<string name="conection_setting">接続設定</string>
 	<string name="rootUrl">URL</string>
