@@ -55,7 +55,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	private TextView cp_score_tv;
 
 	private boolean isCall = false;                    //newで呼ばれた
-	private boolean isRecever = true;                    //受信側
+	public boolean isRecever = true;                    //受信側
 	private boolean isActionUp = false;                    //描画終了
 	public boolean isAutoJudge = true;                //トレース後に自動判定 //読み込み時、反転される
 	private boolean isComp = false;                //比較中	;scoreStartRadyでtrueに設定
@@ -99,6 +99,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //	static final int REQUEST_FLIP_HRIZONAL = REQUEST_FLIP_VERTICAL + 1;            //左右反転
 
 	static final int REQUEST_ADD_BITMAP = REQUEST_AGAIN + 1;            //ビットマップ挿入
+	static final int REQUEST_PICEL_BITMAP = REQUEST_ADD_BITMAP + 1;      //トレース前のビットマップ挿入
 	public int REQUEST_CORD = REQUEST_DROW_PATH;
 
 	//RecvrryBrain
@@ -175,6 +176,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "InitCanva[CView]";
 		String dbMsg = "";
 		try {
+			dbMsg += "isDrow="+isDrow;
 			if(isDrow){
 				selectColor= stdColor;
 				selectWidth = stdWidth;
@@ -184,6 +186,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			paint = new Paint();
 			dbMsg += ",ペン；" + selectColor;
 			paint.setColor(selectColor);                        //
+
 			paint.setStyle(Paint.Style.STROKE);
 			paint.setStrokeJoin(Paint.Join.ROUND);
 			paint.setStrokeCap(Paint.Cap.ROUND);
@@ -444,18 +447,22 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						dbMsg += ",screenShot[" + screenShot.getWidth() + "×" + screenShot.getHeight() + "]" + screenShot.getByteCount() + "バイト";
 						canvas.drawColor(Color.WHITE);
 						canvas.drawBitmap(screenShot , 0 , 0 , paint);
-						getCanvasPixcel(screenShot , canvas);
+						getCanvasPixcel(screenShot );
 						screenShot.recycle();
 						backAgain();   //トレース後の線を消す☆先にできない？
 						break;
 					case REQUEST_ADD_BITMAP:                //503;ビットマップ挿入
 						dbMsg += "(" + upX + "×" + upY + ")に[" + aBmp.getWidth() + "×" + aBmp.getHeight() + "]" + aBmp.getByteCount() + "バイトのビットマップ挿入";
 						if ( isRecever ) {
-							getCanvasPixcel(aBmp , canvas);
+							getCanvasPixcel(aBmp );
 						} else {
 //						canvas.drawBitmap(aBmp , upX , upY , ( Paint ) orignLine); // image, x座標, y座標, Paintイタンス
 						}
 //						dbMsg += ",orignLine=" +orignLine.toString();
+						break;
+					case REQUEST_PICEL_BITMAP:                //トレース前のビットマップ挿入
+						canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
+						setTreace();
 						break;
 				}
 //				canvas.restore(); // save直前に戻る
@@ -547,9 +554,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 	public int scoreVar = 0;
 	public int remainsCount = 0;
-	//	public int before_Count = 0;
-//	public int tracceCount = 0;
-
+	public SparseIntArray colorArray;         //使われている色
+	public SparseIntArray widthArray ;			//使われている線の太さ
 	private ProgressDialog progressDialog;
 
 	/**
@@ -612,7 +618,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	}
 
 	/**
-	 * 指定されたファイルをviewの中心にpixcel配列で書き込む
+	 * 指定されたファイルをviewの中心に配置する
 	 * ☆Activityから呼ばれる
 	 */
 	public void addBitMap(Context context, String fileName , int canvasWidth , int canvasHeight) {
@@ -629,7 +635,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						pathObject.path.reset();
 					}
 				}
-
 
 				REQUEST_CORD = REQUEST_ADD_BITMAP;
 				Bitmap rBmp = readFIle(fileName);
@@ -687,6 +692,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 	/**
 	 * assetsフォルダーから画像ファイルを読み込む
+	 * addBitMapから呼ばれる
 	 */
 	public Bitmap readFIle(String fileName) {
 		final String TAG = "readFIle[CView]";
@@ -717,15 +723,15 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	}
 
 	/**
-	 * ファイル読込み直後のピクセル変換
+	 * canvasDrawでファイル読込み直後のピクセル変換してBitMap再作成
 	 * 色と線の太さの読込み
 	 */
-	public void getCanvasPixcel(Bitmap rBmp , Canvas canvas) {
+	public void getCanvasPixcel(Bitmap rBmp) {        // , Canvas canva
 		final String TAG = "getCanvasPixcel[CView]";
 		String dbMsg = "";
 		try {
-			if ( canvas != null ) {
-				dbMsg += "canvas[" + canvas.getWidth() + "×" + canvas.getHeight() + "]";
+//			if ( canvas != null ) {
+//				dbMsg += "canvas[" + canvas.getWidth() + "×" + canvas.getHeight() + "]";
 				int bWidth = rBmp.getWidth();
 				int bHight = rBmp.getHeight();
 				dbMsg += "読込み[" + bWidth + "×" + bHight + "]" + rBmp.getByteCount() + "バイト";
@@ -736,9 +742,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				int brackVar = Color.argb(255 , 0 , 0 , 0);   //反転 ;0xFF -各色
 				dbMsg += ",whiteVar=" + whiteVar + " ,brackVar= " + brackVar;
 				List< String > colorIndex = new ArrayList<>();
-				SparseIntArray colorArray = new SparseIntArray();     //キーも値もintのmap
+				colorArray = new SparseIntArray();     //キーも値もintのmap
 				List< String > widthIndex = new ArrayList<>();
-				SparseIntArray widthArray = new SparseIntArray();
+				widthArray = new SparseIntArray();
 				int bColor = 1;
 				int widthCount = 0;
 //				AsyncTask< Integer, Integer, Long > progD = new loadAsyncTask(context , "読み込んでいます" , readFileName + "を読み込んでいます" , pixels.length/4);
@@ -767,23 +773,23 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 								colorArray.put(pixel , nowCount);
 							}
 
-//							if(bColor == pixel){
-//								widthCount++;
-//							}else{
-//								String widthName = widthCount + "";
-//								if(0 == widthIndex.size()) {
-//									widthIndex.add(widthName);
-//									widthArray.put(widthCount , 1);
-//								}else if(-1 == widthIndex.indexOf(widthName)){
-//									widthIndex.add(widthName);
-//									widthArray.put(widthCount , 1);
-//								}else{
-//									int nowCount = (int)widthArray.get(widthCount)+1;
-//									widthArray.put(widthCount , nowCount);
-//								}
-//								widthCount = 0;
-//								bColor = pixel;
-//							}
+							if(bColor == pixel){
+								widthCount++;
+							}else{
+								String widthName = widthCount + "";
+								if(0 == widthIndex.size()) {
+									widthIndex.add(widthName);
+									widthArray.put(widthCount , 1);
+								}else if(-1 == widthIndex.indexOf(widthName)){
+									widthIndex.add(widthName);
+									widthArray.put(widthCount , 1);
+								}else{
+									int nowCount = (int)widthArray.get(widthCount)+1;
+									widthArray.put(widthCount , nowCount);
+								}
+								widthCount = 0;
+								bColor = pixel;
+							}
 
 						}
 					}
@@ -792,65 +798,56 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				output = Bitmap.createBitmap(bWidth , bHight , Bitmap.Config.ARGB_8888);        //出力用画像領域確保
 				output.setPixels(pixels , 0 , bWidth , 0 , 0 , bWidth , bHight);                    //出力用の領域にセットする
 				dbMsg += ",書込み[" + output.getWidth() + "×" + output.getHeight() + "]" + output.getByteCount() + "バイト";
-				canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
-//				dbMsg += ",colorIndex=" + colorIndex.size() + ",=" + colorArray.toString();
-				dbMsg += ",colorArray=" + colorArray.size() + "色";
-				orgColor = colorArray.keyAt(0);      //トレース元の線色
-				orgCount = colorArray.valueAt(0);      //トレース元のピクセル数
-				for ( int i = 0 ; i < colorArray.size() ; i++ ) {
-					int key = colorArray.keyAt(i);
-					int val = colorArray.valueAt(i);
-					if ( orgCount < val ) {
-						orgColor = key;
-						orgCount = val;
-					}
-				}
-				dbMsg += ",orgColor=" + orgColor + " = " + orgCount + "ピクセル";
-				dbMsg += ",a:" + Color.alpha(orgColor) + " r:" + Color.red(orgColor) + " g:" + Color.green(orgColor) + " b:" + Color.blue(orgColor);
-//				dbMsg += ",widthArray=" + widthArray.size() + "個所";
-				orgWidth = 5;                                                //トレース元の線の太さ
-//				int wCount = widthArray.valueAt(0);					//トレース元のピクセル数
-//				for (int i = 0; i < widthArray.size(); i++) {
-//					int key = widthArray.keyAt(i);
-//					int val = widthArray.valueAt(i);
-//					if(wCount < val && (0 < key && key < 51)){        //x軸上50px未満の幅
-//						orgWidth = key;
-//						wCount = val;
-//					}
-//				}
-//				dbMsg += ",orgWidth=" + orgWidth + "ピクセル= " + wCount + "個所";
-
-				selectColor = Color.argb(255 , 255 , 0 , 0);        //課題；反対色に
-				selectWidth = orgWidth * 2;
-				REQUEST_CORD = REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
-				writehScore(context , orgCount , orgCount , 0);
-				isPreparation = true;                    //トレーススタート前の準備中
-			} else {
-				String titolStr = "取得できません";
-				String mggStr = "まだ書き込みが行われていません。";
-				messageShow(titolStr , mggStr);
-			}
+				REQUEST_CORD = REQUEST_PICEL_BITMAP ;      //トレース前のビットマップ挿入
+				invalidate();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
 
-//
-//	private void heavyProcess()
-//	{
-//		new Thread(new Runnable()
-//		{
-//			@Override
-//			public void run()
-//			{
-//				/** 重い処理 ... */
-//
-//				progressDialog.dismiss();
-//			}
-//		}.start();
-//	}
-//
+	public void setTreace() {
+		final String TAG = "setTreace[CView]";
+		String dbMsg = "";
+		try {
+			dbMsg += ",colorArray=" + colorArray.size() + "色";
+			orgColor = colorArray.keyAt(0);      //トレース元の線色
+			orgCount = colorArray.valueAt(0);      //トレース元のピクセル数
+			for ( int i = 0 ; i < colorArray.size() ; i++ ) {
+				int key = colorArray.keyAt(i);
+				int val = colorArray.valueAt(i);
+				if ( orgCount < val ) {
+					orgColor = key;
+					orgCount = val;
+				}
+			}
+			dbMsg += ",orgColor=" + orgColor + " = " + orgCount + "ピクセル";
+			dbMsg += ",a:" + Color.alpha(orgColor) + " r:" + Color.red(orgColor) + " g:" + Color.green(orgColor) + " b:" + Color.blue(orgColor);
+				dbMsg += ",widthArray=" + widthArray.size() + "個所";
+			orgWidth = 5;                                                //トレース元の線の太さ
+				int wCount = widthArray.valueAt(0);					//トレース元のピクセル数
+				for (int i = 0; i < widthArray.size(); i++) {
+					int key = widthArray.keyAt(i);
+					int val = widthArray.valueAt(i);
+					if(wCount < val && (0 < key && key < 51)){        //x軸上50px未満の幅
+						orgWidth = key;
+						wCount = val;
+					}
+				}
+				dbMsg += ",orgWidth=" + orgWidth + "ピクセル= " + wCount + "個所";
+			dbMsg += ",Color=" + orgColor;
+			CS_Util UTIL = new CS_Util();
+			selectColor = UTIL.complementaryColor(orgColor);
+			dbMsg += ">>" + selectColor;
+			selectWidth = orgWidth * 2;
+			REQUEST_CORD = REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
+			writehScore(context , orgCount , orgCount , 0);
+			isPreparation = true;                    //トレーススタート前の準備中
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	public class loadAsyncTask extends AsyncTask< Integer, Integer, Long > implements DialogInterface.OnCancelListener {
 
@@ -1285,7 +1282,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			float caHeight = canvas.getHeight();
 			dbMsg += ",canvas[" + caWidth + "×" + caHeight + "]";
 			canvas.drawRect(0 , 0 , caWidth , caHeight , eraserPaint);        //?真っ黒になるので背景色に塗りなおす
-			writehScore(context , orgCount , orgCount , 0);
+			if(! isDrow) {
+				writehScore(context , orgCount , orgCount , 0);
+			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1317,8 +1316,10 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					dbMsg += ",selectColor=" + selectColor + "mselectWidth=" + selectWidth + ",selectLineCap=" + selectLineCap;
 					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , action);
 //					invalidate();                        //onDrawを発生させて描画実行
-					if(isPreparation) {
+					dbMsg += ",isPreparation=" + isPreparation;
+					if(isPreparation) {            //開始前判定
 						int bIndex = Math.round(xPoint) + Math.round(yPoint) * output.getWidth();
+						dbMsg += ",bIndex=" + bIndex;
 						int pixel = pixels[bIndex];
 						dbMsg += ",pixel=" + pixel;
 						if ( pixel == orgColor) {

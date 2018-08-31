@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -72,8 +73,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public Spinner wb_linecaps_sp;
 	public AlertDialog splashDlog;
 	public String selectMode;                     //手書き編集のモード
-	public String selectCaps = "round";
-	public int selectWidth = 5;
+	public String selectLineCap = "round";
+	public float selectWidth = 5;
 	public int selectColor = Color.GREEN;
 	private ColorPickerDialog mColorPickerDialog;
 	public boolean isReadPref = false;
@@ -91,7 +92,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
 	public boolean is_h_Mirror = true;                //上下鏡面動作
 	public boolean isAautoJudge = false;        //トレース後に自動判定
-	public int traceLineWidth = 50;        //トレース線の太さ
+	public int traceLineWidth = 10;        //トレース線の太さ
 	public boolean isPadLeft = false;          //左側にPad
 	public boolean isLotetCanselt = false;        //自動回転阻止
 
@@ -427,7 +428,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 								selectWidth = 1;
 							}
 							if ( sa_disp_v != null ) {
-								sa_disp_v.setPenWidth(selectWidth);
+								sa_disp_v.setPenWidth(Math.round(selectWidth));
 							}
 						}
 						myLog(TAG , dbMsg);
@@ -457,10 +458,10 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							String item = ( String ) spinner.getSelectedItem();
 							dbMsg += ",item=" + item;
 							String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
-							selectCaps = items[position];
-							dbMsg += ",selectCaps=" + selectCaps;
+							selectLineCap = items[position];
+							dbMsg += ",selectLineCap=" + selectLineCap;
 							if ( sa_disp_v != null ) {
-								sa_disp_v.setPenCap(selectCaps);                             //先端形状
+								sa_disp_v.setPenCap(selectLineCap);                             //先端形状
 							}
 						}
 						myLog(TAG , dbMsg);
@@ -1172,7 +1173,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			});
 			mDlg.setTitle(getString(R.string.rb_edit_tr_titol));
 			mDlg.setMessage(getString(R.string.rb_edit_tr_msg));
-			mDlg.setPositiveButton(android.R.string.yes , new DialogInterface.OnClickListener() {
+			mDlg.setPositiveButton(R.string.common_yes , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
 					final String TAG = "Positive[transEditMode]";
@@ -1182,13 +1183,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 						sa_disp_v.isPreparation = false;                    //トレーススタート前の準備中
 						sa_disp_v.clearAll();
 						sa_disp_v.InitCanvas();
+						transEditEnd();
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 					}
 				}
 			});
-			mDlg.setNegativeButton(android.R.string.no , new DialogInterface.OnClickListener() {
+			mDlg.setNegativeButton(R.string.common_no, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
 					final String TAG = "Negativ[transEditMode]";
@@ -1196,12 +1198,15 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					try {
 						sa_disp_v.isDrow = true;
 						sa_disp_v.isPreparation = false;                    //トレーススタート前の準備中
-						sa_disp_v.backAgain();                        //トレース前に戻す
-						selectColor = sa_disp_v.orgColor;                    //トレース元の線色//sa_disp_v.getPenColor();
-						sa_disp_v.setPenColor(selectColor);
-						wb_color_bt.setBackgroundColor(selectColor);
-//					selectWidth = (int)sa_disp_v,orgWidth;					//トレース元の線の太さ								//(int)sa_disp_v.getPenWidth();
-						selectCaps = sa_disp_v.getPenCap();                        //線の色と太さを現行トレース元に合わせる
+						selectColor = sa_disp_v.orgColor;
+						dbMsg += ",Color=" + selectColor;
+						sa_disp_v.selectColor = selectColor;
+
+						selectWidth = sa_disp_v.selectWidth;
+						dbMsg += ",Width=" + selectWidth;
+						selectLineCap = sa_disp_v.selectLineCap;
+						dbMsg += ",LineCap=" + selectLineCap;
+						transEditEnd();
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
 						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1210,6 +1215,27 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			});
 			jobDlog = mDlg.create();
 			jobDlog.show();
+
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		super.onPause();
+	}
+
+	protected void transEditEnd() {
+		final String TAG = "transEditEnd[RBS]";
+		String dbMsg = "";
+		try {
+			selectColor = sa_disp_v.selectColor;
+			dbMsg += ",Color=" + selectColor;
+			selectWidth = sa_disp_v.selectWidth;
+			dbMsg += ",Width=" + selectWidth;
+			selectLineCap = sa_disp_v.selectLineCap;
+			dbMsg += ",LineCap=" + selectLineCap;
+			setEditTools(selectColor , selectWidth , selectLineCap);
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1218,23 +1244,96 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	}
 
 	/**
-	 * トレースに切り替え
-	 */
-	protected void transTraceMode() {
-		final String TAG = "トレースに切り替え[RBS]";
+	 * 手書き編集ツールの初期選択
+	 * **/
+	protected void setEditTools(int _color , float _widht , String _caps) {
+		final String TAG = "setEditTools[RBS]";
 		String dbMsg = "";
 		try {
-			wh_paret.setVisibility(View.GONE);
-			score_aria_ll.setVisibility(View.VISIBLE);
-			sa_disp_v.isDrow = false;
-			sa_disp_v.isPreparation = true;                    //トレーススタート前の準備中
+			wb_mode_sp.setSelection(0);
+			dbMsg += ",Color=" + _color;
+			wb_color_bt.setBackgroundColor(_color);
+			dbMsg += ",Width=" + _widht;
+			int widhtInt = Math.round(_widht);
+			dbMsg += ">>" + widhtInt;
+			int selIndex = 0;
+			int bInt = 0;
+			String[] items = getResources().getStringArray(R.array.lineWidthSelectList);
+			for ( selIndex = 0; selIndex < items.length ; selIndex++ ) {
+				dbMsg += "(" + selIndex + ")";
+				int compInt = Integer.parseInt(items[selIndex]);
+				if ( bInt <= widhtInt && widhtInt <= compInt ) {
+					break;
+				}
+				bInt = compInt;
+			}
+			dbMsg += ">setSelection>" + selIndex;
+			wb_width_sp.setSelection(selIndex);
 
+			dbMsg += ",LineCap=" + _caps;
+			items = getResources().getStringArray(R.array.lineCapSelecttValList);
+			if ( _caps.equals(Paint.Cap.ROUND) || _caps.equals("round") ) {
+				selIndex = 0;
+			} else if ( _caps.equals(Paint.Cap.SQUARE) || _caps.equals("square") ) {
+				selIndex = 1;
+			} else if ( _caps.equals(Paint.Cap.BUTT) || _caps.equals("butt") ) {
+				selIndex = 2;
+			}
+			dbMsg += ">setSelection>" + selIndex;
+			wb_linecaps_sp.setSelection(selIndex);
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 		super.onPause();
 	}
+
+	/**
+	 * トレースモードに切り替え
+	 */
+	protected void transTraceMode() {
+		final String TAG = "transTraceMode[RBS]";
+		String dbMsg = "";
+		try {
+			wh_paret.setVisibility(View.GONE);
+			score_aria_ll.setVisibility(View.VISIBLE);
+//			sa_disp_v.isRecever = true;                    //受信側
+			sa_disp_v.isDrow = false;
+			sa_disp_v.isPreparation = true;                    //トレーススタート前の準備中
+			readViewBitMap(sa_disp_v);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/**
+	 * このviewのビットマップを読み取ってトレースの準備をする
+	 * http://developer.wonderpla.net/entry/blog/engineer/Android_CaptureView/
+	 * */
+	public void readViewBitMap(	View view) {
+		final String TAG = "readViewBitMap[CView]";
+		String dbMsg = "";
+		Bitmap screenShot = null;
+		try {
+			view.setDrawingCacheEnabled(true);
+			Bitmap cache = view.getDrawingCache();  			// Viewのキャッシュを取得
+			screenShot = Bitmap.createBitmap(cache);
+			if(cache == null){
+				String titolStr="Bitmapの取得";
+				String mggStr="取得できませ年でした。";
+				messageShow( titolStr ,  mggStr);
+				return;
+			}
+			view.setDrawingCacheEnabled(false);
+			dbMsg += " = " + screenShot.getByteCount() + "バイト";
+			sa_disp_v.getCanvasPixcel(screenShot);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 
 	/**
@@ -1548,6 +1647,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		/**
 		 * assets フォルダから、画像ファイルを読み込む
 		 * http://fantom1x.blog130.fc2.com/blog-entry-130.html
+		 * separatorから上が有ればフルパスで指定されたファイルを開く
 		 */
 		public final Bitmap loadBitmapAsset(String fileName) throws IOException {
 			final String TAG = "loadBitmapAsset[TA]";
@@ -1679,6 +1779,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		・プログレス処理
 		・Splash >> 実際の起動処理中表示
 		・Stringリソース英訳
+	 課題
+	   PreferenceScreenの"conection_setting_key"；URLの書き込み方 ；
+	   カラーパレットサイズと初期値設定
 
  * ・iOS移植
 	 * ・フレームワーク
@@ -1687,6 +1790,4 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * ・GUI
 	 * ・デバイスアクセス
 
-課題
-   PreferenceScreenの"conection_setting_key"；URLの書き込み方 ；
  **/

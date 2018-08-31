@@ -61,7 +61,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	public boolean is_v_Mirror = false;                //左右鏡面動作  //読み込み時、反転される
 	public boolean is_h_Mirror = false;                //上下鏡面動作
 	public boolean isAautoJudge = true;        //トレース後に自動判定
-	public int traceLineWidth = 50;        //トレース線の太さ
+	public int traceLineWidth = 10;        //トレース線の太さ
 	public boolean isPadLeft= false;          //左側にPad
 
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";                    //	String dataURI = "http://192.168.3.14:3080";	//自宅

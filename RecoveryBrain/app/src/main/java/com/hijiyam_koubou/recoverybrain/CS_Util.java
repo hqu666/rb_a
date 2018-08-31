@@ -29,20 +29,21 @@ public class CS_Util {
 //		context = context;
 //	}
 	//ファイル操作///////////////////
+
 	/**
 	 * 端末内でファイル保存できる場所
 	 */
-	public String getSavePath(Context context,String evironmentType,String savePassName) {
+	public String getSavePath(Context context , String evironmentType , String savePassName) {
 		final String TAG = "getSavePath[MPF]";
 		String dbMsg = "開始";
-		String  write_folder ="";
+		String write_folder = "";
 		try {
 			dbMsg += ",evironmentType=" + evironmentType;
 			File photDir = Environment.getExternalStoragePublicDirectory(evironmentType);
-				//              //自分のアプリ用の内部ディレクトリ    context.getFilesDir();
-				dbMsg += ",photDir=" + photDir.getPath() + File.separator;      //pathSeparatorは：
-				write_folder = photDir.getPath() + File.separator + savePassName;
-				dbMsg += ",端末内の保存先=" + write_folder;
+			//              //自分のアプリ用の内部ディレクトリ    context.getFilesDir();
+			dbMsg += ",photDir=" + photDir.getPath() + File.separator;      //pathSeparatorは：
+			write_folder = photDir.getPath() + File.separator + savePassName;
+			dbMsg += ",端末内の保存先=" + write_folder;
 //			String local_dir_size = userDir.getFreeSpace() + "";// "5000000";
 //			dbMsg +=+ ",保存先の空き容量=" + local_dir_size;
 //			if ( local_dir_size.isEmpty() ) {
@@ -272,33 +273,33 @@ public class CS_Util {
 
 			orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION , ExifInterface.ORIENTATION_UNDEFINED);        // 画像の向きを取得
 			// 画像を回転させる処理をマトリクスに追加
-			dbMsg += ",orientation="+orientation;
+			dbMsg += ",orientation=" + orientation;
 			switch ( orientation ) {
-				case ExifInterface.ORIENTATION_UNDEFINED:			//0;
+				case ExifInterface.ORIENTATION_UNDEFINED:            //0;
 					break;
-				case ExifInterface.ORIENTATION_NORMAL:  		//1:
+				case ExifInterface.ORIENTATION_NORMAL:        //1:
 					break;
-				case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:	//2; 水平方向にリフレクト
+				case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:    //2; 水平方向にリフレクト
 //					matrix.postScale(-1f , 1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:		//3; 180度回転
+				case ExifInterface.ORIENTATION_ROTATE_180:        //3; 180度回転
 //					matrix.postRotate(180f);
 					break;
-				case ExifInterface.ORIENTATION_FLIP_VERTICAL:	//4; 垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_FLIP_VERTICAL:    //4; 垂直方向にリフレクト
 //					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_90:		//6; 反時計回り90度回転
+				case ExifInterface.ORIENTATION_ROTATE_90:        //6; 反時計回り90度回転
 //					matrix.postRotate(90f);
 					break;
-				case ExifInterface.ORIENTATION_TRANSVERSE:		//7; 時計回り90度回転し、垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_TRANSVERSE:        //7; 時計回り90度回転し、垂直方向にリフレクト
 //					matrix.postRotate(-90f);
 //					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_TRANSPOSE:		//5; 反時計回り90度回転し、垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_TRANSPOSE:        //5; 反時計回り90度回転し、垂直方向にリフレクト
 //					matrix.postRotate(90f);
 //					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_270:		//8; 反時計回りに270度回転（時計回りに90度回転）
+				case ExifInterface.ORIENTATION_ROTATE_270:        //8; 反時計回りに270度回転（時計回りに90度回転）
 //					matrix.postRotate(-90f);
 					break;
 			}
@@ -314,7 +315,7 @@ public class CS_Util {
 	 * @param file   入力画像
 	 * @param matrix 元のマトリクス
 	 * @return matrix 回転後のマトリクス
-	 *   https://qiita.com/sutchan/items/6ef7216cb8221bbf3894
+	 * https://qiita.com/sutchan/items/6ef7216cb8221bbf3894
 	 */
 	public Matrix getRotatedMatrix(File file , Matrix matrix) {
 		final String TAG = "getRotatedMatrix[util]";
@@ -331,33 +332,33 @@ public class CS_Util {
 
 			int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION , ExifInterface.ORIENTATION_UNDEFINED);        // 画像の向きを取得
 			// 画像を回転させる処理をマトリクスに追加
-			dbMsg += ",orientation="+orientation;
+			dbMsg += ",orientation=" + orientation;
 			switch ( orientation ) {
-				case ExifInterface.ORIENTATION_UNDEFINED:   				//0;
+				case ExifInterface.ORIENTATION_UNDEFINED:                //0;
 					break;
-				case ExifInterface.ORIENTATION_NORMAL:  					//1;
+				case ExifInterface.ORIENTATION_NORMAL:                    //1;
 					break;
-				case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:				//2; 水平方向にリフレクト
+				case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:                //2; 水平方向にリフレクト
 					matrix.postScale(-1f , 1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:					//3; 180度回転
+				case ExifInterface.ORIENTATION_ROTATE_180:                    //3; 180度回転
 					matrix.postRotate(180f);
 					break;
-				case ExifInterface.ORIENTATION_FLIP_VERTICAL:				//4; 垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_FLIP_VERTICAL:                //4; 垂直方向にリフレクト
 					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_90:					//6; 反時計回り90度回転
+				case ExifInterface.ORIENTATION_ROTATE_90:                    //6; 反時計回り90度回転
 					matrix.postRotate(90f);
 					break;
-				case ExifInterface.ORIENTATION_TRANSVERSE:					//7; 時計回り90度回転し、垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_TRANSVERSE:                    //7; 時計回り90度回転し、垂直方向にリフレクト
 					matrix.postRotate(-90f);
 					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_TRANSPOSE:					//5; 反時計回り90度回転し、垂直方向にリフレクト
+				case ExifInterface.ORIENTATION_TRANSPOSE:                    //5; 反時計回り90度回転し、垂直方向にリフレクト
 					matrix.postRotate(90f);
 					matrix.postScale(1f , -1f);
 					break;
-				case ExifInterface.ORIENTATION_ROTATE_270:					//8; 反時計回りに270度回転（時計回りに90度回転）
+				case ExifInterface.ORIENTATION_ROTATE_270:                    //8; 反時計回りに270度回転（時計回りに90度回転）
 					matrix.postRotate(-90f);
 					break;
 			}
@@ -395,8 +396,38 @@ public class CS_Util {
 		return degrees;
 	}
 
+	/**
+	 * 反対の色を返す
+	 * Illustrator の計算方法		https://q-az.net/complementary-color-javascript/
+	 */
+	public int complementaryColor(int orgColor) {
+		final String TAG = "complementaryColor[util}";
+		String dbMsg = "";
+		int comColor = 0;
+		try {
+			dbMsg += "orgColor=" + orgColor;
+			int orgAlfa = Color.alpha(orgColor);
+			int orgRed = Color.red(orgColor);
+			int orgGreen = Color.green(orgColor);
+			int orgBlie = Color.blue(orgColor);
+			dbMsg += "=a=" + orgAlfa + " r=" + orgRed + " g=" + orgGreen + " b=" + orgBlie;
+//			 int rgbColor = Color.rgb(orgRed, orgGreen, orgBlie);
+			float[] hsv = new float[3];
+			Color.colorToHSV(orgColor , hsv);
+			dbMsg += ",Hue=" + hsv[0] + "[dig],Saturation=" + hsv[1] + ",Value of Brightness=" + hsv[2];
+			hsv[0] = (hsv[0] + 120) % 360.0f;
+			dbMsg += ">Hue>" + hsv[0];
+			comColor = Color.HSVToColor(orgAlfa , hsv);
+			dbMsg += ",comColor=" + comColor + "=a=" + Color.alpha(comColor) + " r=" + Color.red(comColor) + " g=" + Color.green(comColor) + " b=" + Color.blue(comColor);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return comColor;
+	}
 
-	////汎用関数///////////////////////////////////////////////////////////////////////
+
+	////汎用関数///////////////////////////////////////////////画像操作/////
 	public String retDateStr(long dateTimeVar , String patten) {
 		final String TAG = "retDateStr[util}";
 		String dbMsg = "";
