@@ -41,6 +41,7 @@ import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -359,11 +360,28 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 						} else {
 							selectMode = ( String ) spinner.getSelectedItem();
 							dbMsg += ",selectMode=" + selectMode;
-							if ( selectMode.equals(getString(R.string.rb_edit_tool)) || selectMode.equals(getString(R.string.rb_edit_tool_line)) || selectMode.equals(getString(R.string.rb_edit_tool_trigone)) || selectMode.equals(getString(R.string.rb_edit_tool_rect)) || selectMode.equals(getString(R.string.rb_edit_tool_oval)) || selectMode.equals(getString(R.string.rb_edit_tool_text)) || selectMode.equals(getString(R.string.rb_edit_tool_erasre)) || selectMode.equals(getString(R.string.rb_edit_tool_select_del)) || selectMode.equals(getString(R.string.rb_edit_tool_stamp)) || selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
-								pendeingMessege();
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
+							if ( selectMode.equals(getString(R.string.rb_edit_tool_comp))  ) {
 								transTraceMode();
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_text)) ) {
+								showTextInputDlog();
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_free;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_line)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_line;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_trigone)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_trigone;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_rect)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_rect;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_oval)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_oval;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_erasre)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_erasre;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_select_del)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_select_del;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_stamp)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_stamp;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_colorpic;
 							}
 
 						}
@@ -1334,8 +1352,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		}
 	}
 
-
-
 	/**
 	 * トレース元画像の回転ボタンクリック
 	 **/
@@ -1698,7 +1714,72 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		}
 	}
 	///手書き編集//////////////////////////////////////////////////////////////////
+	EditText dtd_input_ti;
+	Spinner dtd_size_sp;
+	protected void showTextInputDlog() {
+		final String TAG = "showTextInputDlog[RBS]";
+		String dbMsg = "";
+		try {
+			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View layout = inflater.inflate(R.layout.dlog_text_drow , ( ViewGroup ) findViewById(R.id.dtd_root));
+			 dtd_input_ti = layout.findViewById(R.id.dtd_input_ti);
+			 dtd_size_sp = layout.findViewById(R.id.dtd_size_sp);
+			Button dtd_positive_bt = layout.findViewById(R.id.dtd_positive_bt);                // GridViewのインスタンスを生成
+			// アラーとダイアログ を生成
+			AlertDialog.Builder builder = new AlertDialog.Builder(this , R.style.MyAlertDialogStyle);
+			final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
+			builder.setCustomTitle(titolLayout);
+			TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
+			dlog_title_tv.setText(getString(R.string.dtd_titol));  //			builder.setTitle( R.string.thumbnail_list_titol);
+			ImageButton dlog_left_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_left_bt);
+			dlog_left_bt.setImageResource(R.drawable.edit);
+			ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
+			dlog_close_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					stereoTypeDlog.dismiss();
+				}
+			});
 
+			dtd_positive_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_text;
+					sa_disp_v.drowStr =dtd_input_ti.getText()+"";
+					sa_disp_v.drowStrSize =Integer.parseInt(dtd_input_ti.getText()+"");
+				}
+			});
+
+
+
+
+
+			builder.setView(layout);
+//			builder.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+//				@Override
+//				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//					// タップしたアイテムの取得
+//					ListView listView = (ListView)parent;
+//					SampleListItem item = (SampleListItem)listView.getItemAtPosition(position);  // SampleListItemにキャスト
+//
+//					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//					builder.setTitle("Tap No. " + String.valueOf(position));
+//					builder.setMessage(item.getTitle());
+//					builder.show();
+//				}
+//			};
+//			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int which) {
+//					// Cancel ボタンクリック処理
+//				}
+//			});
+			stereoTypeDlog = builder.create();                // 表示
+			stereoTypeDlog.show();                // 表示
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public void pendeingMessege() {

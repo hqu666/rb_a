@@ -1,0 +1,59 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/dtd_root"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="5dp">
+
+	<EditText
+		android:id="@+id/dtd_input_ti"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:hint="@string/dtd_input_msg"
+		android:inputType="textPersonName"
+		/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="right"
+		android:orientation="horizontal">
+
+		<!--<Spinner-->
+		<!--android:id="@+id/dtd_font_sp"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="match_parent"-->
+		<!--android:layout_weight="1"-->
+		<!--android:entries="@array/typeSelectList"/>-->
+
+		<Spinner
+			android:id="@+id/dtd_size_sp"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:entries="@array/fontSizeList"/>
+
+		<TextView
+			android:id="@+id/textView8"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="px"/>
+
+		<!--<Spinner-->
+		<!--android:id="@+id/dtd_style_sp"-->
+		<!--android:layout_width="wrap_content"-->
+		<!--android:layout_height="match_parent"-->
+		<!--android:layout_weight="1"-->
+		<!--android:entries="@array/typeSelectList"/>-->
+
+		<Button
+			android:id="@+id/dtd_positive_bt"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/rb_edit_tool_comp"/>
+	</LinearLayout>
+
+
+</LinearLayout>

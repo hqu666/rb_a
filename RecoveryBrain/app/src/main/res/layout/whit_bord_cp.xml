@@ -76,36 +76,6 @@
 				android:layout_weight="1"
 				android:text="@string/common_ten"/>
 
-			<!--<TextView-->
-			<!--android:id="@+id/cp_after_tv"-->
-			<!--android:layout_width="wrap_content"-->
-			<!--android:layout_height="wrap_content"-->
-			<!--android:text="99999"-->
-			<!--android:textColor="@android:color/background_light"/>-->
-
-			<!--<TextView-->
-			<!--android:id="@+id/textView9"-->
-			<!--android:layout_width="wrap_content"-->
-			<!--android:layout_height="wrap_content"-->
-			<!--android:layout_weight="1"-->
-			<!--android:text="/"-->
-			<!--android:textColor="@android:color/background_light"/>-->
-
-			<!--<TextView-->
-			<!--android:id="@+id/cp_befor_tv"-->
-			<!--android:layout_width="wrap_content"-->
-			<!--android:layout_height="wrap_content"-->
-			<!--android:layout_weight="1"-->
-			<!--android:text="99999"-->
-			<!--android:textColor="@android:color/background_light"/>-->
-
-			<!--<TextView-->
-			<!--android:id="@+id/textView11"-->
-			<!--android:layout_width="wrap_content"-->
-			<!--android:layout_height="wrap_content"-->
-			<!--android:text="@string/common_pixcel"-->
-			<!--android:textColor="@android:color/background_light"/>-->
-
 			<ImageButton
 				android:id="@+id/cp_score_bt"
 				android:layout_width="40dp"
