@@ -134,7 +134,7 @@
 				android:id="@+id/wb_mode_sp"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="8"
 				android:entries="@array/typeSelectList"/>
 
 			<ImageButton
@@ -148,13 +148,14 @@
 				android:id="@+id/wb_width_sp"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="8"
 				android:entries="@array/lineWidthSelectList"/>
 
 			<TextView
 				android:id="@+id/textView2"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
+				android:layout_weight="1"
 				android:gravity="bottom"
 				android:paddingBottom="5px"
 				android:text="px"/>
@@ -163,7 +164,7 @@
 				android:id="@+id/wb_linecaps_sp"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="8"
 				android:entries="@array/lineCapSelecttList"/>
 
 			<!--<TextView-->

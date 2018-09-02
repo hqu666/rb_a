@@ -39,6 +39,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,6 +58,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RecoveryBrainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
@@ -358,9 +360,12 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							dbMsg += "isFocusable=false";
 							spinner.setFocusable(true);
 						} else {
+							if ( -1 == sa_disp_v.selectColor ) {
+								sa_disp_v.selectColor = selectColor;
+							}
 							selectMode = ( String ) spinner.getSelectedItem();
 							dbMsg += ",selectMode=" + selectMode;
-							if ( selectMode.equals(getString(R.string.rb_edit_tool_comp))  ) {
+							if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
 								transTraceMode();
 							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_text)) ) {
 								showTextInputDlog();
@@ -503,7 +508,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 //				splashDlog = builder.create();                // 表示
 //				splashDlog.show();                // 表示
 			}
-			Toast.makeText(this , "読込み中・・・・・・" , Toast.LENGTH_SHORT).show();
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -543,6 +547,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "";
 		try {
+			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1059,7 +1064,18 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			int canvasWidth = sa_disp_v.getWidth();
 			int canvasHeight = sa_disp_v.getHeight();
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight);
+			if ( !sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight) ) {
+//				String titolStr = RecoveryBrainActivity.this.getString(R.string.common_yomikomicyuu);
+//				String mggStr = RecoveryBrainActivity.this.getString(R.string.common_saikidou);
+//				messageShow(titolStr , mggStr);
+//				new AlertDialog.Builder(RecoveryBrainActivity.this).setTitle(titolStr).setMessage(mggStr).setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
+//					@Override
+//					public void onClick(DialogInterface dialog , int which) {
+//						reStart();
+//					}
+//				}).create().show();
+
+			}
 //						writehScore( this,1000,100);
 //			if(isFarst){
 			if ( splashDlog != null ) {
@@ -1208,7 +1224,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					}
 				}
 			});
-			mDlg.setNegativeButton(R.string.common_no, new DialogInterface.OnClickListener() {
+			mDlg.setNegativeButton(R.string.common_no , new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog , int which) {
 					final String TAG = "Negativ[transEditMode]";
@@ -1263,7 +1279,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 
 	/**
 	 * 手書き編集ツールの初期選択
-	 * **/
+	 **/
 	protected void setEditTools(int _color , float _widht , String _caps) {
 		final String TAG = "setEditTools[RBS]";
 		String dbMsg = "";
@@ -1328,19 +1344,19 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	/**
 	 * このviewのビットマップを読み取ってトレースの準備をする
 	 * http://developer.wonderpla.net/entry/blog/engineer/Android_CaptureView/
-	 * */
-	public void readViewBitMap(	View view) {
+	 */
+	public void readViewBitMap(View view) {
 		final String TAG = "readViewBitMap[CView]";
 		String dbMsg = "";
 		Bitmap screenShot = null;
 		try {
 			view.setDrawingCacheEnabled(true);
-			Bitmap cache = view.getDrawingCache();  			// Viewのキャッシュを取得
+			Bitmap cache = view.getDrawingCache();            // Viewのキャッシュを取得
 			screenShot = Bitmap.createBitmap(cache);
-			if(cache == null){
-				String titolStr="Bitmapの取得";
-				String mggStr="取得できませ年でした。";
-				messageShow( titolStr ,  mggStr);
+			if ( cache == null ) {
+				String titolStr = "Bitmapの取得";
+				String mggStr = "取得できませ年でした。";
+				messageShow(titolStr , mggStr);
 				return;
 			}
 			view.setDrawingCacheEnabled(false);
@@ -1713,17 +1729,30 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			return 0;
 		}
 	}
+
 	///手書き編集//////////////////////////////////////////////////////////////////
 	EditText dtd_input_ti;
 	Spinner dtd_size_sp;
+
 	protected void showTextInputDlog() {
 		final String TAG = "showTextInputDlog[RBS]";
 		String dbMsg = "";
 		try {
 			LayoutInflater inflater = ( LayoutInflater ) this.getSystemService(LAYOUT_INFLATER_SERVICE);
 			final View layout = inflater.inflate(R.layout.dlog_text_drow , ( ViewGroup ) findViewById(R.id.dtd_root));
-			 dtd_input_ti = layout.findViewById(R.id.dtd_input_ti);
-			 dtd_size_sp = layout.findViewById(R.id.dtd_size_sp);
+			dtd_input_ti = layout.findViewById(R.id.dtd_input_ti);
+			dbMsg += ",変更前；drowStr=" + sa_disp_v.drowStr;
+			dtd_input_ti.setText(sa_disp_v.drowStr);
+			dtd_size_sp = layout.findViewById(R.id.dtd_size_sp);
+//			String[] fontSizeList = getResources().getStringArray(R.array.fontSizeList);
+			List< String > fontSizeList = new ArrayList< String >(Arrays.asList(getResources().getStringArray(R.array.fontSizeList)));
+			dbMsg += ",drowStrSize=" + sa_disp_v.drowStrSize;
+			int sIndex = fontSizeList.indexOf(sa_disp_v.drowStrSize + "");
+			if ( -1 == sIndex ) {
+				sIndex = fontSizeList.size() - 1;
+			}
+			dbMsg += ",sIndex=" + sIndex + "/" + (fontSizeList.size() - 1);
+			dtd_size_sp.setSelection(sIndex);
 			Button dtd_positive_bt = layout.findViewById(R.id.dtd_positive_bt);                // GridViewのインスタンスを生成
 			// アラーとダイアログ を生成
 			AlertDialog.Builder builder = new AlertDialog.Builder(this , R.style.MyAlertDialogStyle);
@@ -1744,15 +1773,39 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			dtd_positive_bt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_text;
-					sa_disp_v.drowStr =dtd_input_ti.getText()+"";
-					sa_disp_v.drowStrSize =Integer.parseInt(dtd_input_ti.getText()+"");
+					final String TAG = "showTextInputDlog[RBS;sTID]";
+					String dbMsg = "";
+					try {
+						String setStr = dtd_input_ti.getText() + "";
+						dbMsg += "setStr=" + setStr;
+						if ( setStr.equals("") ) {
+							stereoTypeDlog.dismiss();
+							String titolStr = getString(R.string.dtd_titol);
+							String mggStr = getString(R.string.dtd_input_msg2);
+							messageShow(titolStr , mggStr);
+							new AlertDialog.Builder(RecoveryBrainActivity.this).setTitle(titolStr).setMessage(mggStr).setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog , int which) {
+									showTextInputDlog();
+								}
+							}).create().show();
+						} else {
+							sa_disp_v.drowStr = setStr;
+							setStr = ( String ) dtd_size_sp.getSelectedItem();
+							dbMsg += ",size=" + setStr;
+							sa_disp_v.drowStrSize = Integer.parseInt(setStr);
+							sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_text;
+							stereoTypeDlog.dismiss();
+							String titolStr = getString(R.string.dtd_titol);
+							String mggStr = getString(R.string.dtd_input_msg3) + sa_disp_v.drowStr + getString(R.string.common_wo) + sa_disp_v.drowStrSize + getString(R.string.dtd_input_msg4);
+							messageShow(titolStr , mggStr);
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
 				}
 			});
-
-
-
-
 
 			builder.setView(layout);
 //			builder.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -1870,5 +1923,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * ・コールバック
 	 * ・GUI
 	 * ・デバイスアクセス
-
+              https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
+              https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
  **/

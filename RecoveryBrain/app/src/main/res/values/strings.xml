@@ -21,6 +21,9 @@
 	<string name="common_no">No</string>
 	<string name="common_cancel">キャンセル</string>
 	<string name="common_score">スコア</string>
+	<string name="common_wo">を</string>
+	<string name="common_yomikomicyuu">読込み中・・・・・・</string>
+	<string name="common_saikidou">再起動します</string>
 
 	<string name="description">icon</string>
 
@@ -162,6 +165,11 @@
 	<string name="file_list_titol">ファイル選択</string>
 	<string name="dtd_titol">文字入力</string>
 	<string name="dtd_input_msg">書き込む文字は</string>
+	<string name="dtd_input_msg2">書き込む文字を入力して下さい</string>
+	<string name="dtd_input_msg3">タップした位置に「</string>
+	<string name="dtd_input_msg4">PXで書き込みます</string>
+
+
 
 	<string-array name="jobSelectList">
 		<item>@string/rb_file_read</item>
@@ -243,9 +251,10 @@
 		<item>100</item>
 	</string-array>
 	<string-array name="fontSizeList">
-		<item>12</item>
-		<item>24</item>
 		<item>48</item>
 		<item>96</item>
+		<item>192</item>
+		<item>288</item>
+		<item>384</item>
 	</string-array>
 </resources>
