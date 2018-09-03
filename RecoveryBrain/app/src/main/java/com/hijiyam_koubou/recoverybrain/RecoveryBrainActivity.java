@@ -886,7 +886,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 						CharSequence wStr = "トレースした状況を読み取っています。";
 						Toast.makeText(RecoveryBrainActivity.this , wStr , Toast.LENGTH_SHORT).show();
 					}
-					sa_disp_v.scorePixcel();
+					sa_disp_v.scorePixcel(sa_disp_v.PRG_CODE_SET_SCORE);
 				}
 			});
 
@@ -1357,7 +1357,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			}
 			view.setDrawingCacheEnabled(false);
 			dbMsg += " = " + screenShot.getByteCount() + "バイト";
-			sa_disp_v.getCanvasPixcel(screenShot);
+			sa_disp_v.getCanvasPixcel(screenShot);       //
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);

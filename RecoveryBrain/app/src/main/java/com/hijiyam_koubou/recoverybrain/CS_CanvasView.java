@@ -539,7 +539,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //										CharSequence wStr = context.getString(R.string.rb_auto_judge);
 //										dbMsg += ">>" + wStr;
 //										Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
-										scorePixcel();
+										scorePixcel(PRG_CODE_SET_SCORE);
 									}
 								}
 							}
@@ -596,14 +596,14 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						dbMsg += ",screenShot[" + screenShot.getWidth() + "×" + screenShot.getHeight() + "]" + screenShot.getByteCount() + "バイト";
 						canvas.drawColor(Color.WHITE);
 						canvas.drawBitmap(screenShot , 0 , 0 , paint);
-						getCanvasPixcel(screenShot);
+						getCanvasPixcel(screenShot);        //
 						screenShot.recycle();
 						backAgain();   //トレース後の線を消す☆先にできない？
 						break;
 					case REQUEST_ADD_BITMAP:                //503;ビットマップ挿入
 						dbMsg += "(" + upX + "×" + upY + ")に[" + aBmp.getWidth() + "×" + aBmp.getHeight() + "]" + aBmp.getByteCount() + "バイトのビットマップ挿入";
 						if ( isRecever ) {
-							getCanvasPixcel(aBmp);
+							getCanvasPixcel(aBmp);        //
 						} else {
 //						canvas.drawBitmap(aBmp , upX , upY , ( Paint ) orignLine); // image, x座標, y座標, Paintイタンス
 						}
@@ -830,22 +830,22 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		final String TAG = "writehScore[CView]";
 		String dbMsg = "";
 		try {
-			dbMsg += afterCount + "/befor;" + beforeCount + ":tracce=" + tracceCount;
+			dbMsg += afterCount + "/" + beforeCount + ":tracce=" + tracceCount;
 			int eraceCount = beforeCount - afterCount;
 			dbMsg += ">erace>" + eraceCount;
 			float sVar = 0;
 			if ( afterCount < beforeCount ) {
-				sVar = (eraceCount * 100) / beforeCount;
+				sVar = (eraceCount * 10000.0f) / (beforeCount * 100.0f);
 			}
 			dbMsg += "=" + sVar + "点";
 			float hit = 0.0f;
 			if ( 0 < tracceCount ) {
-				hit = 1.0f * eraceCount / tracceCount * 1.0f;
+				hit = (100.0f * eraceCount) / (100.0f * tracceCount);        // * 1.0f
 				dbMsg += ",Hit=" + hit;
-				if ( beforeCount < tracceCount ) {
-					hit = 1.0f * eraceCount / (tracceCount - beforeCount) * 1.0f;      //(tracceCount - beforeCount)
-					dbMsg += ">>" + hit;
-				}
+//				if ( beforeCount < tracceCount ) {
+//					hit =  (100.0f * eraceCount) /  (100.0f *(tracceCount - beforeCount));      //(tracceCount - beforeCount)
+//					dbMsg += ">>" + hit;
+//				}
 				sVar = Math.round(sVar * hit);   //Math.round((eraceCount * 100) / beforeCount * hit);
 				dbMsg += ">Hit>" + sVar;
 			}
@@ -988,14 +988,16 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	public Bitmap screenShot;                //トレース後のビットマップ
 	//	public double scaleWH;					//書込んだ時のスケール
 	static final int PRG_CODE_GET_PIXEL = REQUEST_DROW_PATH + 100;            //ピクセル変換
-	static final int PRG_CODE_SET_SCORE = PRG_CODE_GET_PIXEL + 1;            //スコア判定
+	static final int PRG_CODE_RE_READ = PRG_CODE_GET_PIXEL + 1;            //ピクセル変換後の読み直し
+	static final int PRG_CODE_SET_SCORE = PRG_CODE_RE_READ + 1;            //スコア判定
 	public int bWidth;
 	public int bHight;
-	public int pixels[] = null;                    //canvas全体のargb配列
+	public int[] pixels = null;                    //canvas全体のargb配列
 	public int[] trPixels = null;                    //判定用
 	public int scoreVar = 0;
 	public int remainsCount = 0;
 	public int tracceCount = 0;
+	public int chackTotal = 0;
 	public SparseIntArray colorArray;         //使われている色
 	public SparseIntArray widthArray;            //使われている線の太さ
 	public List< String > colorIndex;
@@ -1008,10 +1010,11 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	 * canvasDrawでファイル読込み直後のピクセル変換してBitMap再作成
 	 * 色と線の太さの読込み
 	 */
-	public void getCanvasPixcel(Bitmap rBmp) {        // , Canvas canva
+	public void getCanvasPixcel(Bitmap rBmp) {        //, Canvas canva
 		final String TAG = "getCanvasPixcel[CView]";
 		String dbMsg = "";
 		try {
+//			Bitmap rBmp = getViewBitmap(this);
 			bWidth = rBmp.getWidth();
 			bHight = rBmp.getHeight();
 			dbMsg += "読込み[" + bWidth + "×" + bHight + "]" + rBmp.getByteCount() + "バイト";
@@ -1024,6 +1027,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			widthIndex = new ArrayList<>();
 			bColor = 1;
 			widthCount = 0;
+			chackTotal = 0;
 			AsyncTask< Integer, Integer, Integer > progD = new loadAsyncTask(context , context.getString(R.string.common_yomikonde_imasu) , readFileName + "[" + bWidth + context.getString(R.string.common_sekisan_hugou) + bHight + "]" + rBmp.getByteCount() + context.getString(R.string.common_bite) , bHight);
 			progD.execute(PRG_CODE_GET_PIXEL , bWidth , bHight);
 
@@ -1033,17 +1037,16 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-	public int getCanvasPixcelBody(int xPoint , int yPoint , int bWidth) {        // , Canvas canva
+	public void getCanvasPixcelBody(int xPoint , int yPoint , int bWidth) {        // , Canvas canva
 		final String TAG = "getCanvasPixcelBody[CView]";
 		String dbMsg = "";
 		int bIndex = 0;
 		try {
 			bIndex = xPoint + yPoint * bWidth;
-//						progD.(bIndex) ;
 			int pixel = pixels[bIndex];
 			pixels[bIndex] = Color.argb(Color.alpha(pixel) , Color.red(pixel) , Color.green(pixel) , Color.blue(pixel));   //反転 ;0xFF -各色
-//						pixels[bIndex] = Color.argb(Color.alpha(pixel) , 0xFF - Color.red(pixel) , 0xFF - Color.green(pixel) , 0xFF - Color.blue(pixel));
 			if ( pixel != whiteVar && pixel != brackVar && 255 == Color.alpha(pixel) ) {                            //	if ( pixel <-1 ) {
+				chackTotal++;
 				String colorName = pixel + "";
 				if ( 0 == colorIndex.size() ) {
 					colorIndex.add(colorName);
@@ -1067,25 +1070,25 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 						widthIndex.add(widthName);
 						widthArray.put(widthCount , 1);
 					} else {
-						dbMsg += "(" + xPoint + "×" + yPoint + ")W=" + bWidth + ">>" + bIndex + ",pixel=" + pixel;
+						dbMsg += "(" + xPoint + "×" + yPoint + ")W=" + bWidth + ">>" + bIndex + ",chack=" + chackTotal + ",pixel=" + pixel;
 						int nowCount = ( int ) widthArray.get(widthCount) + 1;
 						dbMsg += ",nowCount=" + nowCount;
 						widthArray.put(widthCount , nowCount);
+//			myLog(TAG , dbMsg);
 					}
 					widthCount = 0;
 					bColor = pixel;
 				}
 
 			}
-//			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-		return bIndex;
+//		return bIndex;
 	}
 
 	public void afterCanvasPixcel() {        // , Canvas canva
-		final String TAG = "getCanvasPixcel[CView]";
+		final String TAG = "afterCanvasPixcel[CView]";
 		String dbMsg = "";
 		try {
 			dbMsg += ",pixels=" + pixels.length;
@@ -1103,7 +1106,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	/**
 	 * トレース元画像を読んで使用されている色と線の太さを取得
 	 * トレース色も設定する
-	 * */
+	 */
 	public void setTreace() {
 		final String TAG = "setTreace[CView]";
 		String dbMsg = "";
@@ -1140,8 +1143,9 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			dbMsg += ",a:" + Color.alpha(selectColor) + " r:" + Color.red(selectColor) + " g:" + Color.green(selectColor) + " b:" + Color.blue(selectColor);
 			selectWidth = orgWidth * 2;
 			REQUEST_CORD = REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す☆止めないとloopする
-			writehScore(context , orgCount , orgCount , 0);
+//			writehScore(context , orgCount , orgCount , 0);
 			isPreparation = true;                    //トレーススタート前の準備中
+			scorePixcel(PRG_CODE_RE_READ);    		//評価時と同条件で再カウント
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1156,7 +1160,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		public String dlogMsg = "読込み中";
 		int endVal = 100;
 		public ProgressDialog pDialog;
-//		public int PRG_CODE;
 
 		public loadAsyncTask(Context context , String titolStr , String dlogMsg , int endVal) {
 			final String TAG = "loadAsyncTask[CSC.L]";
@@ -1213,10 +1216,14 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				dbMsg += "=[" + bWidth + "×" + bHight + "]PRG_CODE=" + PRG_CODE;
 				for ( int yPoint = 0 ; yPoint < bHight ; yPoint++ ) {
 					for ( int xPoint = 0 ; xPoint < bWidth ; xPoint++ ) {
-						if ( PRG_CODE == PRG_CODE_GET_PIXEL ) {
-							getCanvasPixcelBody(xPoint , yPoint , bWidth);
-						} else if ( PRG_CODE == PRG_CODE_SET_SCORE ) {
-							scorePixcelBody(xPoint , yPoint , bWidth);
+						switch ( PRG_CODE ) {
+							case PRG_CODE_GET_PIXEL:
+								getCanvasPixcelBody(xPoint , yPoint , bWidth);
+								break;
+							case PRG_CODE_RE_READ:
+							case PRG_CODE_SET_SCORE:
+								scorePixcelBody(xPoint , yPoint , bWidth);
+								break;
 						}
 					}
 					publishProgress(yPoint);
@@ -1261,11 +1268,19 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			try {
 				dbMsg += "result=" + result;
 				pDialog.dismiss();
-				if ( result == PRG_CODE_GET_PIXEL ) {
-					afterCanvasPixcel();
-				} else if ( result == PRG_CODE_SET_SCORE ) {
-				dbMsg += ",remain=" + remainsCount + " /org=" + orgCount + " /tracce=" + tracceCount;
-					writehScore(context , orgCount , remainsCount , tracceCount);
+				switch ( result ) {
+					case PRG_CODE_GET_PIXEL:
+						afterCanvasPixcel();
+						break;
+					case PRG_CODE_RE_READ:
+						orgCount =   remainsCount;
+						dbMsg += ",remain=" + remainsCount + " /org=" + orgCount + " /tracce=" + tracceCount;
+						writehScore(context , orgCount , remainsCount , tracceCount);
+						break;
+					case PRG_CODE_SET_SCORE:
+						dbMsg += ",remain=" + remainsCount + " /org=" + orgCount + " /tracce=" + tracceCount;
+						writehScore(context , orgCount , remainsCount , tracceCount);
+						break;
 				}
 				myLog(TAG , dbMsg);
 			} catch (Exception er) {
@@ -1291,52 +1306,30 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	/**
 	 * トレース後、残った元画像のピクセルをカウントして評価
 	 */
-	public void scorePixcel() {
+	public void scorePixcel(int PRG_CODE) {
 		final String TAG = "scorePixcel[CView]";
 		String dbMsg = "";
 		try {
-			if ( myCanvas != null ) {
-				dbMsg += "canvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
-//				RecoveryBrainActivity RBA =new  RecoveryBrainActivity();
-//				Bitmap screenShot = context.getClass().readViewBitMap(this);
-				Bitmap screenShot = getViewBitmap(this);
-//				this.setDrawingCacheEnabled(true);
-//				Bitmap cache = this.getDrawingCache();    				// Viewのキャッシュを取得
-//				Bitmap screenShot = Bitmap.createBitmap(cache);
-//				this.setDrawingCacheEnabled(false);
-				int bWidth = screenShot.getWidth();
-				int bHight = screenShot.getHeight();
-				dbMsg += "screenShot[" + bWidth + "×" + bHight + "]" + screenShot.getByteCount() + "バイト";
-				trPixels = new int[bWidth * bHight];
-				screenShot.getPixels(trPixels , 0 , bWidth , 0 , 0 , bWidth , bHight);                //pixelsの配列にmyBitmapのデータを格納する
-				dbMsg += ",pixels=" + trPixels.length;
-				remainsCount = 0;
-//				int chackTotal = 0;
-				tracceCount = 0;
-				dbMsg += ",orgColor=" + orgColor +  ",selectColor=" + selectColor;
-				AsyncTask< Integer, Integer, Integer > progD = new loadAsyncTask(context , context.getString(R.string.common_hanteisite_imasu) , readFileName + "[" + bWidth + context.getString(R.string.common_sekisan_hugou) + bHight + "]" + screenShot.getByteCount() + context.getString(R.string.common_bite) , bHight);
-				progD.execute(PRG_CODE_SET_SCORE , bWidth , bHight);
-//				for ( int yPoint = 0 ; yPoint < bHight ; yPoint++ ) {
-//					for ( int xPoint = 0 ; xPoint < bWidth ; xPoint++ ) {
-//						scorePixcelBody( xPoint , yPoint ,  bWidth );
-////						int bIndex = xPoint + yPoint * bWidth;
-////						int pixel = trPixels[bIndex];
-////						trPixels[bIndex] = Color.argb(Color.alpha(pixel) , Color.red(pixel) , Color.green(pixel) , Color.blue(pixel));   //反転 ;0xFF -各色
-////						if ( orgColor == pixel ) {                            // pixel != whiteVar &&  pixel != brackVar &&
-////							remainsCount++;
-////						} else if ( selectColor == pixel ) {                            //トレース色
-////							tracceCount++;
-////						}
-////						chackTotal++;
-//					}
-//				}
-//				dbMsg += ",remainsCount=" + remainsCount + " /orgCount=" + orgCount + " /tracce=" + tracceCount;// + " /chackTotal=" + chackTotal;
-//				writehScore(context , orgCount , remainsCount , tracceCount);
-			} else {
-//				String titolStr = "取得できません";
-//				String mggStr = "まだ書き込みが行われていません。";
-//				messageShow(titolStr , mggStr);
-			}
+//			if ( myCanvas != null ) {
+//				dbMsg += "canvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
+			Bitmap screenShot = getViewBitmap(this);
+			int bWidth = screenShot.getWidth();
+			int bHight = screenShot.getHeight();
+			dbMsg += "screenShot[" + bWidth + "×" + bHight + "]" + screenShot.getByteCount() + "バイト";
+			trPixels = new int[bWidth * bHight];
+			screenShot.getPixels(trPixels , 0 , bWidth , 0 , 0 , bWidth , bHight);                //pixelsの配列にmyBitmapのデータを格納する
+			dbMsg += ",pixels=" + trPixels.length;
+			remainsCount = 0;
+			chackTotal = 0;
+			tracceCount = 0;
+			dbMsg += ",orgColor=" + orgColor + ",selectColor=" + selectColor;
+			AsyncTask< Integer, Integer, Integer > progD = new loadAsyncTask(context , context.getString(R.string.common_hanteisite_imasu) , readFileName + "[" + bWidth + context.getString(R.string.common_sekisan_hugou) + bHight + "]" + screenShot.getByteCount() + context.getString(R.string.common_bite) , bHight);
+			progD.execute(PRG_CODE , bWidth , bHight);
+//			} else {
+////				String titolStr = "取得できません";
+////				String mggStr = "まだ書き込みが行われていません。";
+////				messageShow(titolStr , mggStr);
+//			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1351,14 +1344,17 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 			int pixel = trPixels[bIndex];
 //			trPixels[bIndex] = Color.argb(Color.alpha(pixel) , Color.red(pixel) , Color.green(pixel) , Color.blue(pixel));   //反転 ;0xFF -各色
-			if ( orgColor == pixel ) {                            // pixel != whiteVar &&  pixel != brackVar &&
-				remainsCount++;
+			if ( pixel != whiteVar && pixel != brackVar && 255 == Color.alpha(pixel) ) {                            //	if ( pixel <-1 ) {
+				chackTotal++;
+				if ( orgColor == pixel ) {                            // pixel != whiteVar &&  pixel != brackVar &&
+					remainsCount++;
+				} else if ( selectColor == pixel ) {                            //トレース色    ||
+					tracceCount++;
+				} else {
+					dbMsg += "(" + xPoint + "×" + yPoint + ")W=" + bWidth + ">>" + bIndex + ",chack=" + chackTotal + ",pixel=" + pixel;
+//					 myLog(TAG , dbMsg);
+				}
 			}
-			if ( selectColor == pixel ) {                            //トレース色    ||brackVar != pixel   ||whiteVar != pixel
-				tracceCount++;
-			}
-//			chackTotal++;
-			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -1378,6 +1374,12 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			targetView.setDrawingCacheEnabled(true);
 			Bitmap cache = targetView.getDrawingCache();                    // Viewのキャッシュを取得
 			retBitmap = Bitmap.createBitmap(cache);
+			if ( cache == null ) {
+				String titolStr = "Bitmapの取得";
+				String mggStr = "取得できませんでした。";
+				messageShow(titolStr , mggStr);
+				return null;
+			}
 			targetView.setDrawingCacheEnabled(false);
 			int bWidth = retBitmap.getWidth();
 			int bHight = retBitmap.getHeight();
