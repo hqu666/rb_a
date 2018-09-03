@@ -233,49 +233,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				dbMsg += ",左側にPad=" + isPadLeft;
 				if ( isPadLeft ) {
 					sa_disp_ll.addView(sa_pad_v);
-//				sa_disp_ll.setBackgroundColor(android.R.color.darker_gray);
 					sa_pad_ll.addView(sa_disp_v);
 				} else {
 					sa_disp_ll.addView(sa_disp_v);
 					sa_pad_ll.addView(sa_pad_v);
-//				sa_pad_ll.setBackgroundColor(android.R.color.darker_gray);
 				}
 			}
 			sa_disp_v.readFileName = "";
-
-			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View v , MotionEvent event) {
-					final String TAG = "sa_pad_v[RBS]";
-					String dbMsg = "";
-					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を書かせない)
-					try {
-						float xPoint = event.getX();       //view上の座標
-						float yPoint = event.getY();
-						int action = event.getAction();
-						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
-						if ( is_v_Mirror ) {   //左右反転
-							dbMsg += "、幅=" + sa_disp_v.getWidth();
-							xPoint = (sa_disp_v.getWidth() + 1.0f) - xPoint;
-							dbMsg += ">xPoint>" + xPoint;
-
-						}
-						if ( is_h_Mirror ) {   //上下反転
-							dbMsg += "、高さ=" + sa_disp_v.getHeight();
-							yPoint = (sa_disp_v.getHeight() + 1.0f) - yPoint;
-							dbMsg += ">yPoint>" + yPoint;
-						}
-						event.setLocation(xPoint , yPoint);
-						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-					return retBool;
-				}
-			});
-
-
 			score_aria_ll = ( LinearLayout ) findViewById(R.id.score_aria_ll);
 
 			findViewById(R.id.cp_jobselect_bt).setOnClickListener(new View.OnClickListener() {
@@ -303,203 +267,10 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			cp_score_bt = ( ImageButton ) findViewById(R.id.cp_score_bt);
 			cp_mirror_h_bt = ( ImageButton ) findViewById(R.id.cp_mirror_h_bt);
 			cp_mirror_v_bt = ( ImageButton ) findViewById(R.id.cp_mirror_v_bt);
-
-
-			findViewById(R.id.cp_mirror_h_bt).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mirror_h_click();
-				}
-			});
-
-			findViewById(R.id.cp_mirror_v_bt).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mirror_v_click();
-				}
-			});
-
-			cp_score_bt.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if ( !isNotSet ) {
-						CharSequence wStr = "トレースした状況を読み取っています。";
-						Toast.makeText(RecoveryBrainActivity.this , wStr , Toast.LENGTH_SHORT).show();
-					}
-					sa_disp_v.scorePixcel();
-				}
-			});
-
-			cp_score_bt.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					scoreAuto();
-					return true;    // 戻り値をtrueにするとOnClickイベントは発生しない
-				}
-			});
-
-			findViewById(R.id.cp_about_bt).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent webIntent = new Intent(RecoveryBrainActivity.this , CS_Web_Activity.class);
-					String dataURI = rootUrlStr + "/about_and/";                                  //http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080/about_and/
-					webIntent.putExtra("dataURI" , dataURI);                        //最初に表示するページのパス
-					startActivity(webIntent);
-				}
-			});
-
 			wb_mode_sp = ( Spinner ) findViewById(R.id.wb_mode_sp);
-			wb_mode_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-				@Override
-				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
-					final String TAG = "wb_mode_sp[WBC]";
-					String dbMsg = "";
-					try {
-						dbMsg = ",position=" + position + ",id=" + id;
-						Spinner spinner = ( Spinner ) parent;
-						if ( spinner.isFocusable() == false ) { //
-							dbMsg += "isFocusable=false";
-							spinner.setFocusable(true);
-						} else {
-							if ( -1 == sa_disp_v.selectColor ) {
-								sa_disp_v.selectColor = selectColor;
-							}
-							selectMode = ( String ) spinner.getSelectedItem();
-							dbMsg += ",selectMode=" + selectMode;
-							if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
-								transTraceMode();
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_text)) ) {
-								showTextInputDlog();
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_free;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_line)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_line;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_trigone)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_trigone;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_rect)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_rect;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_oval)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_oval;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_erasre)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_erasre;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_select_del)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_select_del;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_stamp)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_stamp;
-							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
-								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_colorpic;
-							}
-
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-
-				@Override
-				public void onNothingSelected(AdapterView< ? > arg0) {
-				}
-			});
-//			色選択
 			wb_color_bt = ( ImageButton ) findViewById(R.id.wb_color_bt);
-			wb_color_bt.setBackgroundColor(selectColor);
-			wb_color_bt.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					final String TAG = "wb_color_bt[WB]";
-					String dbMsg = "";
-					try {
-						mColorPickerDialog = new ColorPickerDialog(RecoveryBrainActivity.this , new ColorPickerDialog.OnColorChangedListener() {
-							@Override
-							public void colorChanged(int color) {
-								final String TAG = "wb_color_bt[WB]";
-								String dbMsg = "";
-								selectColor = color;
-								dbMsg = "selectColor=" + selectColor;
-								sa_disp_v.setPenColor(selectColor);
-								wb_color_bt.setBackgroundColor(selectColor);
-								myLog(TAG , dbMsg);
-							}
-						} , selectColor);
-						mColorPickerDialog.show();
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-			});
-
 			wb_width_sp = ( Spinner ) findViewById(R.id.wb_width_sp);
-			wb_width_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-				@Override
-				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
-					final String TAG = "wb_width_sp[WBC]";
-					String dbMsg = "";
-					try {
-
-						dbMsg = "position=" + position + "id=" + id;
-						Spinner spinner = ( Spinner ) parent;
-						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
-							dbMsg += "isFocusable=false";
-							spinner.setFocusable(true);
-						} else {
-							String item = ( String ) spinner.getSelectedItem();
-							dbMsg += "item=" + item;
-							selectWidth = Integer.parseInt(item);
-							dbMsg += "selectWidth=" + selectWidth;
-							if ( selectWidth < 1 ) {
-								selectWidth = 1;
-							}
-							if ( sa_disp_v != null ) {
-								sa_disp_v.setPenWidth(Math.round(selectWidth));
-							}
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-
-				@Override
-				public void onNothingSelected(AdapterView< ? > arg0) {
-				}
-			});
-
 			wb_linecaps_sp = ( Spinner ) findViewById(R.id.wb_linecaps_sp);
-			wb_linecaps_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-				@Override
-				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
-					final String TAG = "wb_linecaps_sp[WBC]";
-					String dbMsg = "";
-					try {
-						dbMsg = ",position=" + position + ",id=" + id;
-						Spinner spinner = ( Spinner ) parent;
-						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
-							dbMsg += "isFocusable=false";
-							spinner.setFocusable(true);
-						} else {
-							String item = ( String ) spinner.getSelectedItem();
-							dbMsg += ",item=" + item;
-							String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
-							selectLineCap = items[position];
-							dbMsg += ",selectLineCap=" + selectLineCap;
-							if ( sa_disp_v != null ) {
-								sa_disp_v.setPenCap(selectLineCap);                             //先端形状
-							}
-						}
-						myLog(TAG , dbMsg);
-					} catch (Exception er) {
-						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-					}
-				}
-
-				@Override
-				public void onNothingSelected(AdapterView< ? > arg0) {
-				}
-			});
-
-
 			initDrawer();   //ここで取らないとonPostCreateでNullPointerException
 			if ( isFarst ) {
 //				AlertDialog.Builder builder = new AlertDialog.Builder(RecoveryBrainActivity.this , R.style.SplashDialogStyle);        //
@@ -509,7 +280,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 //				splashDlog = builder.create();                // 表示
 //				splashDlog.show();                // 表示
 			}
-			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
+//			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -548,7 +319,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "";
 		try {
-			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
+//			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1062,6 +833,230 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				dbMsg += "=縦向き";
 			}
 
+			sa_pad_v.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v , MotionEvent event) {
+					final String TAG = "sa_pad_v[RBS]";
+					String dbMsg = "";
+					boolean retBool = true; //「TouchEventを消化」したものとしてこのビューに送らない (パッドに線を書かせない)
+					try {
+						float xPoint = event.getX();       //view上の座標
+						float yPoint = event.getY();
+						int action = event.getAction();
+						dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
+						if ( is_v_Mirror ) {   //左右反転
+							dbMsg += "、幅=" + sa_disp_v.getWidth();
+							xPoint = (sa_disp_v.getWidth() + 1.0f) - xPoint;
+							dbMsg += ">xPoint>" + xPoint;
+
+						}
+						if ( is_h_Mirror ) {   //上下反転
+							dbMsg += "、高さ=" + sa_disp_v.getHeight();
+							yPoint = (sa_disp_v.getHeight() + 1.0f) - yPoint;
+							dbMsg += ">yPoint>" + yPoint;
+						}
+						event.setLocation(xPoint , yPoint);
+						sa_disp_v.onTouchEvent(event);               //イベントを送信；padのトレースでveiw側に描画
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+					return retBool;
+				}
+			});
+
+			findViewById(R.id.cp_mirror_h_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mirror_h_click();
+				}
+			});
+
+			findViewById(R.id.cp_mirror_v_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mirror_v_click();
+				}
+			});
+
+			cp_score_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if ( !isNotSet ) {
+						CharSequence wStr = "トレースした状況を読み取っています。";
+						Toast.makeText(RecoveryBrainActivity.this , wStr , Toast.LENGTH_SHORT).show();
+					}
+					sa_disp_v.scorePixcel();
+				}
+			});
+
+			cp_score_bt.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					scoreAuto();
+					return true;    // 戻り値をtrueにするとOnClickイベントは発生しない
+				}
+			});
+
+			findViewById(R.id.cp_about_bt).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent webIntent = new Intent(RecoveryBrainActivity.this , CS_Web_Activity.class);
+					String dataURI = rootUrlStr + "/about_and/";                                  //http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080/about_and/
+					webIntent.putExtra("dataURI" , dataURI);                        //最初に表示するページのパス
+					startActivity(webIntent);
+				}
+			});
+
+			wb_mode_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_mode_sp[WBC]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { //
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							if ( -1 == sa_disp_v.selectColor ) {
+								sa_disp_v.selectColor = selectColor;
+							}
+							selectMode = ( String ) spinner.getSelectedItem();
+							dbMsg += ",selectMode=" + selectMode;
+							if ( selectMode.equals(getString(R.string.rb_edit_tool_comp)) ) {
+								transTraceMode();
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_text)) ) {
+								showTextInputDlog();
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_free)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_free;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_line)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_line;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_trigone)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_trigone;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_rect)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_rect;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_oval)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_oval;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_erasre)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_erasre;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_select_del)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_select_del;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_stamp)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_stamp;
+							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
+								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_colorpic;
+							}
+
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+			wb_color_bt.setBackgroundColor(selectColor);
+			wb_color_bt.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					final String TAG = "wb_color_bt[WB]";
+					String dbMsg = "";
+					try {
+						mColorPickerDialog = new ColorPickerDialog(RecoveryBrainActivity.this , new ColorPickerDialog.OnColorChangedListener() {
+							@Override
+							public void colorChanged(int color) {
+								final String TAG = "wb_color_bt[WB]";
+								String dbMsg = "";
+								selectColor = color;
+								dbMsg = "selectColor=" + selectColor;
+								sa_disp_v.setPenColor(selectColor);
+								wb_color_bt.setBackgroundColor(selectColor);
+								myLog(TAG , dbMsg);
+							}
+						} , selectColor);
+						mColorPickerDialog.show();
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
+			wb_width_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_width_sp[WBC]";
+					String dbMsg = "";
+					try {
+
+						dbMsg = "position=" + position + "id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += "item=" + item;
+							selectWidth = Integer.parseInt(item);
+							dbMsg += "selectWidth=" + selectWidth;
+							if ( selectWidth < 1 ) {
+								selectWidth = 1;
+							}
+							if ( sa_disp_v != null ) {
+								sa_disp_v.setPenWidth(Math.round(selectWidth));
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+			wb_linecaps_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView< ? > parent , View view , int position , long id) {
+					final String TAG = "wb_linecaps_sp[WBC]";
+					String dbMsg = "";
+					try {
+						dbMsg = ",position=" + position + ",id=" + id;
+						Spinner spinner = ( Spinner ) parent;
+						if ( spinner.isFocusable() == false ) { // 起動時に一度呼ばれてしまう
+							dbMsg += "isFocusable=false";
+							spinner.setFocusable(true);
+						} else {
+							String item = ( String ) spinner.getSelectedItem();
+							dbMsg += ",item=" + item;
+							String[] items = getResources().getStringArray(R.array.lineCapSelecttValList);
+							selectLineCap = items[position];
+							dbMsg += ",selectLineCap=" + selectLineCap;
+							if ( sa_disp_v != null ) {
+								sa_disp_v.setPenCap(selectLineCap);                             //先端形状
+							}
+						}
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView< ? > arg0) {
+				}
+			});
+
+
+
+
 			int canvasWidth = sa_disp_v.getWidth();
 			int canvasHeight = sa_disp_v.getHeight();
 			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
@@ -1439,11 +1434,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			CharSequence toastStr = "";
 			if ( is_h_Mirror ) {
 				is_h_Mirror = false;
-				toastStr = "上下反転を解除します";
+				toastStr =getString(R.string.rb_flip_vertical) +getString(R.string.common_wo)+getString(R.string.common_kijyo) ;
 				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
 			} else {
 				is_h_Mirror = true;
-				toastStr = "トレース結果が上下反転して反映されます";
+				toastStr = getString(R.string.common_trace_kekka) +getString(R.string.common_ga) +getString(R.string.rb_flip_vertical) + getString(R.string.common_site_hannei_saremasu) ;
 				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
@@ -1467,11 +1462,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			CharSequence toastStr = "";
 			if ( is_v_Mirror ) {
 				is_v_Mirror = false;
-				toastStr = "左右反転を解除します";
+				toastStr =getString(R.string.rb_flip_horizontal) +getString(R.string.common_wo)+getString(R.string.common_kijyo) ;
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
 			} else {
 				is_v_Mirror = true;
-				toastStr = "トレース結果が左右反転して反映されます";
+				toastStr = getString(R.string.common_trace_kekka) +getString(R.string.common_ga) +getString(R.string.rb_flip_horizontal) + getString(R.string.common_site_hannei_saremasu) ;
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
@@ -1493,13 +1488,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		String dbMsg = "";
 		try {
 			CharSequence toastStr = "";
-			toastStr = "トレース後は判定ボタンをタップして下さい。";
+			toastStr = getString(R.string.aout_judge_msg1);
 			if ( sa_disp_v.isAutoJudge ) {
 				sa_disp_v.isAutoJudge = false;
 				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_off);
 			} else {
 				sa_disp_v.isAutoJudge = true;
-				toastStr = "トレース後に自動判定を行います。";
+				toastStr = getString(R.string.aout_judge_msg2);
 				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
 			}
 			myMenu.findItem(R.id.rbm_auto_judge).setChecked(is_v_Mirror);
@@ -1781,10 +1776,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 						String setStr = dtd_input_ti.getText() + "";
 						dbMsg += "setStr=" + setStr;
 						if ( setStr.equals("") ) {
-//							stereoTypeDlog.dismiss();
 							String titolStr = getString(R.string.dtd_titol);
 							String mggStr = getString(R.string.dtd_input_msg2);
-							messageShow(titolStr , mggStr);
 							new AlertDialog.Builder(RecoveryBrainActivity.this).setTitle(titolStr).setMessage(mggStr).setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog , int which) {
@@ -1797,9 +1790,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							dbMsg += ",size=" + setStr;
 							sa_disp_v.drowStrSize = Integer.parseInt(setStr);
 							sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_text;
-//							String titolStr = getString(R.string.dtd_titol);
-//							String mggStr = getString(R.string.dtd_input_msg3) + sa_disp_v.drowStr + getString(R.string.common_wo) + sa_disp_v.drowStrSize + getString(R.string.dtd_input_msg4);
-//							messageShow(titolStr , mggStr);
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {

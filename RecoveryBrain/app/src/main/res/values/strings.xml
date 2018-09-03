@@ -21,9 +21,19 @@
 	<string name="common_no">No</string>
 	<string name="common_cancel">キャンセル</string>
 	<string name="common_score">スコア</string>
+	<string name="common_hitparcent">ヒット率</string>
+	<string name="common_trace_kekka">トレース結果</string>
+	<string name="common_ga">が</string>
 	<string name="common_wo">を</string>
 	<string name="common_yomikomicyuu">読込み中・・・・・・</string>
-	<string name="common_saikidou">再起動します</string>
+	<string name="common_saikidou">再起動します。</string>
+	<string name="common_kijyo">解除します。</string>
+	<string name="common_site_hannei_saremasu">して反映されます。</string>
+	<string name="common_yomikonde_imasu">読み込んでいます。</string>
+	<string name="common_hanteisite_imasu">判定しています。</string>
+	<string name="common_sekisan_hugou">×</string>
+	<string name="common_bite">バイト</string>
+
 
 	<string name="description">icon</string>
 
@@ -169,7 +179,11 @@
 	<string name="dtd_input_msg3">タップした位置に「</string>
 	<string name="dtd_input_msg4">PXで書き込みます</string>
 
-
+	<string name="bms_msg1">を保存しました。</string>
+	<string name="bms_msg2">保存できませんでした。</string>
+	<string name="bmr_msg1">読込みに失敗しました。</string>
+	<string name="aout_judge_msg1">トレース後は判定ボタンをタップして下さい。</string>
+	<string name="aout_judge_msg2">トレース後に自動判定を行います。</string>
 
 	<string-array name="jobSelectList">
 		<item>@string/rb_file_read</item>
