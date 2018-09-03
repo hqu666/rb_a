@@ -166,32 +166,35 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onCreate[RBS]";
 		String dbMsg = "";
 		try {
+			dbMsg += ";savedInstanceState= " + savedInstanceState;
 			readPref();
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        //タスクバーを 非表示
 			requestWindowFeature(Window.FEATURE_NO_TITLE);                            //タイトルバーを非表示
 			requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);        //ローディングをタイトルバーのアイコンとして表示☆リソースを読み込む前にセットする
-			switch ( getResources().getConfiguration().orientation ) {
-				case Configuration.ORIENTATION_PORTRAIT:  // 縦長
-					dbMsg += ";縦長";
-					isStartLandscape = false;
-					break;
-				case Configuration.ORIENTATION_LANDSCAPE:  // 横長
-					dbMsg += ";横長";
-					isStartLandscape = true;        //起動時は横向き
-					break;
-				default:
-					break;
-			}
-//				switch ( (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation() ) {
-//					case Surface.ROTATION_90:
-//					case Surface.ROTATION_270:
-//						isStartLandscape = true;        //起動時は横向き
-//						break;
-//					case Surface.ROTATION_180:
-//					default:
-//						isStartLandscape = false;
-//						break;
-//				}
+//			switch ( getResources().getConfiguration().orientation ) {
+//				case Configuration.ORIENTATION_PORTRAIT:  // 縦長
+//					dbMsg += ";縦長";
+//					isStartLandscape = false;
+//					break;
+//				case Configuration.ORIENTATION_LANDSCAPE:  // 横長
+//					dbMsg += ";横長";
+//					isStartLandscape = true;        //起動時は横向き
+//					break;
+//				default:
+//					break;
+//			}
+			int surfaceRotation = (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+			dbMsg += ",surfaceRotation=" + surfaceRotation;
+			switch ( surfaceRotation ) {
+					case Surface.ROTATION_90:  			//1
+					case Surface.ROTATION_270:  		//3
+						isStartLandscape = true;        //起動時は横向き
+						break;
+					case Surface.ROTATION_180:			//2
+					default:
+						isStartLandscape = false;
+						break;
+				}
 			dbMsg += ",起動時は横向き=" + isStartLandscape;
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			if ( isLotetCanselt ) {
@@ -206,17 +209,15 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			if ( savedInstanceState == null ) {
 				isFarst = true;
 				dbMsg += "初回起動=" + isFarst;
-				stayTime = 3000;
+				stayTime = 5000;
 			}
 			try {
 				Thread.sleep(stayTime);            // ここで設定秒間スリープし、スプラッシュを表示させたままにする。
 			} catch (InterruptedException er) {
 				myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 			}
-			setTheme(R.style.AppTheme);                // スプラッシュthemeを通常themeに変更する
-//			super.onCreate(savedInstanceState);
-
-			setContentView(R.layout.activity_rb);
+			setTheme(R.style.AppTheme);                // スプラッシュthemeを通常themeに変更して
+			setContentView(R.layout.activity_rb);      //リソース読込み開始
 			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
 			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
@@ -508,7 +509,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 //				splashDlog = builder.create();                // 表示
 //				splashDlog.show();                // 表示
 			}
-
+			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1776,10 +1777,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					final String TAG = "showTextInputDlog[RBS;sTID]";
 					String dbMsg = "";
 					try {
+						stereoTypeDlog.dismiss();
 						String setStr = dtd_input_ti.getText() + "";
 						dbMsg += "setStr=" + setStr;
 						if ( setStr.equals("") ) {
-							stereoTypeDlog.dismiss();
+//							stereoTypeDlog.dismiss();
 							String titolStr = getString(R.string.dtd_titol);
 							String mggStr = getString(R.string.dtd_input_msg2);
 							messageShow(titolStr , mggStr);
@@ -1795,10 +1797,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							dbMsg += ",size=" + setStr;
 							sa_disp_v.drowStrSize = Integer.parseInt(setStr);
 							sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_text;
-							stereoTypeDlog.dismiss();
-							String titolStr = getString(R.string.dtd_titol);
-							String mggStr = getString(R.string.dtd_input_msg3) + sa_disp_v.drowStr + getString(R.string.common_wo) + sa_disp_v.drowStrSize + getString(R.string.dtd_input_msg4);
-							messageShow(titolStr , mggStr);
+//							String titolStr = getString(R.string.dtd_titol);
+//							String mggStr = getString(R.string.dtd_input_msg3) + sa_disp_v.drowStr + getString(R.string.common_wo) + sa_disp_v.drowStrSize + getString(R.string.dtd_input_msg4);
+//							messageShow(titolStr , mggStr);
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {

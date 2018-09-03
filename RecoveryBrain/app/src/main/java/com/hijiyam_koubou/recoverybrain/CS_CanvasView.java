@@ -366,6 +366,108 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 
 
 	/**
+	 * ViewGroup の canvas操作
+	 */
+	@Override
+	protected void dispatchDraw(Canvas canvas) {
+		super.dispatchDraw(canvas);
+		final String TAG = "dispatchDraw[CView]";
+		String dbMsg = "";
+		try {
+			canvasDraw(canvas);
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		final String TAG = "onTouchEvent[CView]";
+		String dbMsg = "";
+		boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
+		try {
+			dbMsg += "isRecever=" + isRecever + ",REQUEST_CORD=" + REQUEST_CORD;
+//			if ( ! isRecever ) {            ////newで呼ばれた場合はこのクラス内でイベント取得
+			if ( REQUEST_CORD == REQUEST_ADD_BITMAP ) {       //502;ビットマップ挿入直後
+				REQUEST_CORD = REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す
+			}
+			float xPoint = event.getX();
+			float yPoint = event.getY();
+			int action = event.getAction();
+			dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
+			endX = xPoint;
+			endY = yPoint;       //範囲選択終了点
+
+			switch ( REQUEST_CORD ) {
+				case REQUEST_CLEAR:                        //全消去
+					clearAll();
+					break;
+				case REQUEST_DROW_PATH:                        //フリーハンド
+				case R.string.rb_edit_tool_free:
+					dbMsg += ",selectColor=" + selectColor + "mselectWidth=" + selectWidth + ",selectLineCap=" + selectLineCap;
+					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , action , R.string.rb_edit_tool_free);
+//					invalidate();                        //onDrawを発生させて描画実行
+					dbMsg += ",isPreparation=" + isPreparation;
+					if ( isPreparation ) {            //開始前判定
+						int bIndex = Math.round(xPoint) + Math.round(yPoint) * output.getWidth();
+						dbMsg += ",bIndex=" + bIndex;
+						int pixel = pixels[bIndex];
+						dbMsg += ",pixel=" + pixel;
+						if ( pixel == orgColor ) {
+							dbMsg += ",hitStart";
+//							clearAll();
+							for ( PathObject pathObject : pathIist ) {
+								pathObject.path.reset();
+							}
+							isPreparation = false;                    //トレーススタート前の準備中
+							downAction(xPoint , yPoint , selectColor , selectWidth , selectLineCap , R.string.rb_edit_tool_free);
+						}
+					}
+					break;
+				case R.string.rb_edit_tool_erasre:
+					drawPathLine(xPoint , yPoint , eraserColor , selectWidth , selectLineCap , action , REQUEST_CORD);
+					break;
+				case R.string.rb_edit_tool_line:
+				case R.string.rb_edit_tool_trigone:
+				case R.string.rb_edit_tool_rect:
+				case R.string.rb_edit_tool_oval:
+				case R.string.rb_edit_tool_select_del:
+				case R.string.rb_edit_tool_text:
+					if ( action == 0 ) {
+						startX = xPoint;
+						startY = yPoint;            //範囲選択開始点
+						isSelect = true;                //選択中
+						downAction(xPoint , yPoint , selectColor , selectWidth , selectLineCap , REQUEST_CORD);
+					} else if ( action == 1 ) {              //moveEnd参照
+						isSelect = false;                //選択中
+//						endX = xPoint;
+//						endY = yPoint;       //範囲選択終了点
+						upAction(xPoint , yPoint , REQUEST_CORD);
+					} else {
+						invalidate();                        //onDrawを発生させて描画実行
+					}
+					break;
+				case REQUEST_ADD_BITMAP:                        //502;ビットマップ挿入直後
+					upX = xPoint;
+					upY = yPoint;
+					break;
+				default:
+					upX = xPoint;
+					upY = yPoint;
+					break;
+			}
+			retBool = true;
+//			}
+//			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return retBool;
+	}
+
+	/**
 	 * 一回の書き込み
 	 * 全消去される
 	 */
@@ -377,22 +479,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			dbMsg += "REQUEST_CORD=" + REQUEST_CORD;
 			canvasDraw(canvas);
 //			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-	}
-
-	/**
-	 * ViewGroup の canvas操作
-	 */
-	@Override
-	protected void dispatchDraw(Canvas canvas) {
-		super.dispatchDraw(canvas);
-		final String TAG = "dispatchDraw[CView]";
-		String dbMsg = "";
-		try {
-			canvasDraw(canvas);
-			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
@@ -423,22 +509,26 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					case REQUEST_DROW_PATH:                //501;フリーハンド
 					case R.string.rb_edit_tool_free:
 					case R.string.rb_edit_tool_erasre:
-						if ( output != null ) {
-							canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
-						}
-						dbMsg += ".pathIist=" + pathIist.size() + "件";
-						Paint lastPaint = null;
-						for ( PathObject pathObject : pathIist ) {
-							canvas.drawPath(pathObject.path , pathObject.paint);
-							lastPaint = pathObject.paint;
-							if ( !pathObject.text.equals("") ) {
-								canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
-							}
-						}
-						dbMsg += ",REQUEST_CORD=" + REQUEST_CORD;
-						if ( lastPaint != null && isActionUp ) {
-							myCanvas = new Canvas();
-							myCanvas = canvas;                    //現在のCanvasの状態を保存
+						PathObject pathObject = canvasRedrow(canvas);
+						if ( pathObject != null ) {
+							Paint lastPaint = pathObject.paint;
+//						if ( output != null ) {
+//							canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
+//						}
+//						dbMsg += ".pathIist=" + pathIist.size() + "件";
+//						Paint lastPaint = null;
+//						for ( PathObject pathObject : pathIist ) {
+//							canvas.drawPath(pathObject.path , pathObject.paint);
+//							lastPaint = pathObject.paint;
+//							if ( !pathObject.text.equals("") ) {
+//								pathObject.path.lineTo(upX,upY);
+//								canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
+//							}
+//						}
+							dbMsg += ",isActionUp=" + isActionUp;
+							if ( lastPaint != null && isActionUp ) {
+								myCanvas = new Canvas();
+								myCanvas = canvas;                    //現在のCanvasの状態を保存
 //							RectF bounds = new RectF(0, 0, caWidth, caHeight);
 ////							int saveFlag = myCanvas.saveLayer(bounds, lastPaint, Canvas.CLIP_TO_LAYER_SAVE_FLAG);
 //							int saveFlag = myCanvas.save();         //現在の状態を覚える
@@ -450,14 +540,15 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 //							 FULL_COLOR_LAYER_SAVE_FLAG	カラーレイヤーを保存
 //							 CLIP_TO_LAYER_SAVE_FLAG	クリップレイヤーとして保存
 //							 ALL_SAVE_FLAG	全ての状態を保存する*/
-							isActionUp = false;                    //描画終了
-							if ( !isDrow ) {
-								dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
-								if ( isAutoJudge ) {
-									CharSequence wStr = "自動判定";
-									dbMsg += ">>" + wStr;
-									Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
-									scorePixcel();
+								isActionUp = false;                    //描画終了
+								if ( !isDrow ) {
+									dbMsg += ",myCanvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
+									if ( isAutoJudge ) {
+										CharSequence wStr = "自動判定";
+										dbMsg += ">>" + wStr;
+										Toast.makeText(context , wStr , Toast.LENGTH_SHORT).show();
+										scorePixcel();
+									}
 								}
 							}
 						}
@@ -468,24 +559,27 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					case R.string.rb_edit_tool_oval:
 					case R.string.rb_edit_tool_select_del:
 					case R.string.rb_edit_tool_text:
-						for ( PathObject pathObject : pathIist ) {
-							canvas.drawPath(pathObject.path , pathObject.paint);
-							if ( !pathObject.text.equals("") ) {
-								canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
-							}
+						pathObject = canvasRedrow(canvas);
+
+//						for ( PathObject pathObject : pathIist ) {
+//							canvas.drawPath(pathObject.path , pathObject.paint);
+//							if ( !pathObject.text.equals("") ) {
+//								pathObject.path.lineTo(upX,upY);
+//								canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
+//							}
+//						}
+						if ( isSelect && REQUEST_CORD != R.string.rb_edit_tool_text ) {               //選択中
+							paint = new Paint();
+							paint.setColor(Color.argb(255 , 0 , 0 , 0));
+							paint.setStyle(Paint.Style.STROKE);
+							paint.setStrokeWidth(1); // 線の太さ
+							paint.setAntiAlias(true);                       //点線
+							paint.setPathEffect(new DashPathEffect(new float[]{8.0f , 8.0f} , 0));
+							canvas.drawLine(startX , startY , endX , startY , paint);
+							canvas.drawLine(endX , startY , endX , endY , paint);
+							canvas.drawRect(startX , endY , endX , endY , paint);
+							canvas.drawLine(startX , startY , startX , endY , paint);
 						}
-					if(isSelect){               //選択中
-						paint = new Paint();
-						paint.setColor(Color.argb(255, 0, 0, 0));
-						paint.setStyle(Paint.Style.STROKE);
-						paint.setStrokeWidth(1); // 線の太さ
-						paint.setAntiAlias(true);                       //点線
-						paint.setPathEffect(new DashPathEffect(new float[]{ 8.0f, 8.0f }, 0));
-						canvas.drawLine(startX, startY, endX, startY, paint);
-						canvas.drawLine(endX, startY, endX, endY, paint);
-						canvas.drawRect(startX, endY, endX, endY, paint);
-						canvas.drawLine(startX, startY, startX, endY, paint);
-					}
 						break;
 					case REQUEST_AGAIN:                //502；もう一度
 						if ( output != null ) {
@@ -605,6 +699,46 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
+	public PathObject canvasRedrow(Canvas canvas) {
+		final String TAG = "canvasRedrow[CView]";
+		String dbMsg = "";
+		PathObject lastPathObject = null;
+		try {
+			if ( output != null ) {
+				canvas.drawBitmap(output , 0 , 0 , null);    //	Bitmapイメージの描画
+			}
+			if ( pathIist != null ) {
+				int lastCount = pathIist.size();
+				dbMsg += ".pathIist=" + lastCount + "件";
+				int pathCount = 0;
+				for ( PathObject pathObject : pathIist ) {
+					pathCount++;
+					lastPathObject = pathObject;
+					canvas.drawPath(pathObject.path , pathObject.paint);
+					if ( !pathObject.text.equals("") ) {					//書込む伊対象はテキスト
+						dbMsg += "(" + pathCount + "/" + lastCount + ")[" + endX + "," + endY + ")isSelect=" + isSelect;
+						if ( lastCount == pathCount ) { 										//そのテキストの操作中で
+							if ( isSelect ) {                                						//位置を確定するまで
+								canvas.drawText(pathObject.text , endX , endY , pathObject.paint);		//一過的に表示
+							} else {      															//位置調整中は
+								float lineEnd = canvas.getWidth() * 1.0f;								//パスを更新
+								dbMsg += ",lineEnd=" + lineEnd;
+								pathIist.get(pathIist.size() - 1).path.lineTo(lineEnd , endY);
+								canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
+							}
+						}else{
+							canvas.drawTextOnPath(pathObject.text , pathObject.path , 0 , 0 , pathObject.paint);   //upX, upY,
+						}
+						myLog(TAG , dbMsg);
+					}
+				}
+			}
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+		return lastPathObject;
+	}
+
 	public void upAction(float xPoint , float yPoint , int toolID) {
 		final String TAG = "upAction[CView]";
 		String dbMsg = "";
@@ -634,7 +768,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					pathIist.get(pathIist.size() - 1).path.addRect(rectf , Path.Direction.CW);
 					break;
 				case R.string.rb_edit_tool_text:
-					pathIist.get(pathIist.size() - 1).path.lineTo(xPoint , yPoint);
+					pathIist.get(pathIist.size() - 1).path.moveTo(xPoint , yPoint);
 					break;
 				case R.string.rb_edit_tool_erasre:
 				case R.string.rb_edit_tool_line:
@@ -695,6 +829,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+	/////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * 元画像のトレース色の残りから評価値を算定してtoolbarに書込む
@@ -770,14 +905,14 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					if ( canvasWidth < bmpWidth ) {
 						scaleWidth = ( double ) ((canvasWidth * 1000) / bmpWidth) / 1000;
 					}
-					if(scaleWidth == 0){
+					if ( scaleWidth == 0 ) {
 						scaleWidth = 1.0;
 					}
 					double scaleHeight = 1.0;
 					if ( canvasHeight < bmpHeight ) {
 						scaleHeight = ( double ) ((canvasHeight * 1000) / bmpHeight) / 1000;
 					}
-					if(scaleHeight == 0){
+					if ( scaleHeight == 0 ) {
 						scaleHeight = 1.0;
 					}
 					dbMsg += "scale[" + scaleWidth + "×" + scaleHeight + "]";
@@ -807,7 +942,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 					invalidate();                        //onDrawを発生させて描画実行
 					rsBitmap.recycle();
 					readFileName = fileName;
-					retBool =true;
+					retBool = true;
 				} else {
 					wStr = "読込みに失敗しました。再起動してください。";
 					dbMsg += ">>" + wStr;
@@ -818,7 +953,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
-		return  retBool;
+		return retBool;
 	}
 
 	/**
@@ -1423,95 +1558,6 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-
-	/////////////////////////////////////////////////////////////////////////
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		final String TAG = "onTouchEvent[CView]";
-		String dbMsg = "";
-		boolean retBool = false; //trueに設定すると「TouchEventを消化」したものとして他に送らない
-		try {
-			dbMsg += "isRecever=" + isRecever + ",REQUEST_CORD=" + REQUEST_CORD;
-//			if ( ! isRecever ) {            ////newで呼ばれた場合はこのクラス内でイベント取得
-			if ( REQUEST_CORD == REQUEST_ADD_BITMAP ) {       //502;ビットマップ挿入直後
-				REQUEST_CORD = REQUEST_DROW_PATH;    //描画モードをフルーハンドに戻す
-			}
-
-
-			float xPoint = event.getX();
-			float yPoint = event.getY();
-			int action = event.getAction();
-			dbMsg += "(" + xPoint + "×" + yPoint + ")action=" + action;
-			endX = xPoint;
-			endY = yPoint;       //範囲選択終了点
-
-			switch ( REQUEST_CORD ) {
-				case REQUEST_CLEAR:                        //全消去
-					clearAll();
-					break;
-				case REQUEST_DROW_PATH:                        //フリーハンド
-				case R.string.rb_edit_tool_free:
-					dbMsg += ",selectColor=" + selectColor + "mselectWidth=" + selectWidth + ",selectLineCap=" + selectLineCap;
-					drawPathLine(xPoint , yPoint , selectColor , selectWidth , selectLineCap , action , R.string.rb_edit_tool_free);
-//					invalidate();                        //onDrawを発生させて描画実行
-					dbMsg += ",isPreparation=" + isPreparation;
-					if ( isPreparation ) {            //開始前判定
-						int bIndex = Math.round(xPoint) + Math.round(yPoint) * output.getWidth();
-						dbMsg += ",bIndex=" + bIndex;
-						int pixel = pixels[bIndex];
-						dbMsg += ",pixel=" + pixel;
-						if ( pixel == orgColor ) {
-							dbMsg += ",hitStart";
-//							clearAll();
-							for ( PathObject pathObject : pathIist ) {
-								pathObject.path.reset();
-							}
-							isPreparation = false;                    //トレーススタート前の準備中
-							downAction(xPoint , yPoint , selectColor , selectWidth , selectLineCap , R.string.rb_edit_tool_free);
-						}
-					}
-					break;
-				case R.string.rb_edit_tool_erasre:
-					drawPathLine(xPoint , yPoint , eraserColor , selectWidth , selectLineCap , action , REQUEST_CORD);
-					break;
-				case R.string.rb_edit_tool_line:
-				case R.string.rb_edit_tool_trigone:
-				case R.string.rb_edit_tool_rect:
-				case R.string.rb_edit_tool_oval:
-				case R.string.rb_edit_tool_select_del:
-				case R.string.rb_edit_tool_text:
-					if ( action == 0 ) {
-						startX = xPoint;
-						startY = yPoint;            //範囲選択開始点
-						isSelect = true;                //選択中
-						downAction(xPoint , yPoint , selectColor , selectWidth , selectLineCap , REQUEST_CORD);
-					} else if ( action == 1 ) {              //moveEnd参照
-						isSelect = false;                //選択中
-//						endX = xPoint;
-//						endY = yPoint;       //範囲選択終了点
-						upAction(xPoint , yPoint , REQUEST_CORD);
-					}else{
-						invalidate();                        //onDrawを発生させて描画実行
-					}
-					break;
-				case REQUEST_ADD_BITMAP:                        //502;ビットマップ挿入直後
-					upX = xPoint;
-					upY = yPoint;
-					break;
-				default:
-					upX = xPoint;
-					upY = yPoint;
-					break;
-			}
-			retBool = true;
-//			}
-//			myLog(TAG , dbMsg);
-		} catch (Exception er) {
-			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
-		}
-		return retBool;
-	}
-/////////////////////////////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////////////////////////////////
 	public static void myLog(String TAG , String dbMsg) {
