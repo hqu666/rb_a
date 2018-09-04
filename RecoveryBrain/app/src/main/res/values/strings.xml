@@ -23,6 +23,7 @@
 	<string name="common_score">スコア</string>
 	<string name="common_hitparcent">ヒット率</string>
 	<string name="common_trace_kekka">トレース結果</string>
+	<string name="common_trace_line">トレース線</string>
 	<string name="common_ga">が</string>
 	<string name="common_wo">を</string>
 	<string name="common_yomikomicyuu">読込み中・・・・・・</string>
@@ -35,6 +36,7 @@
 	<string name="common_bite">バイト</string>
 	<string name="common_next">次へ</string>
 	<string name="common_again">もう一度</string>
+	<string name="common_nokori">残り</string>
 
 	<string name="description">icon</string>
 

@@ -2157,6 +2157,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * ・コールバック
 	 * ・GUI
 	 * ・デバイスアクセス
-             https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
+            https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
             https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
  **/

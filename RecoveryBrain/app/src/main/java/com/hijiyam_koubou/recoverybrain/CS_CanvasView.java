@@ -852,9 +852,11 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				dbMsg += ">Hit>" + sVar;
 			}
 			scoreVar = ( int ) Math.round(sVar);
-			scoreMssg = context.getString(R.string.common_score) + scoreVar + context.getString(R.string.common_ten) + "\n " + afterCount + "/ " + beforeCount + ": " + tracceCount + "px " + "\n" + context.getString(R.string.common_hitparcent) + "= " + (hit * 100) + "%";
+			scoreMssg = context.getString(R.string.common_score) + scoreVar + context.getString(R.string.common_ten) + "\n"+
+								context.getString(R.string.common_nokori) + afterCount + "/ " + beforeCount+context.getString(R.string.common_pixcel) + "\n" +
+								context.getString(R.string.common_trace_line) + tracceCount + context.getString(R.string.common_pixcel) + "\n" + context.getString(R.string.common_hitparcent) + "= " + (hit * 100) + "%";
 			dbMsg += ">>" + scoreMssg;
-//			Toast.makeText(contex , wStr , Toast.LENGTH_LONG).show();
+//			Toast.makeText(contex , wStr , Toast.LENGTH_LONG).show();               common_nokori
 			if(0<scoreVar){
 				isJudged= true;                    //評価終了
 			}
