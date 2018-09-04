@@ -1104,6 +1104,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				}
 			});
 
+			//**判定後の操作ダイアログ表示*/
 			cp_score_tv.addTextChangedListener(new TextWatcher() {
 				@Override
 				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -2135,6 +2136,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	・直線/三角/矩形/楕円
 	・消しゴム
 ・ファイル保存
+	9/4	・プログレス処理
+	8/23・Splash >> 実際の起動処理中表示
 
 着手後課題
 ・起動最適化
@@ -2142,12 +2145,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		・トレース/手書きモード保持；説明書きから戻ると初期化される
 		・メニュー表示後、鏡面動作や自動評価などのフラグがリセットされる
 	・追加開発
-		・プログレス処理
-		・Splash >> 実際の起動処理中表示
 		・Stringリソース英訳
 	 課題
 	   PreferenceScreenの"conection_setting_key"；URLの書き込み方 ；
 	   カラーパレットサイズと初期値設定
+	   トレース結果；準備中との表示切替
 
  * ・iOS移植
 	 * ・フレームワーク
