@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -75,6 +76,10 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public Spinner wb_width_sp;
 	public Spinner wb_linecaps_sp;
 	public AlertDialog splashDlog;
+
+	public int displyWidth = 0;                     //表示veiwの幅
+	public int displyHight = 0;                     //表示veiwの高さ
+
 	public String selectMode;                     //手書き編集のモード
 	public String selectLineCap = "round";
 	public float selectWidth = 5;
@@ -88,7 +93,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public SharedPreferences.Editor myEditor;
 	public String rootUrlStr = "http://ec2-18-182-237-90.ap-northeast-1.compute.amazonaws.com:3080";                    //	String dataURI = "http://192.168.3.14:3080";	//自宅
 	public boolean isNotSet = true;
-	public boolean isFarst = false;       //初回起動
+	public boolean isFarst = false;                    //初回起動
+	public boolean isFarstPictRead = false;            //トレース元表示済み
 	public String readFileName = "st001.png";
 	public String savePatht = "";        //作成したファイルの保存場所
 	public boolean isStartLast = true;        //次回は最後に使った元画像からスタート
@@ -186,15 +192,15 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			int surfaceRotation = (( WindowManager ) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
 			dbMsg += ",surfaceRotation=" + surfaceRotation;
 			switch ( surfaceRotation ) {
-					case Surface.ROTATION_90:  			//1
-					case Surface.ROTATION_270:  		//3
-						isStartLandscape = true;        //起動時は横向き
-						break;
-					case Surface.ROTATION_180:			//2
-					default:
-						isStartLandscape = false;
-						break;
-				}
+				case Surface.ROTATION_90:            //1
+				case Surface.ROTATION_270:        //3
+					isStartLandscape = true;        //起動時は横向き
+					break;
+				case Surface.ROTATION_180:            //2
+				default:
+					isStartLandscape = false;
+					break;
+			}
 			dbMsg += ",起動時は横向き=" + isStartLandscape;
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			if ( isLotetCanselt ) {
@@ -238,6 +244,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					sa_disp_ll.addView(sa_disp_v);
 					sa_pad_ll.addView(sa_pad_v);
 				}
+			} else {                                 //起動時は縦向き
+				sa_disp_ll.addView(sa_disp_v);
+				sa_pad_ll.addView(sa_pad_v);
 			}
 			sa_disp_v.readFileName = "";
 			score_aria_ll = ( LinearLayout ) findViewById(R.id.score_aria_ll);
@@ -296,8 +305,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "hasFocus=" + hasFocus;
 		try {
-			if ( isNotSet ) {
-				laterCreate();
+			if ( hasFocus ) {
+				if ( isNotSet ) {
+					laterCreate();
+				} else if ( !isFarstPictRead ) {            //トレース元表示済み
+					trasePictRead(readFileName);
+				}
+
 			}
 			//			if(isFarst){
 //			if ( splashDlog != null ) {
@@ -319,7 +333,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onStart[RBS]";
 		String dbMsg = "";
 		try {
-//			Toast.makeText(this , getString(R.string.common_yomikomicyuu) , Toast.LENGTH_LONG).show();
+			if ( !isFarstPictRead ) {            //トレース元表示済み
+				trasePictRead(readFileName);
+			}
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -335,6 +351,9 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onResume[RBS]";
 		String dbMsg = "";
 		try {
+			if ( isNotSet ) {
+				laterCreate();
+			}
 			dbMsg += ",トレース後に自動判定=" + isAautoJudge;
 			if ( isAautoJudge ) {
 				cp_score_bt.setImageResource(android.R.drawable.btn_star_big_on);
@@ -948,7 +967,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 							} else if ( selectMode.equals(getString(R.string.rb_edit_tool_colorpic)) ) {
 								sa_disp_v.REQUEST_CORD = R.string.rb_edit_tool_colorpic;
 							}
-
 						}
 						myLog(TAG , dbMsg);
 					} catch (Exception er) {
@@ -1054,25 +1072,31 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				}
 			});
 
+			ViewTreeObserver observer = sa_disp_v.getViewTreeObserver();
+			observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+				@Override
+				public void onGlobalLayout() {
+					final String TAG = "OnGlobalLayoutListener[RBS]";
+					String dbMsg = "";
+					try {
+						int rInt = sa_disp_v.getWidth();
+						if ( 0 < rInt ) {
+							displyWidth = rInt;                     //表示veiwの幅
+						}
+						dbMsg = "{" + displyWidth;
+						rInt = sa_disp_v.getHeight();
+						if ( 0 < rInt ) {
+							displyHight = rInt;                     //表示veiwの高さ
+						}
+						dbMsg += "×" + displyHight + "]";
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+			});
 
-
-
-			int canvasWidth = sa_disp_v.getWidth();
-			int canvasHeight = sa_disp_v.getHeight();
-			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			if ( !sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight) ) {
-//				String titolStr = RecoveryBrainActivity.this.getString(R.string.common_yomikomicyuu);
-//				String mggStr = RecoveryBrainActivity.this.getString(R.string.common_saikidou);
-//				messageShow(titolStr , mggStr);
-//				new AlertDialog.Builder(RecoveryBrainActivity.this).setTitle(titolStr).setMessage(mggStr).setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
-//					@Override
-//					public void onClick(DialogInterface dialog , int which) {
-//						reStart();
-//					}
-//				}).create().show();
-
-			}
-//						writehScore( this,1000,100);
+			trasePictRead(readFileName);
 //			if(isFarst){
 			if ( splashDlog != null ) {
 				if ( splashDlog.isShowing() ) {
@@ -1087,6 +1111,45 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
 		}
 	}
+
+	protected void trasePictRead(String readFN) {
+		final String TAG = "trasePictRead[RBS]";
+		String dbMsg = "";
+		try {
+			isFarstPictRead = false;            //トレース元表示済み
+			int canvasWidth = sa_disp_v.getWidth();
+			int canvasHeight = sa_disp_v.getHeight();
+			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
+			if(canvasWidth ==0 || canvasHeight == 0){
+				 canvasWidth = displyWidth;    //sa_disp_v.getWidth();
+				 canvasHeight = displyHight;    //sa_disp_v.getHeight();
+				dbMsg += ">>[" + canvasWidth + "×" + canvasHeight + "]";
+			}
+
+			dbMsg +=",readFileName=" + readFN;
+			if ( 0 < canvasWidth && 0 < canvasHeight ) {
+				if ( sa_disp_v.addBitMap(this , readFN , canvasWidth , canvasHeight) ) {
+					isFarstPictRead = true;            //トレース元表示済み
+					readFileName = readFN;
+					dbMsg += "読み取り" + isFarstPictRead;
+//				String titolStr = RecoveryBrainActivity.this.getString(R.string.common_yomikomicyuu);
+//				String mggStr = RecoveryBrainActivity.this.getString(R.string.common_saikidou);
+//				messageShow(titolStr , mggStr);
+//				new AlertDialog.Builder(RecoveryBrainActivity.this).setTitle(titolStr).setMessage(mggStr).setPositiveButton(android.R.string.ok , new DialogInterface.OnClickListener() {
+//					@Override
+//					public void onClick(DialogInterface dialog , int which) {
+//						reStart();
+//					}
+//				}).create().show();
+				}
+			}
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
 
 	public void callQuit() {
 		final String TAG = "callQuit[MA]";
@@ -1434,11 +1497,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			CharSequence toastStr = "";
 			if ( is_h_Mirror ) {
 				is_h_Mirror = false;
-				toastStr =getString(R.string.rb_flip_vertical) +getString(R.string.common_wo)+getString(R.string.common_kijyo) ;
+				toastStr = getString(R.string.rb_flip_vertical) + getString(R.string.common_wo) + getString(R.string.common_kijyo);
 				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h);
 			} else {
 				is_h_Mirror = true;
-				toastStr = getString(R.string.common_trace_kekka) +getString(R.string.common_ga) +getString(R.string.rb_flip_vertical) + getString(R.string.common_site_hannei_saremasu) ;
+				toastStr = getString(R.string.common_trace_kekka) + getString(R.string.common_ga) + getString(R.string.rb_flip_vertical) + getString(R.string.common_site_hannei_saremasu);
 				cp_mirror_h_bt.setImageResource(R.drawable.mirror_h_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_h_Mirror);                    //表示/非表示
@@ -1462,11 +1525,11 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			CharSequence toastStr = "";
 			if ( is_v_Mirror ) {
 				is_v_Mirror = false;
-				toastStr =getString(R.string.rb_flip_horizontal) +getString(R.string.common_wo)+getString(R.string.common_kijyo) ;
+				toastStr = getString(R.string.rb_flip_horizontal) + getString(R.string.common_wo) + getString(R.string.common_kijyo);
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v);
 			} else {
 				is_v_Mirror = true;
-				toastStr = getString(R.string.common_trace_kekka) +getString(R.string.common_ga) +getString(R.string.rb_flip_horizontal) + getString(R.string.common_site_hannei_saremasu) ;
+				toastStr = getString(R.string.common_trace_kekka) + getString(R.string.common_ga) + getString(R.string.rb_flip_horizontal) + getString(R.string.common_site_hannei_saremasu);
 				cp_mirror_v_bt.setImageResource(R.drawable.mirror_v_t);
 			}
 			myMenu.findItem(R.id.rbm_mirror_movement_to).setChecked(is_v_Mirror);                    //表示/非表示
@@ -1614,12 +1677,18 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		final String TAG = "onItemClick[TA]";
 		String dbMsg = "";
 		try {
-			readFileName = "" + iconList.get(position);
-			dbMsg = "" + readFileName;   //			textView.setText(il.getName(position));
-			int canvasWidth = sa_disp_v.getWidth();
-			int canvasHeight = sa_disp_v.getHeight();
-			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
-			sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight);
+			String readFN = "" + iconList.get(position);
+			dbMsg = "" + readFN;   //			textView.setText(il.getName(position));
+			trasePictRead(readFN);
+
+//			int canvasWidth = sa_disp_v.getWidth();
+//			int canvasHeight = sa_disp_v.getHeight();
+//			if(canvasWidth ==0 || canvasHeight == 0){
+//				canvasWidth = displyWidth;    //sa_disp_v.getWidth();
+//				canvasHeight = displyHight;    //sa_disp_v.getHeight();
+//			}
+//			dbMsg += "canvas[" + canvasWidth + "×" + canvasHeight + "]";
+//			sa_disp_v.addBitMap(this , readFileName , canvasWidth , canvasHeight);
 			myLog(TAG , dbMsg);
 			stereoTypeDlog.dismiss();
 		} catch (Exception er) {

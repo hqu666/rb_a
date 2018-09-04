@@ -878,6 +878,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		boolean retBool = false;
 		try {
 			this.context = context;
+			dbMsg += ",fileName=" + fileName  + "(既読;" + readFileName +")" ;
+			dbMsg += ",画面[" + canvasWidth + "×" + canvasHeight + "]";
 			if ( !fileName.equals(readFileName) ) {
 //				CharSequence wStr = "トレース元画像に" + fileName + "を読み込んでいます";
 //				dbMsg += ">>" + wStr;
@@ -889,6 +891,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				}
 
 				REQUEST_CORD = REQUEST_ADD_BITMAP;
+				dbMsg += ",fileName=" + fileName ;
 				Bitmap rBmp = readFIle(fileName);
 				if ( rBmp != null ) {
 					int bmpWidth = rBmp.getWidth();
@@ -1028,7 +1031,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 			bColor = 1;
 			widthCount = 0;
 			chackTotal = 0;
-			AsyncTask< Integer, Integer, Integer > progD = new loadAsyncTask(context , context.getString(R.string.common_yomikonde_imasu) , readFileName + "[" + bWidth + context.getString(R.string.common_sekisan_hugou) + bHight + "]" + rBmp.getByteCount() + context.getString(R.string.common_bite) , bHight);
+			AsyncTask< Integer, Integer, Integer > progD = new loadAsyncTask(context , context.getString(R.string.common_yomikonde_imasu) , readFileName + "[" + bWidth + context.getString(R.string.common_sekisan_hugou) + bHight + "]" + rBmp.getByteCount() + context.getString(R.string.common_bite) , 0);
 			progD.execute(PRG_CODE_GET_PIXEL , bWidth , bHight);
 
 			myLog(TAG , dbMsg);
