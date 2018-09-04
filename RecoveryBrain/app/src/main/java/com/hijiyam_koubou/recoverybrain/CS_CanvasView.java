@@ -30,6 +30,7 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,7 +56,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	//extends FrameLayout implements org.webrtc.RendererCommon.RendererEvents
 	private Context context;
 	private Toolbar toolbar;
-	private TextView cp_score_tv;
+	private EditText cp_score_tv;
 
 	private boolean isCall = false;                    //newで呼ばれた
 	public boolean isRecever = true;                    //受信側
@@ -129,7 +130,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 	//RecvrryBrain
 	private Paint orignLine = null;                        //トレース元画像
 	public boolean isPreparation = true;                    //トレーススタート前の準備中
-
+	public boolean isJudged= false;                    //評価終了
+	public String scoreMssg="";
 
 	/**
 	 * xmlに書き込む場合
@@ -160,7 +162,7 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		}
 	}
 
-	public CS_CanvasView(Context context , boolean isRecever , Toolbar _toolbar , TextView _cp_score_tv) {
+	public CS_CanvasView(Context context , boolean isRecever , Toolbar _toolbar , EditText _cp_score_tv) {
 		super(context);
 		final String TAG = "CS_CanvasView[CView]";
 		String dbMsg = "メソッド内から";
@@ -850,18 +852,21 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 				dbMsg += ">Hit>" + sVar;
 			}
 			scoreVar = ( int ) Math.round(sVar);
-			cp_score_tv.setText(" " + scoreVar);
-
-			String wStr = context.getString(R.string.common_score) + scoreVar + context.getString(R.string.common_ten) + " " + afterCount + "/ " + beforeCount + ": " + tracceCount + "px " + ":" + context.getString(R.string.common_hitparcent) + "= " + (hit * 100) + "%";
-			dbMsg += ">>" + wStr;
+			scoreMssg = context.getString(R.string.common_score) + scoreVar + context.getString(R.string.common_ten) + "\n " + afterCount + "/ " + beforeCount + ": " + tracceCount + "px " + "\n" + context.getString(R.string.common_hitparcent) + "= " + (hit * 100) + "%";
+			dbMsg += ">>" + scoreMssg;
 //			Toast.makeText(contex , wStr , Toast.LENGTH_LONG).show();
-			dbMsg += ">>" + toolbar;
-			wStr = "" + afterCount + "/ " + beforeCount + ": " + tracceCount + "px";
+			if(0<scoreVar){
+				isJudged= true;                    //評価終了
+			}
+			cp_score_tv.setText(" " + scoreVar);  //書き換えイベントから自動送りメソッドへ
+
+			String wStr = "" + afterCount + "/ " + beforeCount + ": " + tracceCount + "px";
 			if ( 0 < tracceCount ) {
 				wStr += ": " + Math.round(hit * 100) + "%";
 			}
 			toolbar.setTitle(wStr);   //"" + scoreVar
 // toolbar.setSubtitle(wStr);      //2行になってTitolも小さくなる
+
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
 			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
@@ -1315,6 +1320,8 @@ public class CS_CanvasView extends View {        //org; View	から　io.skyway.
 		try {
 //			if ( myCanvas != null ) {
 //				dbMsg += "canvas[" + myCanvas.getWidth() + "×" + myCanvas.getHeight() + "]";  //[168×144]?
+			isJudged= false;                    //評価終了
+
 			Bitmap screenShot = getViewBitmap(this);
 			int bWidth = screenShot.getWidth();
 			int bHight = screenShot.getHeight();

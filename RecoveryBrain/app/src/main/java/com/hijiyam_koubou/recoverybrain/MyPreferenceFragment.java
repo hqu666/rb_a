@@ -55,7 +55,7 @@ public class MyPreferenceFragment extends PreferenceFragment implements SharedPr
 	public String mirror_movement_to = "false";        //上下鏡面動作
 	public String mirror_movement_lr = "false";        //左右鏡面動作
 	public String auto_judge = "false";        //トレース後に自動判定
-	public String trace_line_width = "50";        //トレース線の太さ
+	public String trace_line_width = "10";        //トレース線の太さ
 
 	public boolean isStartLast = true;        //次回は最後に使った元画像からスタート
 	public boolean is_v_Mirror = false;                //左右鏡面動作  //読み込み時、反転される

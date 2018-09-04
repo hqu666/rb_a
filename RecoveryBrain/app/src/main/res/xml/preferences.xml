@@ -41,7 +41,7 @@
 			android:title="@string/trace_setting_is_pad_left"/>
 
 		<ListPreference
-			android:defaultValue="50"
+			android:defaultValue="10"
 			android:entries="@array/intervalTenList"
 			android:entryValues="@array/intervalTenList"
 			android:key="trace_line_width_key"

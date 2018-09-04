@@ -25,6 +25,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AndroidException;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -75,6 +77,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public ImageButton wb_color_bt;
 	public Spinner wb_width_sp;
 	public Spinner wb_linecaps_sp;
+	public EditText cp_score_tv;
 	public AlertDialog splashDlog;
 
 	public int displyWidth = 0;                     //表示veiwの幅
@@ -97,13 +100,16 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public boolean isFarstPictRead = false;            //トレース元表示済み
 	public String readFileName = "st001.png";
 	public String savePatht = "";        //作成したファイルの保存場所
-	public boolean isStartLast = true;        //次回は最後に使った元画像からスタート
+	public boolean isStartLast = true;        //自動送り
 	public boolean is_v_Mirror = true;                //左右鏡面動作  //読み込み時、反転される
 	public boolean is_h_Mirror = true;                //上下鏡面動作
 	public boolean isAautoJudge = false;        //トレース後に自動判定
 	public int traceLineWidth = 10;        //トレース線の太さ
 	public boolean isPadLeft = false;          //左側にPad
 	public boolean isLotetCanselt = false;        //自動回転阻止
+	public File[] stereoTypeFiles;    			//定例パターンファイルリスト
+	public String[] stereoTypeFileNames;
+	public int b_score = 0;
 
 
 	/**
@@ -158,6 +164,7 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			dbMsg += ",自動回転阻止=" + isLotetCanselt;
 			sharedPref = PreferenceManager.getDefaultSharedPreferences(this);            //	getActivity().getBaseContext()
 			myEditor = sharedPref.edit();
+			stereoTypeRady( "");
 
 			myLog(TAG , dbMsg);
 		} catch (Exception er) {
@@ -226,7 +233,8 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			setContentView(R.layout.activity_rb);      //リソース読込み開始
 			toolbar = ( Toolbar ) findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
-			TextView cp_score_tv = ( TextView ) findViewById(R.id.cp_score_tv);
+			 cp_score_tv = ( EditText ) findViewById(R.id.cp_score_tv);
+			cp_score_tv.setFocusable(false);
 			wh_paret = ( LinearLayout ) findViewById(R.id.wh_paret);
 			wh_paret.setVisibility(View.GONE);
 
@@ -1096,6 +1104,110 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 				}
 			});
 
+			cp_score_tv.addTextChangedListener(new TextWatcher() {
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+					final String TAG = "beforeTextChanged[RBS.score]";
+					String dbMsg = "";
+					try {
+						dbMsg += "テキスト変更前=" + s + ",start="+start + ",count="+count + ",after="+after;
+						String rStr = s.toString();
+						rStr = rStr.trim();
+						b_score = Integer.parseInt(rStr);
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					final String TAG = "onTextChanged[RBS.score]";
+					String dbMsg = "";
+					try {
+//						dbMsg += "テキスト変更中=" + s + ",start="+start + ",count="+count;
+//						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					final String TAG = "afterTextChanged[RBS.score]";
+					String dbMsg = "";
+					try {
+						dbMsg += "評価終了=" + sa_disp_v.isJudged ;
+						  if(sa_disp_v.isJudged &&  0 < sa_disp_v.scoreVar  ){                                                       //  ! sa_disp_v.scoreMssg.equals("")
+							  dbMsg += "テキスト変更前=" + b_score ;
+							  String rStr = s.toString();
+							  rStr = rStr.trim();
+							  dbMsg += ",変更後=" + rStr ;
+							  AlertDialog.Builder listDlg = new AlertDialog.Builder(RecoveryBrainActivity.this);                // リスト表示用のアラートダイアログ
+							  LayoutInflater inflater = ( LayoutInflater ) RecoveryBrainActivity.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+							  final View titolLayout = inflater.inflate(R.layout.dlog_titol , null);
+							  listDlg.setCustomTitle(titolLayout);
+							  TextView dlog_title_tv = ( TextView ) titolLayout.findViewById(R.id.dlog_title_tv);
+							  dlog_title_tv.setText(R.string.common_trace_kekka);
+							  ImageButton dlog_left_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_left_bt);
+							  dlog_left_bt.setImageResource(android.R.drawable.btn_star_big_on);
+							  ImageButton dlog_close_bt = ( ImageButton ) titolLayout.findViewById(R.id.dlog_close_bt);
+							  dlog_close_bt.setOnClickListener(new View.OnClickListener() {
+								  @Override
+								  public void onClick(View v) {
+									  splashDlog.dismiss();
+								  }
+							  });
+							  String msgStr =sa_disp_v.scoreMssg;
+							  listDlg.setMessage(msgStr);
+							  listDlg.setPositiveButton(R.string.common_next , new DialogInterface.OnClickListener() {
+								  @Override
+								  public void onClick(DialogInterface dialog , int which) {
+									  final String TAG = "Positive[score]";
+									  String dbMsg = "";
+									  try {
+										  dbMsg = "readFileName=" + readFileName;
+										  sa_disp_v.scoreVar=0;
+										  sa_disp_v.scoreMssg ="";
+										  sa_disp_v.isJudged =false;
+										  trasePictRead(readFileName);
+										  myLog(TAG , dbMsg);
+									  } catch (Exception er) {
+										  myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+									  }
+								  }
+							  });
+							  listDlg.setNegativeButton(R.string.common_again , new DialogInterface.OnClickListener() {
+								  @Override
+								  public void onClick(DialogInterface dialog , int which) {
+									  final String TAG = "Negativ[score]";
+									  String dbMsg = "";
+									  try {
+										  sa_disp_v.backAgain();
+										  sa_disp_v.isPreparation = true;                    //トレーススタート前の準備中
+										  sa_disp_v.scoreVar=0;
+										  sa_disp_v.scoreMssg ="";
+										  sa_disp_v.isJudged =false;
+										  splashDlog.dismiss();
+										  myLog(TAG , dbMsg);
+									  } catch (Exception er) {
+										  myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+									  }
+								  }
+							  });
+							  splashDlog = listDlg.create();                // 表示
+							  splashDlog.show();                // 表示
+
+						  }
+
+						myLog(TAG , dbMsg);
+					} catch (Exception er) {
+						myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+					}
+					//
+				}
+			});
+
 			trasePictRead(readFileName);
 //			if(isFarst){
 			if ( splashDlog != null ) {
@@ -1130,8 +1242,14 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 			if ( 0 < canvasWidth && 0 < canvasHeight ) {
 				if ( sa_disp_v.addBitMap(this , readFN , canvasWidth , canvasHeight) ) {
 					isFarstPictRead = true;            //トレース元表示済み
-					readFileName = readFN;
+//					readFileName = readFN;
 					dbMsg += "読み取り" + isFarstPictRead;
+					sendNextStreoType( readFN) ;
+
+//					public File[] stereoTypeFiles;    			//定例パターンファイルリスト
+//					public String [];
+
+				}else{
 //				String titolStr = RecoveryBrainActivity.this.getString(R.string.common_yomikomicyuu);
 //				String mggStr = RecoveryBrainActivity.this.getString(R.string.common_saikidou);
 //				messageShow(titolStr , mggStr);
@@ -1150,6 +1268,38 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 		}
 	}
 
+	public void sendNextStreoType(String readFN) {
+		final String TAG = "sendNextStreoType[MA]";
+		String dbMsg = "";
+		try {
+			List<String> fnList=Arrays.asList(stereoTypeFileNames);
+			int nowIndex = fnList.indexOf(readFN);
+			dbMsg += "=" + nowIndex +"/"+ fnList.size();
+			if(-1<nowIndex){   //定例パターンにあるファイルで
+				if(isStartLast){                             		//自動送りなら
+					nowIndex++;
+					if(fnList.size()-1 < nowIndex){
+						nowIndex =0;
+					}
+					dbMsg += ">>" + nowIndex +"/"+ fnList.size();
+					readFileName =fnList.get(nowIndex) ;
+					dbMsg += "=" + readFileName;
+					if(! readFileName.endsWith(".png")){
+						sendNextStreoType( readFileName);
+					}else{
+						myEditor.putString("file_name_key" , readFileName);
+						dbMsg += ",更新";
+						myEditor.commit();
+						dbMsg += "完了";
+					}
+				}
+			}
+
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
 
 	public void callQuit() {
 		final String TAG = "callQuit[MA]";
@@ -1574,17 +1724,13 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	public AlertDialog stereoTypeDlog;
 	public List< String > iconList;
 
-	/**
-	 * 定例パターン選択
-	 * http://hakoniwadesign.com/?p=10661
-	 */
-	public void stereoTypeSelect(String writeFolder) {
-		final String TAG = "stereoTypeSelect[RBS]";
+	public void stereoTypeRady(String writeFolder) {
+		final String TAG = "stereoTypeRady[RBS]";
 		String dbMsg = "";
 		try {
 			iconList = new ArrayList<>();                // 要素をArrayListで設定
 			AssetManager assetMgr = getResources().getAssets();
-			String files[] = assetMgr.list("");
+			 stereoTypeFileNames = assetMgr.list("");
 			String dLogTitol = getString(R.string.thumbnail_list_titol);
 			if ( !writeFolder.equals("") ) {
 				dbMsg += "writeFolder= " + writeFolder;
@@ -1595,12 +1741,12 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 //
 //				}
 				dLogTitol = getString(R.string.file_list_titol);
-				File[] tFiles = new File(writeFolder).listFiles();
-				int fLen = tFiles.length;
+				stereoTypeFiles = new File(writeFolder).listFiles();
+				int fLen = stereoTypeFiles.length;
 				dbMsg += ",tFiles= " + fLen + "件";
 				if ( 0 < fLen ) {
 					for ( int i = 0 ; i < fLen ; i++ ) {
-						String tfName = tFiles[i].getName();
+						String tfName = stereoTypeFiles[i].getName();
 						dbMsg += "(" + i + ")" + tfName;
 						if ( tfName.endsWith(".png") ) {
 							String fpn = writeFolder + File.separator + tfName;
@@ -1614,13 +1760,39 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 					return;
 				}
 			} else {
-				for ( int i = 0 ; i < files.length ; i++ ) {
-					dbMsg += "(" + i + ")" + files[i];
-					if ( files[i].endsWith(".png") ) {
-						iconList.add(files[i]);
+				for ( int i = 0 ; i < stereoTypeFileNames.length ; i++ ) {
+					dbMsg += "(" + i + ")" + stereoTypeFileNames[i];
+					if ( stereoTypeFileNames[i].endsWith(".png") ) {
+						iconList.add(stereoTypeFileNames[i]);
 					}
 				}
 			}
+			myLog(TAG , dbMsg);
+		} catch (Exception er) {
+			myErrorLog(TAG , dbMsg + ";でエラー発生；" + er);
+		}
+	}
+
+
+	/**
+	 * 定例パターン選択
+	 * http://hakoniwadesign.com/?p=10661
+	 */
+	public void stereoTypeSelect(String writeFolder) {
+		final String TAG = "stereoTypeSelect[RBS]";
+		String dbMsg = "";
+		try {
+			if(writeFolder.equals("")){
+				stereoTypeRady( writeFolder);
+			}
+			if(stereoTypeFiles == null || stereoTypeFileNames==null){
+				stereoTypeRady( writeFolder);
+			}else if(stereoTypeFiles.length == 0 || stereoTypeFileNames.length ==0){
+				stereoTypeRady( writeFolder);
+			}
+			String dLogTitol = getString(R.string.thumbnail_list_titol);
+				dLogTitol = getString(R.string.file_list_titol);
+
 			dbMsg += "," + dLogTitol;
 			dbMsg += ">>" + iconList.size() + "件";
 			// カスタムビューを設定    http://androidguide.nomaki.jp/html/dlg/custom/customMain.html
@@ -1983,6 +2155,6 @@ public class RecoveryBrainActivity extends AppCompatActivity implements Navigati
 	 * ・コールバック
 	 * ・GUI
 	 * ・デバイスアクセス
-              https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
-              https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
+             https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
+            https://drive.google.com/file/d/1SUWH1OHp6NG1RCWw3EtNPKitpOHWntrP/view?usp=sharing
  **/
